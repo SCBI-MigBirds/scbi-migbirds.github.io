@@ -16,16 +16,15 @@ Stumped? It happens to everyone! Some quick search engine queries may help you s
  * Place a “#” before each question – the “#” is used to comment out sections of your script (sections of code not evaluated in R). 
  * To load the data for this exercise, run the following code in R (copy-and-paste):
 
-> 
-> ```r
-> install.packages('RCurl')
-> 
-> require(RCurl)
-> 
-> fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv')
-> 
-> birdCounts <- read.csv(text = fileURL)
-> ```
+> ```{r, eval=FALSE}
+install.packages('RCurl')
+
+require(RCurl)
+
+fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv')
+
+birdCounts <- read.csv(text = fileURL)
+```
 
 * Below each question prompt, please paste the code (i.e. lines of R script) you used to solve each problem. Do not provide the answers nor a verbal description of the steps taken.
 
