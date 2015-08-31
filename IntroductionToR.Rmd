@@ -275,9 +275,9 @@ str(list1)
 \]
 \[\begin{array}
 {rrr}
-PopulationA_0 & 6 \\
-PopulationB_0 & 26 \\
-PopulationC_0 & 2
+PopulationA0 & 6 \\
+PopulationB0 & 26 \\
+PopulationC0 & 2
 \end{array}
 \]
 
@@ -333,7 +333,7 @@ rabbits[length(rabbits)]
 >
 > 1. Extract the fifth value (24) of the rabbits vector.
 2. Use the ":" symbol to extract the third through fifth values in the rabbits vector.
-3. Use the combine function to extract the third through fifth values in the rabbits vector.
+3. Use the combine function to extract the third and fifth values in the rabbits vector.
 4. Use the combine and length functions to extract the third and last values in the rabbits vector.
 
 ----
@@ -410,7 +410,7 @@ matrix1[c(1,3),]
 > 1. Extract the value at the cell address associated with row two, column two in dataframe1.
 2. Extract the vector of values associated with row one of dataframe1.
 3. Extract the vector of values associated with column two of dataframe1.
-4. Use the nrow and ncol functions to extract the last row and column of dataframe1.
+4. Use the nrow and ncol functions to extract the value contained in the last row and column of dataframe1.
 5. Use the ":" symbol to extract the first and second rows of matrix1.
 6. Use the combine function to extract the second and third rows of dataframe1.
 
@@ -681,10 +681,16 @@ We can also subset the vector foraging2 to only values that satisfy this conditi
 foraging2[foraging2 == 'ground']
 ```
 
-Not a very meaningful result, however, we can use the same principle to subset our birdCounts data frame to include only ground foraging species. In the script below, we are telling R to return all of the columns of the birdCounts frame for which the values of foraging are equal to ground:
+Not a very meaningful result, however, we can use the same principle to subset our birdCounts data frame to include only ground foraging species. In the script below, we are telling R to return all of the columns of the birdCounts frame for which the row values of foraging are equal to ground (_Note: we are returning all columns in which our row condition is TRUE_):
 
 ```{r eval = F}
 birdCounts[birdCounts$foraging == 'ground',]
+```
+
+We can also return a column and row subset using logic. For example, perhaps we are interested in counts of ground foragers. We could return all columns in which the row condition "ground" is true and just the column "count" as:
+
+```{r eval = F}
+birdCounts[birdCounts$foraging == 'ground','count']
 ```
 
 We can use mathematical logical operators, such as our less than or greater than symbols, on our numeric columns. For example, we may be interested only in species counts that are greater than or equal to three:
@@ -733,8 +739,12 @@ mean(birdCounts[birdCounts$foraging == 'aerial'|birdCounts$foraging == 'foliage'
 
 > **Exercise Eight:** For the birdCount dataset, address the following using the methods above:
 >
-1. How many species are insectivores?
-2. In what proportion of sites were insectivores observed?
+1. Subset the birdCounts data frame to just insectivore species. Call the data frame "insectivoreCounts".
+2. How many species are insectivores?
+3. Do steps one and two in this exercise in a single line of code.
+4. How many sites are contained in the birdCount frame?
+5. In how many sites were insectivores observed?
+6. In what proportion of sites were insectivores observed?
 
 ----
 
