@@ -145,7 +145,7 @@ V0[i]</code></pre>
 </blockquote>
 <hr />
 <p>We may also be interested in using a <em>for loop</em> to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to the mathematical expression:</p>
-<p><span class="math">\[N_t = N_{t-1} x 2\]</span></p>
+<p><span class="math">\[N_t = 2(N_{t-1})\]</span></p>
 <p>We must first start with a “seed” value for our vector. This is the initial value of vector <em>v</em>.</p>
 <pre class="r"><code>v &lt;- 10</code></pre>
 <p>In this instance, because we will store our resultant values within the same vector, <em>v</em>, it is unnecessary to create a blank vector to store the results.</p>
@@ -155,7 +155,7 @@ V0[i]</code></pre>
 <pre class="r"><code>v = 10
 
 for(i in 2:5){
-  v[i] = v[i-1]*2
+  v[i] = 2*v[i-1]
 }</code></pre>
 <blockquote>
 <p><strong>Exercise Two:</strong></p>
@@ -171,6 +171,9 @@ for(i in 2:5){
 </ul>
 </blockquote>
 <hr />
+</div>
+<div id="subsetting-data-with-for-loops" class="section level2">
+<h2>Subsetting data with <em>for loops</em></h2>
 <p>Recall that in the introductory lesson, we were able to calculate values for a subset of a data frame, subsetting the data using a logical operator. For example, we could calculate the sum of all individuals within the aerial foraging class across sites as:</p>
 <pre class="r"><code>sum(birdCounts[birdCounts$foraging == 'aerial','count'])</code></pre>
 <p>We can use a for loop to calculate this value across foraging guilds. First, we need to create a vector of foraging guilds:</p>
