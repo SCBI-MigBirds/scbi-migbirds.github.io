@@ -1,8 +1,7 @@
 ---
 output: html_document
 ---
-  
-   
+     
 <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
     
   <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
@@ -63,7 +62,6 @@ V0[i]
 We'll start with a very simple loop. We would like to add one to each number in vector V0 and store the results in a new vector, V1. This would be written mathematically as:
 
 $$V_{1, i} =  V_{0, i} + 1$$
-
 
 First, we create an empty vector, V1, to store the results (Note: We specify the length of the vector to provide R with stopping rules -- without this _for loops_ can become very memory hungry when running over large datasets):
 
@@ -335,63 +333,10 @@ Let's look at a few of the results:
 > $$StdErr (x) = \frac{StDev(x)}{\sqrt{n}}$$
 >
 >2. Create a function that calculates the mean count for a given diet guild across sites.
-_**Hint**: Do not use the mean function. The mean count for a given guild is the sum of counts of that guild divided by the total number of sites in the birdCounts data frame. Why can't we use the mean function?_
->3. Create a function that calculates the mean count for a selected trait (e.g. diet or foraging) and guild across sites.
-
-----
-
-### Functions inside for loops, for loops inside functions
-
-Functions can be placed inside for loops to simplify the writing of scripts.
-
-The sum function that we wrote above simplifies the subsetting and summing of guild counts.
-
-Let's take a look at how we could use this within the _for loop_ we wrote in Section One.
-
-```{r, eval=FALSE}
-foragingGuilds <- unique(birdCounts$foraging)
-
-foragingCounts <- numeric(length = length(foragingGuilds))
-
-for(i in 1:length(foragingGuilds)){
-    foragingCounts[i] <- traitGuildSumFun('foraging',foragingGuilds[i])
-}
-
-foragingFrame <- data.frame(foragingGuild = foragingGuilds, count = foragingCounts)
-
-foragingFrame
-```
-
-We could simplify our script even further by placing our for loop inside a function:
-
-```{r, eval=FALSE}
-traitCountFun <- function(trait){
-  guilds <- unique(birdCounts[,trait])
-  counts <- numeric(length = length(guilds))
-  
-  for(i in 1:length(guilds)){
-    counts[i] <- traitGuildSumFun(trait,guilds[i])
-  }
-  
-  traitFrame <- data.frame(guild = guilds, count = counts)
-  return(traitFrame)
-}
-```
-
-View the results:
-
-```{r, eval=FALSE}
-traitCountFun('foraging')
-
-traitCountFun('diet')
-```
-
-----
-
-> **Exercise Five:**
 >
-> 1. Place a for loop within a function to calculate the mean count for a given diet guild across sites.
-> 2. Place a function within a for loop to calculate the mean count for a given diet guild across sites.
+>_**Hint**: Do not use the "mean"" function. The mean count for a given guild is the sum of counts of that guild divided by the total number of sites in the birdCounts data frame. Why can't we use the mean function?_  
+>
+>3. Create a function that calculates the mean count for a selected trait (e.g. diet or foraging) and guild across sites.
 
 ----
 
