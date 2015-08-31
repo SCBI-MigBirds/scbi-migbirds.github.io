@@ -149,7 +149,9 @@ V0[i]
 
 ----
 
-We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to calculate multiples of 10.
+We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to the mathematical expression:
+
+$$N_t = N_{t-1} x 2$$
 
 We must first start with a "seed" value for our vector. This is the initial value of vector _v_.
 
@@ -159,10 +161,21 @@ v <- 10
 
 In this instance, because we will store our resultant values within the same vector, _v_, it is unnecessary to create a blank vector to store the results.
 
+Let's calculate the first five multiples of the value ten. Because our _for loop_ already starts with our seed value, we are only interested in the second through fifth positions of this vector. Thus, our for loop initialization statement is (**DO NOT RUN**):
 
+```{r, eval=FALSE}
+for(i in 2:5)
+```
 
+And our complete _for loop_ statement becomes:
 
+```{r, eval=FALSE}
+v = 10
 
+for(i in 2:5){
+  v[i] = v[i-1]*2
+}
+```
 
 > **Exercise Two:**
 >
@@ -174,7 +187,7 @@ In this instance, because we will store our resultant values within the same vec
 > 2. Use the formula above and your seed vector to generate the first 20 numbers of the  Fibonacci number sequence.
 >
 >* _**Hint 1**: Time "t-1" is written in R as "[i-1]"._
->* _**Hint 2**: The for loop initialization will begin at three, it will **NOT** include all of 1:20!_
+>* _**Hint 2**: The for loop initialization will begin at third position -- it will **NOT** include all of 1:20!_
 
 ----
 
@@ -226,7 +239,7 @@ foragingFrame
 
 ----
 
-> **Exercise Two:**
+> **Exercise Three:**
 >
 > Use the foragingFrame you created above and a _for loop_ to calculate the **proportion** of the observed individuals within each dietary guild.
 
@@ -293,7 +306,7 @@ We can then calculate the sum of bird counts for any of the guilds with a parsim
   foragingSumFun('ground')
 ```
 
-We can make this function more flexible by allowing us to choose which trait and guild we would like to count:
+We can make this function more flexible by allowing us to choose which trait (e.g., diet or foraging) and guild we would like to count:
 
 ```{r, eval=FALSE}
 traitGuildSumFun <- function(trait, guild){
@@ -312,13 +325,14 @@ Let's look at a few of the results:
 
 ----
 
-> **Exercise Three:**
+> **Exercise Four:**
 >
 > 1. The mathematical formula for standard error is provided below. Convert this to an R function (_**Note**: the function for standard deviation is "sd" and the function for square root is "sqrt"_):
 > $$StdErr (x) = \frac{StDev(x)}{\sqrt{n}}$$
 >
 >2. Create a function that calculates the mean count for a given diet guild across sites.
->3. Create a function that calculates the mean count for a selected trait and guild across sites.
+_**Hint**: Do not use the mean function. The mean count for a given guild is the sum of counts of that guild divided by the total number of sites in the birdCounts data frame. Why can't we use the mean function?_
+>3. Create a function that calculates the mean count for a selected trait (e.g. diet or foraging) and guild across sites.
 
 ----
 
@@ -370,11 +384,10 @@ traitCountFun('diet')
 
 ----
 
-> **Exercise Four:**
+> **Exercise Five:**
 >
-> 1. Place a for loop within a function to calculate the mean proportions OF SPECIES (i.e., not counts) represented within   diet guilds across sites.
->  
->2. Place a function within a for loop to calculate the mean proportions OF SPECIES (i.e., not counts) represented within   diet guilds across sites.
+> 1. Place a for loop within a function to calculate the mean count for a given diet guild across sites.
+> 2. Place a function within a for loop to calculate the mean count for a given diet guild across sites.
 
 ----
 
