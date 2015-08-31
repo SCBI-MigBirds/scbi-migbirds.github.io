@@ -141,13 +141,24 @@ V0[i]</code></pre>
 <hr />
 <blockquote>
 <p><strong>Exercise One:</strong></p>
+<p>Use a <em>for loop</em> to multiply each value in the “count” field of birdCounts by two.</p>
+</blockquote>
+<hr />
+<p>We may also be interested in using a <em>for loop</em> to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to calculate multiples of 10.</p>
+<p>We must first start with a “seed” value for our vector. This is the initial value of vector <em>v</em>.</p>
+<pre class="r"><code>v &lt;- 10</code></pre>
+<p>In this instance, because we will store our resultant values within the same vector, <em>v</em>, it is unnecessary to create a blank vector to store the results.</p>
+<blockquote>
+<p><strong>Exercise Two:</strong></p>
 <p>One of my favorite for loops was created by Leonardo Bonacci (Fibonacci). He created the first known population model, from which the famous Fibonacci number series was created. He described a population (N) at time t as the sum of the population at the previous time step plus the time step before that:</p>
 <p><span class="math">\[N_t = N_{t-1} + N_{t-2}\]</span></p>
-<p>Use the formula above to generate the first 20 numbers of the Fibonacci number sequence.</p>
+<ol style="list-style-type: decimal">
+<li>Use the combine function to create a seed vector of two values, zero and one.</li>
+<li>Use the formula above and your seed vector to generate the first 20 numbers of the Fibonacci number sequence.</li>
+</ol>
 <ul>
-<li><em><strong>Hint 1</strong>: Unlike our work above, there is only one vector in this formula (the size of the population at time t). The first two values of the number sequence must be set in advance. They are 0 and 1.</em></li>
-<li><em><strong>Hint 2</strong>: Time “t-1” is written in R as “[i-1]”.</em></li>
-<li><em><strong>Hint 3</strong>: The for loop initialization will <strong>NOT</strong> include all of 1:20!</em></li>
+<li><em><strong>Hint 1</strong>: Time “t-1” is written in R as “[i-1]”.</em></li>
+<li><em><strong>Hint 2</strong>: The for loop initialization will begin at three, it will <strong>NOT</strong> include all of 1:20!</em></li>
 </ul>
 </blockquote>
 <hr />
@@ -175,7 +186,7 @@ foragingFrame</code></pre>
 <hr />
 <blockquote>
 <p><strong>Exercise Two:</strong></p>
-<p>Use a <em>for loop</em> to calculate the <strong>proportion</strong> of the observed individuals within each dietary guild.</p>
+<p>Use the foragingFrame you created above and a <em>for loop</em> to calculate the <strong>proportion</strong> of the observed individuals within each dietary guild.</p>
 </blockquote>
 <hr />
 </div>
@@ -224,9 +235,9 @@ V1</code></pre>
 <blockquote>
 <p><strong>Exercise Three:</strong></p>
 <ol style="list-style-type: decimal">
-<li><p>The mathematical formula for standard error is provided below. Convert this to an R function: <span class="math">\[StdErr (x) = \frac{StDev(x)}{\sqrt{n}}\]</span></p></li>
-<li>Create an function that calculates the mean proportion OF SPECIES (i.e., not counts) representing a selected diet guild across sites.</li>
-<li><p>Create an function that calculates the mean proportion OF SPECIES (i.e., not counts) representing any selected trait and guild across sites.</p></li>
+<li><p>The mathematical formula for standard error is provided below. Convert this to an R function (<em><strong>Note</strong>: the function for standard deviation is “sd” and the function for square root is “sqrt”</em>): <span class="math">\[StdErr (x) = \frac{StDev(x)}{\sqrt{n}}\]</span></p></li>
+<li>Create a function that calculates the mean count for a given diet guild across sites.</li>
+<li><p>Create a function that calculates the mean count for a selected trait and guild across sites.</p></li>
 </ol>
 </blockquote>
 <hr />

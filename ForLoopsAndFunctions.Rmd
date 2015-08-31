@@ -145,15 +145,36 @@ V0[i]
 
 > **Exercise One:**
 >
+> Use a _for loop_ to multiply each value in the "count" field of birdCounts by two.
+
+----
+
+We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to calculate multiples of 10.
+
+We must first start with a "seed" value for our vector. This is the initial value of vector _v_.
+
+```{r, eval=FALSE}
+v <- 10
+```
+
+In this instance, because we will store our resultant values within the same vector, _v_, it is unnecessary to create a blank vector to store the results.
+
+
+
+
+
+
+> **Exercise Two:**
+>
 > One of my favorite for loops was created by Leonardo Bonacci (Fibonacci). He created the first known population model, from which the famous Fibonacci number series was created. He described a population (N) at time t as the sum of the population at the previous time step plus the time step before that:
 >
 >$$N_t = N_{t-1} + N_{t-2}$$
 >
-> Use the formula above to generate the first 20 numbers of the  Fibonacci number sequence.
-> 
->* _**Hint 1**: Unlike our work above, there is only one vector in this formula (the size of the population at time t). The first two values of the number sequence must be set in advance. They are 0 and 1._
->* _**Hint 2**: Time "t-1" is written in R as "[i-1]"._
->* _**Hint 3**: The for loop initialization will **NOT** include all of 1:20!_
+> 1. Use the combine function to create a seed vector of two values, zero and one. 
+> 2. Use the formula above and your seed vector to generate the first 20 numbers of the  Fibonacci number sequence.
+>
+>* _**Hint 1**: Time "t-1" is written in R as "[i-1]"._
+>* _**Hint 2**: The for loop initialization will begin at three, it will **NOT** include all of 1:20!_
 
 ----
 
@@ -207,7 +228,7 @@ foragingFrame
 
 > **Exercise Two:**
 >
-> Use a _for loop_ to calculate the **proportion** of the observed individuals within each dietary guild.
+> Use the foragingFrame you created above and a _for loop_ to calculate the **proportion** of the observed individuals within each dietary guild.
 
 ----
 
@@ -293,11 +314,11 @@ Let's look at a few of the results:
 
 > **Exercise Three:**
 >
-> 1. The mathematical formula for standard error is provided below. Convert this to an R function:
+> 1. The mathematical formula for standard error is provided below. Convert this to an R function (_**Note**: the function for standard deviation is "sd" and the function for square root is "sqrt"_):
 > $$StdErr (x) = \frac{StDev(x)}{\sqrt{n}}$$
 >
->2. Create an function that calculates the mean proportion OF SPECIES (i.e., not counts) representing a selected diet guild across sites.
-3. Create an function that calculates the mean proportion OF SPECIES (i.e., not counts) representing any selected trait and guild across sites.
+>2. Create a function that calculates the mean count for a given diet guild across sites.
+>3. Create a function that calculates the mean count for a selected trait and guild across sites.
 
 ----
 
