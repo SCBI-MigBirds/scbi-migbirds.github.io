@@ -81,8 +81,8 @@ fileURL &lt;- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/m
 
 birdCounts &lt;- read.csv(text = fileURL)</code></pre>
 </div>
-<div id="for-loops" class="section level3">
-<h3>For loops</h3>
+<div id="for-loops" class="section level2">
+<h2>For loops</h2>
 <p>A <strong><em>for loop</em></strong> is a block of code that allows you to repeat an operation a set number of iterations. As data analysis often includes many repeated tasks, <em>for loops</em> can save considerable time, shorten R scripts, and make your scripts more legible. While there are many functions that replace the necessity of <em>for loops</em>, you will inevitably have to use them at some point in your data analyses and thus understanding how they work is crucial.</p>
 <p><em>For loops</em> require three components:</p>
 <ol style="list-style-type: decimal">
@@ -172,9 +172,8 @@ for(i in 2:5){
 </ul>
 </blockquote>
 <hr />
-</div>
-<div id="subsetting-data-with-for-loops" class="section level2">
-<h2>Subsetting data with <em>for loops</em></h2>
+<div id="subsetting-data-with-for-loops" class="section level3">
+<h3>Subsetting data with <em>for loops</em></h3>
 <p>Recall that in the introductory lesson, we were able to calculate values for a subset of a data frame, subsetting the data using a logical operator. For example, we could calculate the sum of all individuals within the aerial foraging class across sites as:</p>
 <pre class="r"><code>sum(birdCounts[birdCounts$foraging == 'aerial','count'])</code></pre>
 <p>We can use a for loop to calculate this value across foraging guilds. First, we need to create a vector of foraging guilds:</p>
@@ -202,6 +201,7 @@ foragingFrame</code></pre>
 <p>Use the foragingFrame you created above and a <em>for loop</em> to calculate the <strong>proportion</strong> of the observed individuals within each dietary guild.</p>
 </blockquote>
 <hr />
+</div>
 </div>
 <div id="functions" class="section level2">
 <h2>Functions</h2>
