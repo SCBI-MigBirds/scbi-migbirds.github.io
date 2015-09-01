@@ -147,7 +147,7 @@ V0[i]
 
 ----
 
-We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a number, 10, and want to the mathematical expression:
+We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a value, 10, and want to calculate the mathematical expression:
 
 $$N_t = 2(N_{t-1})$$
 
@@ -159,7 +159,7 @@ v <- 10
 
 In this instance, because we will store our resultant values within the same vector, _v_, it is unnecessary to create a blank vector to store the results.
 
-Let's calculate the first five multiples of the value ten. Because our _for loop_ already starts with our seed value, we are only interested in the second through fifth positions of this vector. Thus, our for loop initialization statement is (**DO NOT RUN**):
+Let's calculate the first five values in this series. Because our _for loop_ starts with our seed value, we are only interested in the second through fifth positions of this vector. Thus, our for loop initialization statement is (**DO NOT RUN**):
 
 ```{r, eval=FALSE}
 for(i in 2:5)
