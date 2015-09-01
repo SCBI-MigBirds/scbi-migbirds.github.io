@@ -28,7 +28,7 @@ fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/mast
 birdCounts <- read.csv(text = fileURL)
 ```
 
-## For loops
+## **For loops**
 
 A **_for loop_** is a block of code that allows you to repeat an operation a set number of iterations. As data analysis often includes many repeated tasks, _for loops_ can save considerable time, shorten R scripts, and make your scripts more legible. While there are many functions that replace the necessity of _for loops_, you will inevitably have to use them at some point in your data analyses and thus understanding how they work is crucial. 
 
@@ -147,6 +147,8 @@ V0[i]
 
 ----
 
+### Generating number series with _for loops_
+
 We may also be interested in using a _for loop_ to generate a vector of numbers based on some mathematical operation. For example, consider we have a value, 10, and want to calculate the mathematical expression:
 
 $$N_t = 2(N_{t-1})$$
@@ -247,7 +249,7 @@ foragingFrame
 
 ----
 
-## Functions
+## **Functions**
 
 In the introductory lesson and above, we have worked with several functions (e.g., "c", "mean"). Functions allow you to simplify complex tasks, which is especially useful if you need to run a task multiple times. Program R contains many functions and many more still are created by R users and provided to the R community as collections of functions known as packages (or libraries). As datasets and data handling needs are often distinct, relying exclusively on built-in and community-defined functions may be limiting. Learning how to create your own functions, or customize existing functions, provides you with the flexibility to solve unique problems, shorten your script, and make your R code more legible for others.
 
