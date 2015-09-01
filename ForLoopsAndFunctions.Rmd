@@ -277,68 +277,87 @@ addOneFun(V0)
 V1
 ```
 
-Let's try writing a more meaningful function. Above, we subset the birdCounts frame by the aerial foraging guild as: 
+----
+
+> **Exercise Four:**
+>
+> The mathematical formula for standard error is provided below. Convert this to an R function (_**Note**: the function for standard deviation is "sd" and the function for square root is "sqrt"_):
+> $$StdErr (x) = \frac{StDev(x)}{\sqrt{n}}$$
+
+---
+
+### Subsetting data with functions
+
+In the _for loops_ section above, we subset the birdCounts frame by the aerial foraging guild using: 
 
 ```{r, eval=FALSE}
 birdCounts[birdCounts$foraging == 'aerial',]
 ```
 
-And then calculated the sum of this guild using:
+If it is necessary to repeat this operation multiple times, we can simplify our scripts and make them more readable by wrapping our subsetting operation within a function. Below, we create a function that subsets by foraging guild and extract the data using the character value for that guild:
+
+```{r, eval=FALSE}
+foragingSubsetFun <- function(foragingGuild){
+  birdCountsSubset <- birdCounts[birdCounts$foraging == foragingGuild,]
+  return(birdCountsSubset)
+}
+
+foragingSubsetFun('aerial')
+```
+
+Likewise, we may be interested in calculating the _sum_ of counts for a given guild. Above we calculated the summed counts for a given guild as:
 
 ```{r, eval=FALSE}
 sum(birdCounts[birdCounts$foraging == 'aerial','count'])
 ```
 
-Let's embed this line of code within a function to extract the sum of counts for a given foraging guild:
+We can embed this line of code within a function to extract the sum of counts for a given foraging guild:
 
 ```{r, eval=FALSE}
 foragingSumFun <- function(foragingGuild){
   birdCountSubset <- birdCounts[birdCounts$foraging == foragingGuild,'count']
   return(sum(birdCountSubset))
 }
+
+foragingSumFun('aerial')
 ```
 
-We can then calculate the sum of bird counts for any of the guilds with a parsimonious line of code:
+We could also sum the count field by nesting the previous subsetting function within a new function:
 
 ```{r, eval=FALSE}
-  foragingSumFun('aerial')
-
-  foragingSumFun('foliage')
-  
-  foragingSumFun('bark')
-  
-  foragingSumFun('ground')
-```
-
-We can make this function more flexible by allowing us to choose which trait (e.g., diet or foraging) and guild we would like to count:
-
-```{r, eval=FALSE}
-traitGuildSumFun <- function(trait, guild){
-  birdCountSubset <- birdCounts[birdCounts[,trait] == guild,'count']
-  return(sum(birdCountSubset))
+foragingSumFun <- function(foragingGuild){
+  birdCountSubset <- foragingSubsetFun(foragingGuild)
+  return(sum(birdCountSubset$count))
 }
+
+foragingSumFun('aerial')
 ```
 
-Let's look at a few of the results:
+We can make our subsetting and summing functions more flexible by allowing us to choose which trait (e.g., diet or foraging) and guild we would like to count:
 
 ```{r, eval=FALSE}
-  traitGuildSumFun('foraging','aerial')
+traitGuildSubsetFun <- function(trait, guild){
+  birdCountSubset <- birdCounts[birdCounts[,trait] == guild,]
+  return(birdCountSubset)
+}
 
-  traitGuildSumFun('diet','insectivore')
+traitGuildSumFun <- function(trait, guild){
+  birdCountSubset <- traitGuildSubsetFun(trait, guild)
+  return(sum(birdCountSubset$count))
+}
+
+traitGuildSumFun('foraging','aerial')
+
+traitGuildSumFun('diet','insectivore')
 ```
 
 ----
 
-> **Exercise Four:**
+> **Exercise Five:**
 >
-> 1. The mathematical formula for standard error is provided below. Convert this to an R function (_**Note**: the function for standard deviation is "sd" and the function for square root is "sqrt"_):
-> $$StdErr (x) = \frac{StDev(x)}{\sqrt{n}}$$
+>1. Create a function that calculates the mean count for a given diet guild across sites. _**Hint**: Mean count is the sum of counts divided by the total number of sites in the birdCounts data frame. Do not use the built-in "mean"" function. Why can't we use the mean function?_  
 >
->2. Create a function that calculates the mean count for a given diet guild across sites.
->
->_**Hint**: Do not use the "mean"" function. The mean count for a given guild is the sum of counts of that guild divided by the total number of sites in the birdCounts data frame. Why can't we use the mean function?_  
->
->3. Create a function that calculates the mean count for a selected trait (e.g. diet or foraging) and guild across sites.
+>2. Create a function that calculates the mean count for a selected trait (e.g. diet or foraging) and guild across sites.
 
 ----
 
