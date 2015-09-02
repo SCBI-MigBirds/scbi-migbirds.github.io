@@ -166,12 +166,8 @@ for(i in 2:5){
 <p><span class="math">\[N_t = N_{t-1} + N_{t-2}\]</span></p>
 <ol style="list-style-type: decimal">
 <li>Use the combine function to create a seed vector of two values, zero and one.</li>
-<li>Use the formula above and your seed vector to generate the first 20 numbers of the Fibonacci number sequence.</li>
+<li>Use the formula above and your seed vector to generate the first 20 numbers of the Fibonacci number sequence. <em><strong>Hint</strong>: The for loop initialization will begin at third position – it will <strong>NOT</strong> include all of 1:20!</em></li>
 </ol>
-<ul>
-<li><em><strong>Hint 1</strong>: Time “t-1” is written in R as “[i-1]”.</em></li>
-<li><em><strong>Hint 2</strong>: The for loop initialization will begin at third position – it will <strong>NOT</strong> include all of 1:20!</em></li>
-</ul>
 </blockquote>
 <hr />
 </div>
@@ -300,7 +296,7 @@ traitGuildSumFun('diet','insectivore')</code></pre>
 </ol>
 <hr />
 <ol start="3" style="list-style-type: decimal">
-<li><p>The logistic population growth model (Verhulst) states that the growth of the population will be constrained by the population carrying capacity (<em>K</em>) as a function of resource limitations. This model is summarized as (<em>Note: the remaining variables as are above</em>): <span class="math">\[N_t = \dfrac{K}{\mathstrut{1 + \bigg[ \dfrac{K-N_0}{N_0} \bigg] \cdot e^{-r \cdot t}}}\]</span></p>
+<li><p>The logistic population growth model (Verhulst) states that the growth of the population will be constrained by the population carrying capacity (<em>K</em>) as a function of resource limitations. This model is summarized as (<em>Note: the remaining variables are as above</em>): <span class="math">\[N_t = \dfrac{K}{\mathstrut{1 + \bigg[ \dfrac{K-N_0}{N_0} \bigg] \cdot e^{-r \cdot t}}}\]</span></p>
 <ol style="list-style-type: lower-alpha">
 <li>Convert the logistic population growth model to an R function with <em>r</em>, <em>N</em>, and <em>K</em> as unknowns.</li>
 <li>With an initial population size of 25, a per capita growth rate (<em>r</em>) of 0.45, and a carrying capacity of 500 individuals, use the logistic population growth rate function and a <em>for loop</em> to calculate the size of the population over 10 generations.</li>
