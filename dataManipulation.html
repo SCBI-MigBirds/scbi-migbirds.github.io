@@ -109,18 +109,58 @@ tidyFrame</code></pre>
 ## 2    carw   0   1   0
 ## 3    grca   1   0   0</code></pre>
 <p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:</p>
-<pre class="r"><code>gather(dFrame, distance, obs, d10:d30)</code></pre>
-<pre><code>##   species distance obs
-## 1    amro      d10   0
-## 2    carw      d10   0
-## 3    grca      d10   1
-## 4    amro      d20   1
-## 5    carw      d20   1
-## 6    grca      d20   0
-## 7    amro      d30   0
-## 8    carw      d30   0
-## 9    grca      d30   0</code></pre>
-<p>The above is what is often called a “long” data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study … but then, of course, you’d be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame.</p>
+<pre class="r"><code>tidyCounts &lt;- gather(dFrame, distance, obs, d10:d30)</code></pre>
+<p>The above is what is often called a “long” data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study … but then, of course, you’d be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let’s consider the following count data:</p>
+<pre><code>##    site species count
+## 1 site1    amro     1
+## 2 site2    carw     1
+## 3 site2    grca     2
+## 4 site3    amro     5
+## 5 site3    carw     1
+## 6 site3    grca     2</code></pre>
+<p>Thus, for community data, site would be the observational unit, species would be listed as columns and and count would be the value. To convert this long frame, we use tidyr’s <em>spread</em> function:</p>
+<pre class="r"><code>spread(wFrame, species, count)</code></pre>
+<pre><code>##    site amro carw grca
+## 1 site1    1   NA   NA
+## 2 site2   NA    1    2
+## 3 site3    5    1    2</code></pre>
+<p>Well, there’s a problem with the above. Do the NA values above (Not Available) really mean NA? Technically, zero observations are zeroes, with NA’s constrained to unsampled data. Luckily we can “fill” the NA values with zeroes as below:</p>
+<pre class="r"><code>spread(wFrame, species, count, fill = 0)</code></pre>
+<pre><code>##    site amro carw grca
+## 1 site1    1    0    0
+## 2 site2    0    1    2
+## 3 site3    5    1    2</code></pre>
+<hr />
+<blockquote>
+<p><strong>Exercise 1</strong>: 1. Run the following script to read wideData.csv into R:</p>
+<pre class="r"><code># Load the library (Note: the RCurl library contains a function that reads data directly from the internet)
+
+library(RCurl)
+
+# Provide the web address of the file:
+
+fileURL &lt;- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv')
+
+# Read in the data:
+
+wideCounts &lt;- read.csv(text = fileURL)</code></pre>
+<p>Convert the wide count data frame to a long format tidy dataset.</p>
+<blockquote>
+<h1>Load the library (Note: the RCurl library contains a function that reads data directly from the internet)</h1>
+</blockquote>
+<p>library(RCurl)</p>
+<h1>Provide the web address of the file:</h1>
+<p>fileURL &lt;- getURL(‘<a href="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv">https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv</a>’)</p>
+<ol start="2" style="list-style-type: decimal">
+<li><h1>Read in the data:</h1></li>
+</ol>
+<p>wideCounts &lt;- read.csv(text = fileURL)</p>
+</blockquote>
+<hr />
+<p>For the sake of brevity, we’ll leave tidying data to just these two functions. There are a few other functions in tidyr (I strongly suggest reading the tidyr paper reading some of the tidyr resources), but you’ll have to explore those on your own to give us some time to explore the wonderful world of dplyr!</p>
+</div>
+<div id="dplyr" class="section level2">
+<h2>dplyr</h2>
 <p><em><strong>A final note</strong>: You should consider <strong>every</strong> script you write to be not just data analysis but rather a <strong>communication</strong>, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!</em></p>
 </div>
 </div>

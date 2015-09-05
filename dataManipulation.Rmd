@@ -70,9 +70,60 @@ dFrame
 In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:
 
 ```{r, eval = T, echo=TRUE}
-gather(dFrame, distance, obs, d10:d30)
+tidyCounts <- gather(dFrame, distance, obs, d10:d30)
 ```
 
-The above is what is often called a "long" data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame.
+The above is what is often called a "long" data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
+
+```{r, eval = T, echo=F, warning=FALSE}
+site <- c('site1', 'site2' ,'site2',rep('site3',3))
+species <- c('amro', c('carw','grca'), 'amro','carw','grca')
+count <- c(1,1,2, 5, 1, 2)
+
+wFrame <- data.frame(site, species, count)
+
+wFrame
+```
+
+Thus, for community data, site would be the observational unit, species would be listed as columns and and count would be the value. To convert this long frame, we use tidyr's _spread_ function:
+
+```{r, eval = T, warning=FALSE}
+spread(wFrame, species, count)
+```
+
+Well, there's a problem with the above. Do the NA values above (Not Available) really mean NA? Technically, zero observations are zeroes, with NA's constrained to unsampled data. Luckily we can "fill" the NA values with zeroes as below:
+
+```{r, eval = T, warning=FALSE}
+spread(wFrame, species, count, fill = 0)
+```
+
+----
+
+> **Exercise 1**:
+> 1. Run the following script to read wideData.csv into R:
+>
+>```{r, eval=FALSE}
+> library(RCurl)
+> fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv')
+> wideCounts <- read.csv(text = fileURL)
+>```
+> Convert the wide count data frame to a long format tidy dataset.
+>
+> Run the following script to read wideData.csv into R:
+>
+>```{r, eval=FALSE}
+> fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/longCounts.csv')
+> longCounts <- read.csv(text = fileURL)
+>```
+> Convert the long count data frame to a wide format tidy dataset.
+>
+
+----
+
+For the sake of brevity, we'll leave tidying data to just these two functions. There are a few other functions in tidyr (I strongly suggest reading the tidyr paper reading some of the tidyr resources), but you'll have to explore those on your own to give us some time to explore the wonderful world of dplyr!
+
+## dplyr
+
+
 
 _**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
