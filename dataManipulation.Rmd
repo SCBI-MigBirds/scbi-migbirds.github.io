@@ -73,4 +73,6 @@ In the above, each bird is certainly an observation, but is each distance class 
 gather(dFrame, distance, obs, d10:d30)
 ```
 
+The above is what is often called a "long" data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame.
+
 _**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
