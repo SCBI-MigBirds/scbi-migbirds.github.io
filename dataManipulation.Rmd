@@ -11,7 +11,7 @@
 _Brian S. Evans  
 Smithsonian Conservation Biology Institute  
 Migratory Bird Center_    
-_Note: This lesson borrows heavily from Hadley Wickham's paper on Tidy Data (2014). We strongly recommend this paper to all R users!_
+_Note: This lesson borrows **heavily** from Hadley Wickham's awesome paper on Tidy Data (2014). We strongly recommend this paper to all R users!_
 
 ## Introduction
 
@@ -28,6 +28,49 @@ Considering this, it is in all of our best interest that the data manipulation b
 
 ## Tidy data
 
-A tidy dataset basically has two qualities -- each row is an observation  and each variable is placed in its own column.
+A tidy dataset basically has two qualities -- each row is an observation and each variable is placed in its own column. If you're anything like me, you likely read the last sentence and thought to yourself "well, that's pretty darned obvious -- I don't think I've ever made, nor would I ever make, make an untidy dataset in the first place!" Chances are, you are wrong just as I was. Untidy datasets make their way in all the time. Below is a typical example. You have measured the influence of a treatment on three test subjects and store your results as such:
+
+```{r, eval = T, echo=FALSE}
+subject = c('A','B','C')
+treatmentA = c(1.3, 2.3, 3.1)
+treatmentB = c(2.9, 3.2, 4.6)
+untidyFrame <- data.frame(subject, treatmentA, treatmentB)
+untidyFrame
+```
+
+Tidy? Nope. In this case, each subject has its own row, not each observation. We would have to do some awkward wrangling in base R to get this into a tidy format. Luckily, Hadley Wickham (have we mentioned that we're wicked fans of Hadley Wickham? If not, we will ...) created the _tidyr_ package in R with the specific aim of turning messy datasets into tidy ones.
+
+```{r, eval = T, echo=TRUE, warning=FALSE}
+library(tidyr)
+```
+
+With the tidyr function _gather_, we collapse multiple columns into "key-value pairs". In the above example, we are interested in the treatment "values" for each of our "key" values. We can tidy the above dataset using:
+
+```{r, eval = T, echo=TRUE}
+tidyFrame <- gather(data = untidyFrame, 
+                    key = treatment, 
+                    value = value, treatmentA:treatmentB)
+
+tidyFrame
+```
+
+Let's give a more bird-y example. I (Brian) collected point count data from sites in Washington, D.C. For each bird, I calculated the distance between myself and the individual, in units of 10 meters. On my datasheet I recorded the following:
+
+```{r, eval = T, echo=F, warning=FALSE}
+species <- c('amro', 'carw', 'grca')
+d10 <- c(0,0,1)
+d20 <- c(1,1,0)
+d30 <- c(0,0,0)
+
+dFrame <- data.frame(species, d10, d20, d30)
+
+dFrame
+```
+
+In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:
+
+```{r, eval = T, echo=TRUE}
+gather(dFrame, distance, obs, d10:d30)
+```
 
 _**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
