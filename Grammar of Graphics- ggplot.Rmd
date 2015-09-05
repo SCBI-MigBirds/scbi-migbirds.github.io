@@ -20,7 +20,7 @@ NNW_data2 <- filter(NNW_data, sex == "M" | sex =="F")
 NNW_data2 <- NNW_data2[,-5]
 ```
 
-This module will teach you the basics of graphing using the flexible ggplot package. While the base package of R provides many graphic functions, ggplot is data visualization package thats growing in popularity and uses key insights from Wilkinson's Grammar of Graphics. By the end of the lab you should understand the basics of graph aesthetics and how to build graph layers to acheive print quality graphs. We will cover a range of basic and advancing graphing topics ranging from data summary tools to the creation of various kinds of graphs.
+This module will teach you the basics of graphing using the flexible ggplot package. While the base package of R provides many graphic functions, ggplot is a data visualization package that is growing in popularity and uses key insights from Wilkinson's Grammar of Graphics. By the end of the lab you should understand the basics of graph aesthetics and how to build graph layers to acheive print quality graphs. We will cover a range of basic and advancing graphing topics ranging from data summary tools to the creation of various kinds of graphs.
 
 ### Before you begin:
 First, we need to get the packages loaded that we are going to be working with today. If anyone is having issues getting libraries to load please let us know.
@@ -60,7 +60,7 @@ summary(NNW_data)
 
 ```
 
-Now let's do some data subsetting to get all records in the data frame where sex is not equalt to "U". Keep in mind that there is more than one way to do this. We can also use a logical statement to query multiple values for sex. Note: because we are going to want to work with the modified dataframe make sure you assign a new name. 
+Now let's do some data subsetting to get all records in the data frame where sex is not equal to "U". Keep in mind that there is more than one way to do this. We can also use a logical statement to query multiple values for sex. _Note: because we are going to want to work with the modified dataframe make sure you assign a new name._ 
 
 What options do we have for subsetting the data frame?
 
@@ -72,14 +72,12 @@ NNW_data2 <- filter(NNW_data, sex == "M" | sex =="F")
 NNW_data2 <- NNW_data[NNW_data$sex == 'M' | NNW_data$sex == "F",]
 ```
 
-Now lets get rid of a column that we are not going to use in the graphing excercise. Use your matrix skills to remove the tail column from the data frame.
+Now let's get rid of a column that we are not going to use in the graphing excercise. Use your indexing or dplyr skills to remove the tail column from the data frame.
 
-```{r, eval=FALSE}
+```{r, echo=FALSE, results='hide'}
 NNW_data2 <- NNW_data2[,-5]
 
-# or?
-
-NNW_data2 <- select(NNW_data2, -tail)
+# NNW_data2 <- select(NNW_data2, -tail)
 
 ```
 
@@ -150,10 +148,13 @@ Making graphs is only fun if and when we can modify elements to our liking (numb
 ggplot(NNW_data2, aes(x=wing, fill=species))+
   geom_histogram(binwidth=1)+
   facet_grid(species~., scales="free")+
-  scale_x_continuous("wing chord (mm)", breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), labels=c(30,40,50,60,70,80,90,100,110,120,130,140),limits=c(30,140))
+  scale_x_continuous("wing chord (mm)", 
+    breaks=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    limits=c(30,140))
 ```
 
-Lets look at which elements control each aspect of the graph 
+Take a momement to explore which elements control each aspect of the graph.
 
 ----
 
@@ -167,56 +168,83 @@ Lets look at which elements control each aspect of the graph
 
 A huge part of making print quality graphics is flexibility and ggplot allows us to modify basically every component of the graph. Below are some of the diversity of things we can change. Keep in mind we are just scratching the surface here!
 
-```{r, eval = T}
-#Modifying colors:
+Modifying colors:
 
+```{r, eval = T}
 ggplot(NNW_data2, aes(x=wing, fill=species))+
   geom_histogram(binwidth=1)+facet_grid(species~., scales="free")+
-  scale_x_continuous("wing chord/mm", breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), labels=c(30,40,50,60,70,80,90,100,110,120,130,140),limits=c(30,140))+
-  scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))
+  scale_x_continuous("wing chord/mm", 
+    breaks=c(30,40,50,60,70,80,90,100,110,120,130,140),
+      labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
+      limits=c(30,140))+
+  scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC"))
+```
 
-#Changing the base theme:
+Changing the base theme:
 
+```{r, eval = T}
 ggplot(NNW_data2, aes(x=wing, fill=species))+
   geom_histogram(binwidth=1)+facet_grid(species~., scales="free")+
   scale_x_continuous("wing chord/mm", breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), labels=c(30,40,50,60,70,80,90,100,110,120,130,140),limits=c(30,140))+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
   theme_bw()
+```
 
-#Modifying elements of the theme:
+Modifying elements of the theme:
 
+```{r, eval = T}
 ggplot(NNW_data2, aes(x=wing, fill=species))+
   geom_histogram(binwidth=1)+
   facet_grid(species~., scales="free")+
-  scale_x_continuous("wing chord/mm", breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), labels=c(30,40,50,60,70,80,90,100,110,120,130,140),limits=c(30,140))+
+  scale_x_continuous("wing chord/mm", 
+    breaks=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    limits=c(30,140))+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
-  theme(legend.position="none")+theme(axis.text.x=element_text(size=9, color="black"), axis.text.y=element_text(color="black"))+theme(axis.line = element_line(colour = "black"), axis.ticks=element_line(color="black"),panel.grid.major = element_blank(), panel.grid.minor = element_blank())                                            
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(size=9, color="black"), 
+    axis.text.y=element_text(color="black"))+
+  theme(axis.line = element_line(colour = "black"),
+    axis.ticks=element_line(color="black"),
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank())
+```
 
-#Adding a title:
 
+Adding a title:
+
+```{r, eval = T}
 ggplot(NNW_data2, aes(x=wing, fill=species))+
-  geom_histogram(binwidth=1)+facet_grid(species~., scales="free")+
-  scale_x_continuous("wing chord/mm", breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), labels=c(30,40,50,60,70,80,90,100,110,120,130,140),limits=c(30,140))+
+  geom_histogram(binwidth=1)+
+  facet_grid(species~., scales="free")+
+  scale_x_continuous("wing chord/mm", 
+    breaks=c(30,40,50,60,70,80,90,100,110,120,130,140), 
+    labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    limits=c(30,140))+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
-  theme_bw()+ggtitle("Histograms of Wing Chord by Species")
+  theme_bw()+
+  ggtitle("Histograms of Wing Chord by Species")
 
 ```
 
 
 ## Using summarized data with ggplot
 
-We spent a lot of time teaching everyone how to use dplyr and its functions because it is so powerful for summarizing data. Most often we are graphing some form of summarized data and so dplyr and ggplot often go hand in hand. Lets use dplyr to create some awesome summaries that we can use for more ggplot fun.
+We spent a lot of time teaching everyone how to use dplyr and its functions because it is so powerful for summarizing data. Most often we are graphing some form of summarized data and so dplyr and ggplot often go hand in hand. Let's use dplyr to create some awesome summaries that we can use for more ggplot fun.
 
-Lets make a summary table that has sample sizes for each of our species, mean wing length, standard deviation of wing length and standard error of wing length.
+Let's make a summary table that has sample sizes for each of our species, mean wing length, standard deviation of wing length and standard error of wing length. _Note: Before we summarize the data we need to make sure we remove any NAs from the data frame or else dplyr will not calculate our means._
 
 ```{r, eval = T}
-#Before we create the summarie we need to make sure we remove any NAs from the data frame or else dplyr will not calculate our means
 
 NNW_data2 <- na.omit(NNW_data2)
 
 sp_summ <- NNW_data2 %>%
+  na.omit() %>%
   group_by(species) %>%
-  summarise(sample_size=length(species), mean_wg=mean(wing), sd_wing=sd(wing), se_wing=sd(wing)/sqrt(length(species)))
+  summarise(sample_size = length(species), 
+    mean_wg = mean(wing), 
+    sd_wing = sd(wing),
+    se_wing = sd(wing)/sqrt(length(species)))
 ```
 
 Now lets use the summary and add that data to our histogram by species figure. One nice thing about ggplot is that we can use multiple different data frames in different grpah elements to make very complex figures.
@@ -225,49 +253,58 @@ Now lets use the summary and add that data to our histogram by species figure. O
 ggplot(NNW_data2, aes(x=wing, fill=species))+
   geom_histogram(binwidth=1)+facet_grid(species~., scales="free_y")+
   scale_x_continuous("wing chord/mm", 
-      breaks=c(30,40,50,60,70,80,90,100,110,120,130,140),
-      labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
-      limits=c(30,140))+
+    breaks=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    labels=c(30,40,50,60,70,80,90,100,110,120,130,140),
+    limits=c(30,140))+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
   theme_bw()+
   ggtitle("Histograms of Wing Chord by Species")+
   geom_vline(data=sp_summ, aes(xintercept=mean_wg), linetype="dashed")
 ```
 
-**Exercise Three**    
-1. We just made data summaries using ggplot but lets think back to our for loop skills and try to take advantage of them. Create a for loop that calculates the mean +/- SD    
+----
+
+>**Exercise Three**    
+>1. We just made data summaries using ggplot but lets think back to our for loop skills and try to take advantage of them. Create a for loop that calculates the mean +/- SD    
 2. Try the same thing using the dplyr mutate function
 3. Now plot those lines on your facet graph.   
 
-**Bar Graphs**
+----
 
-Ok now lets use our species summary table to make some bar graphs.
+## Bar Graphs
+
+Ok now let's use our species summary table to make some bar graphs.
 
 ```{r, eval = T}
 ggplot(sp_summ, aes(x=species, y=mean_wg))+
   geom_bar(stat="identity")
+```
 
-#Getting Color Back into the figure
+Getting Color Back into the figure:
 
+```{r, echo=FALSE, results='hide', message=FALSE, include=FALSE}
 ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
   geom_bar(stat="identity")+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))
+```
 
-#Removing Legend and adding transparency (I'm guessing folks wanted to know how to get rid of this earlier)
+Removing Legend and adding transparency (I'm guessing folks wanted to know how to get rid of this earlier):
 
+```{r, echo=FALSE, results='hide', message=FALSE, include=FALSE}
 ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
   geom_bar(stat="identity",alpha=0.8)+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
   theme(legend.position="none")
+```
 
-#Adding Errorbars
+Adding Errorbars:
 
+```{r, echo=FALSE, results='hide', message=FALSE, include=FALSE}
 ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
   geom_bar(stat="identity")+
   scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC"))+
   theme(legend.position="none")+
   geom_errorbar(aes(ymin=mean_wg-se_wing, ymax=mean_wg+se_wing), width=0.1)
-
 ```
 
 ----
@@ -280,7 +317,7 @@ ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
 
 ----
 
-```{r}
+```{r, echo=FALSE, results='hide', message=FALSE, include=FALSE}
 library(scales)
 ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
   geom_bar(stat="identity")+
@@ -293,7 +330,7 @@ ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
 
 **Scatterplots and Regressions**
 
-Lets get a new data frame for this next section of graph making fun!
+Let's get a new data frame for this next section of graph making fun!
 
 ```{r, eval = T}
 fileURL2 <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/GRCA_DC.csv')
@@ -305,63 +342,85 @@ GRCA_DC<- read.csv(text = fileURL2)
 #Take a look at the data frame:
 
 head(GRCA_DC, 10)
+```
 
-#Notice that not all birds were measure at capture and we know this will create problems for graphing and summarizing. Lets go ahead and get rid of the NAs from the data frame:
 
+Notice that not all birds were measure at capture and we know this will create problems for graphing and summarizing. Lets go ahead and get rid of the NAs from the data frame:
+
+```{r, eval = T}
 GRCA_DC <- na.omit(GRCA_DC)
 ```
 
-Lets use our dplyr skills to create a data summary of sample size, mean and SE of wing by age and sex:
+Let's use our dplyr skills to create a data summary of sample size, mean and SE of wing by age and sex:
 
 ```{r, eval = T}
 GRCADC_summ <- GRCA_DC %>%
   group_by(AGE, SEX) %>%
-  summarise(n = length(BAND.NUM), mean_wg=mean(WG), se_wg=sd(WG)/sqrt(length(BAND.NUM)))
+  summarise(n = length(BAND.NUM),
+    mean_wg=mean(WG),
+    se_wg=sd(WG)/sqrt(length(BAND.NUM)))
 
 GRCADC_summ
 ```
 
-Now lets make our first scatterplot
+Now lets make our first scatterplot:
 
 ```{r, eval = T}
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg, color=SEX))+
   geom_point()
+```
 
-#Notice that ggplot placed the points directly on top of one another because they are in the same x-axis grouping. This could become an issue if our errorbars are large and overlapping for sex. 
+Notice that ggplot placed the points directly on top of one another because they are in the same x-axis grouping. This could become an issue if our errorbars are large and overlapping for sex. 
 
+```{r, eval = T}
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg, color=SEX))+
   geom_point()+
-  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg), width=0)
+  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg), 
+    width=0)
+```
 
-#Lets learn a trick to fix that issue:
+Let's learn a trick to fix that issue:
+
+```{r, eval = T}
 pos=position_dodge(0.2)
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
   geom_point(aes(color=SEX), shape=19, size=4,position=pos)+
-  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, group=SEX), position=pos, width=0)
+  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, 
+    group=SEX), 
+    position=pos, width=0)
 ```
 
 This also works:
 
 ```{r, eval=F}
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
-  geom_point(aes(color=SEX), shape=19, size=4,position=position_dodge(0.2))+
-  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, group=SEX), position=position_dodge(0.2), width=0)
+  geom_point(aes(color=SEX), shape=19, size=4,
+    position=position_dodge(0.2))+
+  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, 
+    group=SEX), 
+    position=position_dodge(0.2), width=0)
 ```
 
 Notice the errorbars are sitting on top of our points. Keep in mind that ggplot builds graphs in layers and so you can change the order of the those layers by adjusting the function positions in your code.
 
 ```{r, eval = T}
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
-  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, group=SEX), position=position_dodge(0.2), width=0)+
-  geom_point(aes(color=SEX), shape=19, size=4,position=position_dodge(0.2))
+  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, 
+    group=SEX), 
+    position=position_dodge(0.2), width=0)+
+  geom_point(aes(color=SEX), 
+    shape=19, size=4,
+    position=position_dodge(0.2))
 ```
 
-Ok now lets try to do some regression style figures. Lets start with a basic linear regression:
+Ok now let's try to do some regression style figures. Lets start with a basic linear regression:
 
 ```{r, eval = T}
 ggplot(GRCA_DC, aes(x=WT, y=TAR, color=SEX))+
-  geom_point(size=3)+geom_smooth(method=lm, linetype="dashed")+
-  scale_y_continuous(limits=c(25,30))+xlab("Weight (g)")
+  geom_point(size=3)+
+  geom_smooth(method=lm, linetype="dashed")+
+  scale_y_continuous(limits=c(25,30))+
+  xlab("Weight (g)")
 ```
 
 What if we want to get rid of the shaded confidence region?
@@ -374,7 +433,7 @@ ggplot(GRCA_DC, aes(x=WT, y=TAR, color=SEX))+
   xlab("Weight (g)")
 ```
 
-#Other kinds of model fits (LOESS is the default). Keep in mind you can even define the regression equation with your own model beta.
+Other kinds of model fits (LOESS is the default). Keep in mind you can even define the regression equation with your own model beta.
 
 ```{r, eval = T}
 ggplot(GRCA_DC, aes(x=WT, y=TAR))+
@@ -401,10 +460,15 @@ ggplot(GRCA_DC, aes(x=WT, y=TAR))+
 
 ## Graph Text
 
-Adding text to graphs can be a key style element thats required for journals. Lets learn how to add some informative text to our graph.
+Adding text to graphs can be a key style element thats required for journals. Let's learn how to add some informative text to our graph.
 
 ```{r, eval = T}
-ggplot(GRCA_DC, aes(x=WT, y=TAR, color=SEX))+geom_point(size=3)+geom_smooth(method=lm, linetype="dashed", se=FALSE)+scale_y_continuous(limits=c(25,30))+xlab("Weight (g)")+geom_text( x=48, y=30, size=4, color="black", label="A)")
+ggplot(GRCA_DC, aes(x=WT, y=TAR, color=SEX))+
+  geom_point(size=3)+
+  geom_smooth(method=lm, linetype="dashed", se=FALSE)+
+  scale_y_continuous(limits=c(25,30))+
+  xlab("Weight (g)")+
+  geom_text(x=48, y=30, size=4, color="black", label="A)")
 ```
 
 ## Multiplot
@@ -451,20 +515,72 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 ```
 
-Create multiple plots for using with the function
+Create multiple plots for using with the function above
 
 ```{r, eval = T}
-a <- ggplot(GRCA_DC, aes(x=WT, y=TAR))+geom_point(size=3)+geom_smooth(method=glm, linetype="dashed")+scale_y_continuous(limits=c(25,30))+xlab("Weight (g)")+theme(axis.text.x=element_text(size=9, color="black"), axis.text.y=element_text(color="black"))+theme(axis.line = element_line(colour = "black"), axis.ticks=element_line(color="black"), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), panel.border = element_blank(),panel.background = element_blank())+theme(legend.position="none")
+a <- ggplot(GRCA_DC, aes(x=WT, y=TAR))+
+  geom_point(size=3)+
+  geom_smooth(method=glm, linetype="dashed")+
+  scale_y_continuous(limits=c(25,30))+
+  xlab("Weight (g)")+
+  theme(axis.text.x=element_text(size=9, color="black"), 
+    axis.text.y=element_text(color="black"))+
+  theme(axis.line = element_line(colour = "black"), 
+    axis.ticks=element_line(color="black"), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), 
+    panel.border = element_blank(),
+    panel.background = element_blank())+
+  theme(legend.position="none")
 
-b <- ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg, color=SEX))+geom_point(shape=19, size=4,position=position_dodge(width=0.5))+geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg), position=position_dodge(width=0.5), width=0)+theme(axis.text.x=element_text(size=9, color="black"), axis.text.y=element_text(color="black"))+theme(axis.line = element_line(colour = "black"), axis.ticks=element_line(color="black"), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), panel.border = element_blank(),panel.background = element_blank())+theme(legend.position="none")
+b <- ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg, color=SEX))+
+  geom_point(shape=19, size=4,position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg), 
+    position=position_dodge(width=0.5), width=0)+
+  theme(axis.text.x=element_text(size=9, color="black"), 
+    axis.text.y=element_text(color="black"))+
+  theme(axis.line = element_line(colour = "black"),
+    axis.ticks=element_line(color="black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank())+
+  theme(legend.position="none")
 
-c <- ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+geom_bar(stat="identity")+scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+theme(legend.position="none")+geom_errorbar(aes(ymin=mean_wg-sd_wing, ymax=mean_wg+sd_wing), width=0.1)+scale_y_continuous("Average Wing Chord (mm)")+theme(axis.text.x=element_text(size=9, color="black", angle=90), axis.text.y=element_text(color="black"))+theme(axis.line = element_line(colour = "black"), axis.ticks=element_line(color="black"), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), panel.border = element_blank(),panel.background = element_blank())+theme(legend.position="none")
+c <- ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("#F77F2F","#FAF05F", "#ED361A", "#FCD853", "#F2511F", "#B4DB64", "#2892C7", "#64B0AC" ))+
+  theme(legend.position="none")+
+  geom_errorbar(aes(ymin=mean_wg-sd_wing, ymax=mean_wg+sd_wing), width=0.1)+
+  scale_y_continuous("Average Wing Chord (mm)")+
+  theme(axis.text.x=element_text(size=9, color="black", angle=90),
+    axis.text.y=element_text(color="black"))+
+  theme(axis.line = element_line(colour = "black"),
+    axis.ticks=element_line(color="black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank())+
+  theme(legend.position="none")
 
 GRCADC_summ2 <- GRCA_DC %>%
   group_by(SEX)%>%
   summarise(mean_wg=mean(WG))
 
-d <- ggplot(GRCA_DC, aes(x=WG, fill=SEX))+geom_histogram(binwidth=1)+facet_grid(SEX~.)+scale_fill_manual(values=c("#F77F2F","#FAF05F"))+geom_vline(data=GRCADC_summ2, aes(xintercept=mean_wg), linetype="dashed")+theme(axis.text.x=element_text(size=9, color="black"), axis.text.y=element_text(color="black"))+theme(axis.line = element_line(colour = "black"), axis.ticks=element_line(color="black"), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), panel.border = element_blank(),panel.background = element_blank())+theme(legend.position="none")
+d <- ggplot(GRCA_DC, aes(x=WG, fill=SEX))+
+  geom_histogram(binwidth=1)+
+  facet_grid(SEX~.)+
+  scale_fill_manual(values=c("#F77F2F","#FAF05F"))+
+  geom_vline(data=GRCADC_summ2, aes(xintercept=mean_wg), linetype="dashed")+
+  theme(axis.text.x=element_text(size=9, color="black"), 
+        axis.text.y=element_text(color="black"))+
+  theme(axis.line = element_line(colour = "black"), 
+        axis.ticks=element_line(color="black"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())+
+  theme(legend.position="none")
 
 
 #Now Use multiplot function to aggregate the four graphs
@@ -477,17 +593,17 @@ multiplot(a,b,c,d, cols=2)
 ```{r, eval = T}
 library(ggthemes)
 
-b+theme_igray()
-
-b+theme_gdocs()
-
-b+theme_solarized_2()
-
-b+theme_wsj()
-
-b+theme_economist()
-
-b+theme_few()
+  b+theme_igray()
+  
+  b+theme_gdocs()
+  
+  b+theme_solarized_2()
+  
+  b+theme_wsj()
+  
+  b+theme_economist()
+  
+  b+theme_few()
 
 ```
 
