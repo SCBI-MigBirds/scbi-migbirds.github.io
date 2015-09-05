@@ -2,7 +2,7 @@
 output: html_document
 ---
 
-<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+<img style="float:right;padding-right:25px;border:none" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
     
   <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
   
@@ -37,7 +37,7 @@ Let's add a **comment** that describes what we're doing. A comment is a line of 
 
 Run the entire section by highlighting it with your mouse and using the keyboard combination _CTRL+R_. You'll notice that both lines are run in the console, but only the line that didn't begin with "#" was evaluated.
 
-You can also add a comment after (but not before) a code chunk that you wish to evaluate. This is often very useful in proving a description of a given step. Let's add a comment after the evaluated code and run this section:
+You can also add a comment after (but not before) a code chunk that you wish to evaluate. This is often very useful in providing a description of a given step. Let's add a comment after the evaluated code and run this section:
 
 ```{r, eval=FALSE}
 1+1+2 # I added three numbers together
@@ -149,7 +149,7 @@ exampleCharacterValue1
 
 ```
 
-To convert a character value to a factor, you can use the "factor" function. Run the following and note how the output differs from that of the character:
+To convert a character value to a factor, you can use the "factor" function. Factor values take up less system memory than characters and can be implemented in statistical modeling as categorical variables. Run the following and note how the output differs from that of the character:
 
 ```{r, eval=FALSE}
 factor(exampleCharacterValue0)
@@ -183,7 +183,7 @@ You can determine how many values comprise a vector using the "length" function:
 length(vector1)
 ```
 
-* **Matrix**: A two-dimensional collection of values, arranged as rows and columns. Component vectors MUST be of the same class. If this is not the case, the class of the component values will be modified.
+* **Matrix**: A two-dimensional collection of values, arranged as rows and columns. Matrices can essentially be thought as a data structure that combines multiple vectors into a single object. Component vectors MUST be of the same class. If this is not the case, the class of the component values will be modified.
 
 Let's turn vector1 into a two-column matrix using the matrix function. Arguments "ncol" and "nrow" specify the number of columns and rows, respectively, of the matrix:
 
@@ -193,7 +193,7 @@ matrix1 <- matrix(vector1,  nrow = 3, ncol = 2)
 matrix1
 ```
 
-* **Data frame**: A two-dimensional collection of values, arranged as rows and columns. Component vectors may be of different classes. 
+* **Data frame**: A two-dimensional collection of values, arranged as rows and columns. Component vectors may be of different classes -- because of this, data frames are very useful for storing data. For example, banding (ringing) data most often include numeric  (e.g., measurement data) and categorical (e.g., species of bird) variables. Let's create and explore a simple data frame composed of two vectors:
 
 ```{r, eval=FALSE}
 vector1a <- c(1,1,2)
@@ -224,7 +224,7 @@ And also view the number of rows and columns (values one and two, respectively) 
 dim(dataframe1)
 ```
 
-* **List**: An n-dimensional collection of objects, arranged as list items denoted by "[[i]]". May contain individual values, vectors, data frames, and matrices of different classes and dimensions.
+* **List**: An n-dimensional collection of objects, arranged as list items denoted by "[[i]]". May contain individual values, vectors, data frames, and matrices of different classes and dimensions. Because lists have the flexibility to hold multiple object structures they can be very useful as a place to store data that cannot be easily summarized in a data frame. For example, you could use a list to store separate banding and point count data frames in a single object. Let's create a simple list below:
 
 ```{r, eval=FALSE}
 list1 <- list('hello world',vector1, matrix1, dataframe1)
@@ -283,11 +283,11 @@ PopulationC0 & 2
 
 ----
 
-### Location
+### Indexing
 
-Values within an R object such as a vector, matrix, data frame, or list can be referred to by their location within the object.
+Values within an R object such as a vector, matrix, data frame, or list can be referred to by their location within the object -- this is known as **Indexing**.
 
-#### Using vector location
+#### Location in a vector
 
 In a vector, the location of a value is identified using brackets ("[ ]"), with the i^th^ location of within a vector, "v", mapped as v[i]. Consider the following vector:
 
@@ -538,9 +538,9 @@ list1$sillyComputerSaying
 > Run the following script to read exampleBirdData.csv into R:
 >
 >```{r, eval=FALSE}
-> # Load the library
+> # Load the library (Note: the RCurl library contains a function that reads data directly from the internet)
 >
-> require(RCurl)
+> library(RCurl)
 >
 > # Provide the web address of the file:
 >
