@@ -1,0 +1,33 @@
+---
+  output: html_document
+---
+  
+  <img style="float:right;padding-right:25px;border:none" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+  
+  <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+  
+# Data manipulation with tidyr and dplyr
+##_The grammar of data wrangling_
+_Brian S. Evans  
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_    
+_Note: This lesson borrows heavily from Hadley Wickham's paper on Tidy Data (2014). We strongly recommend this paper to all R users!_
+
+## Introduction
+
+  It is estimated that the process of preparing data for analysis, **data manipulation** or, as Hadley Wickham calls it, **data wrangling**, consumes up to 80 percent of total analysis time (Dasu and Johnson 2003).  In classes on statistics and applied data analysis, emphasis is generally placed on the analysis of data and, historically, comparatively little attention is paid to how to prepare one's data to be analyzed. With the expansion of "big data" analysis, however, this is beginning to change. Increasingly, journals are asking authors to publish both data and R code as supplemental information for their manuscripts. This helps advance scientific knownledge, as researchers do not have to reinvent the wheel every time they conduct a similar analysis, and ensures replicability, as interested parties (e.g., reviewers) can repeat your every step in your data analysis with the exception of the collection of field data! 
+
+Considering this, it is in all of our best interest that the data manipulation be simple, that our scripts are legible and easy-to-follow, and that we can avoid "script bloat" by using methods (such as functions and occasionally _for loops_!) to reduce the length of our scripts. It is highly recommended that you take a "cradle-to-grave" approach to data manipulation and analysis:
+
+1) Collect and store your data in well-constructed spreadsheets and databases. 
+2) DO NOT complete ANY step in the data manipulation process in Excel! Doing so makes it difficult for others to truly replicate your analyses.
+3) **Data tidying** describes basic formatting steps that prepare your data for analysis. Tidying steps be completed prior to any summarizing, further cleaning, or analysis of data.
+4) Data cleaning involves removing "bad" records, such as NA values (i.e., "Not Available") and extreme outliers. 
+5) Grouping and summarizing data is the final data formatting processes prior to more complex statistical analyses.
+
+
+## Tidy data
+
+A tidy dataset basically has two qualities -- each row is an observation  and each variable is placed in its own column.
+
+_**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
