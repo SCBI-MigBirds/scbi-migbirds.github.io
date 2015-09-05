@@ -331,8 +331,21 @@ ggplot(sp_summ, aes(x=species, y=mean_wg, fill=species))+
 **Scatterplots and Regressions**
 
 Let's get a new data frame for this next section of graph making fun!
+```{r, echo=FALSE, results='hide', message=FALSE, include=FALSE}
+fileURL2 <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/GRCA_DC.csv')
+GRCA_DC<- read.csv(text = fileURL2)
+head(GRCA_DC, 10)
+GRCA_DC <- na.omit(GRCA_DC)
+GRCADC_summ <- GRCA_DC %>%
+  group_by(AGE, SEX) %>%
+  summarise(n = length(BAND.NUM),
+    mean_wg=mean(WG),
+    se_wg=sd(WG)/sqrt(length(BAND.NUM)))
 
-```{r, eval = T}
+```
+
+
+```{r, eval = F}
 fileURL2 <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/GRCA_DC.csv')
 
 # Read in the data:
@@ -347,13 +360,13 @@ head(GRCA_DC, 10)
 
 Notice that not all birds were measure at capture and we know this will create problems for graphing and summarizing. Lets go ahead and get rid of the NAs from the data frame:
 
-```{r, eval = T}
+```{r, eval = F}
 GRCA_DC <- na.omit(GRCA_DC)
 ```
 
 Let's use our dplyr skills to create a data summary of sample size, mean and SE of wing by age and sex:
 
-```{r, eval = T}
+```{r, eval = F}
 GRCADC_summ <- GRCA_DC %>%
   group_by(AGE, SEX) %>%
   summarise(n = length(BAND.NUM),
