@@ -381,7 +381,7 @@ ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg, color=SEX))+
 
 Let's learn a trick to fix that issue:
 
-```{r, eval = T}
+```{r, eval = T, warning=F, message = F}
 pos=position_dodge(0.2)
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
   geom_point(aes(color=SEX), shape=19, size=4,position=pos)+
@@ -403,7 +403,7 @@ ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
 
 Notice the errorbars are sitting on top of our points. Keep in mind that ggplot builds graphs in layers and so you can change the order of the those layers by adjusting the function positions in your code.
 
-```{r, eval = T}
+```{r, eval = T, warning=F, message = F}
 ggplot(GRCADC_summ, aes(x=AGE, y=mean_wg))+
   geom_errorbar(aes(ymin=mean_wg-se_wg, ymax=mean_wg+se_wg, 
     group=SEX), 
@@ -435,7 +435,7 @@ ggplot(GRCA_DC, aes(x=WT, y=TAR, color=SEX))+
 
 Other kinds of model fits (LOESS is the default). Keep in mind you can even define the regression equation with your own model beta.
 
-```{r, eval = T}
+```{r, eval = T, warning=F, message = F}
 ggplot(GRCA_DC, aes(x=WT, y=TAR))+
   geom_point(size=3)+
   geom_smooth(linetype="dashed")+
@@ -515,9 +515,9 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 ```
 
-Create multiple plots for using with the function above
+Create multiple plots for using with the function above:
 
-```{r, eval = T}
+```{r, eval = T, warning=F, message = F}
 a <- ggplot(GRCA_DC, aes(x=WT, y=TAR))+
   geom_point(size=3)+
   geom_smooth(method=glm, linetype="dashed")+
@@ -590,7 +590,7 @@ multiplot(a,b,c,d, cols=2)
 
 ## Some Other Fun Stuff w/ Themes
 
-```{r, eval = T}
+```{r, eval = T, warning=F, message = F}
 library(ggthemes)
 
   b+theme_igray()
