@@ -14,25 +14,21 @@ Migratory Bird Center_
 _Note: This lesson borrows **heavily** from Hadley Wickham's awesome paper on Tidy Data (2014). We strongly recommend this paper to all R users!_
 
 ## Before you begin
-Copy-and-paste the following code to read in the data we will be using in this lesson and load the packages:
+Copy-and-paste the following code into R to load the packages and read in the data we will be using for this lesson:
 
 ```{r, eval=FALSE}
-# Load the libraries:
+library(RCurl)
 
-library(RCurl); library(tidyr); library(dplyr)
+url <-'https://raw.githubusercontent.com/SCBI-MigBirds/scbi-migbirds.github.io/master/sourceDataManip.R'
+sourceURL <- getURL(url)
 
-# Provide the web addresses of the data files:
-
-birdCountsURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv')
-wideURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv')
-longURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/longCounts.csv')
-
+eval(parse(text = sourceURL))
 ```
 
 ## Introduction
 
-  It is estimated that the process of preparing data for analysis, **data manipulation** or, as Hadley Wickham calls it, **data wrangling**, consumes up to 80 percent of total analysis time (Dasu and Johnson 2003).  In classes on statistics and applied data analysis, emphasis is generally placed on the analysis of data and, historically, comparatively little attention is paid to how to prepare one's data to be analyzed. With the expansion of "big data" analyses in ecology and increasing calls for reproducibility, however, this is beginning to change. Increasingly, journals are asking authors to publish both data and R code as supplemental information for their manuscripts. This helps advance scientific knownledge, as researchers do not have to reinvent the wheel every time they conduct a similar analysis, and ensures replicability, as interested parties (e.g., reviewers) can repeat your every step in your data analysis with the exception of the collection of field data! 
-
+  It is estimated that the process of preparing data for analysis, **data manipulation** or, as Hadley Wickham calls it, **data wrangling**, consumes up to 80 percent of total analysis time (Dasu and Johnson 2003).  In classes on statistics and applied data analysis, emphasis is generally placed on the analysis of data and, historically, comparatively little attention is paid to how to prepare one's data to be analyzed. With the expansion of "big data" analyses in ecology and increasing calls for reproducibility, however, this is beginning to change. Increasingly, journals are asking authors to publish both data and R code as supplemental information for their manuscripts. This helps advance scientific knownledge, as researchers do not have to reinvent the wheel every time they conduct a similar analysis, and ensures replicability, as interested parties (e.g., reviewers) can repeat your every step in your data analysis with the exception of the collection of field data!    
+<img style="PADDING-RIGHT:25px; PADDING-TOP: 25px; PADDING-BOTTOM: 15px" align = "left" src="http://images.nationalgeographic.com/wpf/media-live/photos/000/183/cache/upside-down-bird_18378_990x742.jpg" height="400px" width = "400px" title=" Hideta Nagai, National Geographic">  
 Considering this, it is in all of our best interest that the data manipulation be simple, that our scripts are legible and easy-to-follow, and that we can avoid "script bloat" by using methods (such as functions and occasionally _for loops_!) to reduce the length of our scripts. It is highly recommended that you take a "cradle-to-grave" approach to data manipulation and analysis:
 
 1) Collect and store your data in well-constructed spreadsheets and databases. 
@@ -89,7 +85,8 @@ In the above, each bird is certainly an observation, but is each distance class 
 tidyCounts <- gather(dFrame, distance, obs, d10:d30)
 ```
 
-The above is what is often called a "long" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites it may be appropriate to consider sites as the unit of observation and species as variables. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
+The above is what is often called a "**long**" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites
+it may be appropriate to consider sites as the unit of observation and species as variables -- thus data are arranged in "**wide**" format. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
 
 ```{r, eval = T, echo=F, warning=FALSE}
 site <- c('site1', 'site2' ,'site2',rep('site3',3))
@@ -119,21 +116,16 @@ For the sake of brevity, we'll leave tidying data to just these two functions. T
 ----
 
 > **Exercise 1**    
-> Run the following script to read the wide and long count datasets into R and use these dataset to answer the following questions.
+> The datasets "wideBirds" and "longBirds" are located in your global environment. Using these data:
 >
-> ```{r, eval=FALSE}
-wideCounts <- read.csv(text = wideURL)
-longCounts <- read.csv(text = longURL)
-> ```
-> 1. Convert the wide count data frame to a long format tidy dataset.
-> 2. Convert the long count data frame to a wide format tidy dataset.
->
+> 1. Convert wideBirds to a tidy long format dataset.
+> 2. Convert longBirds to a tidy wide format dataset.
 
 ----
 
 ## dplyr
 
-**dplyr** makes data manipulation simple by using just a few basic functions that satisfy most data manipulation tasks. Considerably faster than most other data manipulation, which can be quite important when analyzing big data.
+**dplyr** makes data manipulation simple by using just a few basic functions that satisfy most data manipulation tasks. It is considerably faster than most other data manipulation, which can be quite important when analyzing big data.
 
 * **filter**: Remove rows that do not match a certain criteria
 
@@ -145,6 +137,94 @@ longCounts <- read.csv(text = longURL)
 
 * **summarize**: Calculate a summary statistic -- this is most useful (or, perhaps, only useful) in combination with the function _group_by_.
 
+### Subset data by observations
+
+In our preliminary R lesson, we subset the bird count rows using indexing. For example to view the counts of just foliage foraging species we enter:
+
+```{r eval = F}
+birdCounts[birdCounts$foraging == 'foliage',]
+```
+
+The filter fuction in dplyr works similarly, but the script is more concise:
+
+```{r eval = F}
+filter(birdCounts, foraging == 'foliage')
+```
+
+Note that the left side of the argument above is the data frame we are subsetting and the right hand of the argument is the logical condition. Because we have already specified the data frame from which we are filtering, it is not necessary to provide the name of the data frame within the logical condition.
+
+The advantage of this becomes readily apparent when we are filtering based on multiple conditions. Consider we would like to subset our birdCounts frame to foliage foraging species with an omnivorous diet. Let's compare the indexing and dplyr solution (Note: I'm using head here to :
+
+```{r eval = F}
+
+birdCounts[birdCounts$foraging == 'foliage' & birdCounts$diet == 'omnivore',]
+
+filter(birdCounts, foraging == 'foliage' & diet == 'omnivore')
+
+```
+
+And the advantage builds as we increase the number of selection criteria:
+
+
+```{r eval = F}
+
+birdCounts[birdCounts$foraging == 'foliage' & birdCounts$diet == 'omnivore' & birdCounts$count > 1,]
+
+filter(birdCounts, foraging == 'foliage' & diet == 'omnivore' & count > 1)
+
+```
+
+
+----
+
+> <img style="PADDING-RIGHT:25px; PADDING-TOP: 0px; PADDING-BOTTOM: 5px" align = "left" src="http://www.allaboutbirds.org/guide/PHOTO/LARGE/carolina_chickadee_4.jpg" height="175px" width = "175px" title="Michael Drummond">
+>    
+> **Exercise 2**    
+Use indexing and dplyr's filter command to subset the birdCounts data frame to observations of Carolina Chickadee (_Poecile carolinensis_) in which two or more individuals were observed.    
+>
+    
+----
+    
+### Subset data by columns
+
+----
+
+> **Exercise 3**    
+> Add
+>
+
+----
+
+### Arrange data in ascending or descending order
+
+----
+
+> **Exercise 4**    
+> Add
+>
+
+----
+
+### Create new variables
+
+----
+
+> **Exercise 5**    
+> Add
+>
+
+----
+
+### Summarize data
+
+----
+
+> **Exercise 6**    
+> Add
+>
+
+----
+
 ## The **pipe** operator
 
 One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for hist package `magrittr` (named after Magritte's painting _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
@@ -152,13 +232,16 @@ One of the greatest recent advancements in the world of R is the implementation 
 Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Piped lines of code are read from left-to-right and the piping symbol, "%>%", can be thought of as the word "then". To understand how this works let's look at a `dplyr` function without and with piping.
 
 
+----
 
+> **Exercise 7**    
+> Add
+>
 
-
-
-Joining data
-
-dplyr can also be used to extract and modify data directly from an SQL database. This means that you do not have to extract 
-
+----
 
 _**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
+
+----
+
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
