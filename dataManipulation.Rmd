@@ -143,7 +143,7 @@ For the sake of brevity, we'll leave tidying data to just these two functions. T
 
 ### Subset data by observations
 
-In our preliminary R lesson, we subset the bird count rows using indexing. For example to view the counts of just foliage foraging species we enter:
+In our Introduction to R lesson, we subset the bird count rows using indexing. For example to view the counts of just foliage foraging species we enter:
 
 ```{r eval = F}
 birdCounts[birdCounts$foraging == 'foliage',]
@@ -178,68 +178,228 @@ filter(birdCounts, foraging == 'foliage' & diet == 'omnivore' & count > 1)
 
 ```
 
-
 ----
 
 > <img style="PADDING-RIGHT:25px; PADDING-TOP: 0px; PADDING-BOTTOM: 5px" align = "left" src="http://www.allaboutbirds.org/guide/PHOTO/LARGE/carolina_chickadee_4.jpg" height="175px" width = "175px" title="Michael Drummond">
->    
 > **Exercise 2**    
-Use indexing and dplyr's filter command to subset the birdCounts data frame to observations of Carolina Chickadee (_Poecile carolinensis_) in which two or more individuals were observed.    
+Subset the birdCounts data frame to observations of Carolina Chickadee (_Poecile carolinensis_) in which two or more individuals were observed using:    
+1. indexing    
+2. dplyr's filter command  
 >
     
 ----
     
 ### Subset data by columns
 
+In our Introduction to R lesson we learned how to select columns from a data frame using indexing. We can select columns based on their position within the data frame or by name:
+
+```{r eval = F}
+
+# By position: 
+
+birdCounts[,3:4]
+
+# By name:
+
+birdCounts[, c('count', 'foraging')]
+
+```
+
+We can use the `select` function in `dplyr` to select columns as well:
+
+```{r eval = F}
+
+# By position: 
+
+select(birdCounts, 3:4)
+
+# By name:
+
+select(birdCounts, count, foraging)
+```
+
+The select function is more flexible than indexing, in that column names can be used in place of numbers to select a range of columns:
+
+```{r eval = F}
+select(birdCounts, count:diet)
+
+```
+
+To remove a column, you would use a minus sign:
+
+```{r eval = F}
+select(birdCounts, -site)
+
+```
+
 ----
 
 > **Exercise 3**    
-> Add
+> 1. Use the `select` function to subset the birdCounts data frame to species, count, and diet guild columns. Assign the name "birdCount1" to this data frame.    
+2. Use the `filter` function to subset your reduced data frame to observations of omnivores and granivores. Assign the name "birdCount2" to this data frame.    
+3. Use the `filter` function to subset  birdCount2 to counts that are greater than or equal to three individuals.
 >
 
 ----
 
 ### Arrange data in ascending or descending order
 
+`dplyr` contains a handy function, `arrange` to sort data frames in ascending (low-to-high) or descending (high-to-low) order.
+For example, if you wanted to arrange the birdCounts data frame by count:
+
+```{r eval = F}
+
+# Ascending:
+
+arrange(birdCounts, count)
+
+# Descending:
+
+arrange(birdCounts, desc(count))
+
+```
+
+`arrange` also works with characters and factors to arrange alphabetically:
+
+```{r, eval = F}
+arrange(birdCounts, species)
+```
+
+This can be used in combination with another `dplyr` function, `distinct`, which removes duplicate observations from a data frame. For example, let's use `select`, as above, to create a reduced data frame that contains only species, `distinct` to remove all duplicate observations, and arrange the species names alphabetically:
+
+```{r eval = F}
+
+# Subset birdCounts to only the species column:
+
+birdCountsSp <- select(birdCounts, species)
+
+# Use distinct to remove duplicate rows:
+
+birdCountsSpDistinct <- distinct(birdCountsSp)
+
+# Arrange alphabetically
+
+arrange(birdCountsSpDistinct, species)
+
+```
+
 ----
 
-> **Exercise 4**    
-> Add
+> **Exercise 4**        
+> 1. Subset birdCounts data frame to only species and diet fields. Assign the name "birdCountSpDiet" to this data frame.        
+2. Subset the dataset to only insectivorous species. Assign the name "birdCountInsect" to this data frame.       
+3. Use `distinct` to remove duplicate observations.    
+4. Use `arrange` to sort the species column alphabetically.
 >
 
 ----
 
 ### Create new variables
 
+We can use the `dplyr` function `mutate` to add new derived variables to our data frame. For example, we can calculate the percentile ranks of our count column and give our new column the name "pRank" (admittedly not a very useful summary statistic at this juncture!):
+
+```{r, eval = F}
+birdCountsPrank <- mutate(birdCounts, pRank = percent_rank(count))
+``` 
+
 ----
 
 > **Exercise 5**    
-> Add
+> The `paste` function in base R is used to concatenate character values. It can be used as paste(column1, column2). Use mutate and the paste function to create a new column names "forDiet" in the birdCountsPrank data frame that concatenates values in the foraging and diet vectors.
 >
 
 ----
 
 ### Summarize data
 
+The biggest asset of `dplyr` is in providing a flexible and memory efficient tool for summarizing data, the function `summarize`. This allows you to calculate summary statistics across a data frame. For example, to calculate the sum of counts, you would use:
+
+```{r, eval = F}
+summarize(birdCounts, sum(count))
+``` 
+
+This may seem (on its surface) a bit silly, as you could have gotten the same result as above using:
+
+```{r, eval = F}
+sum(birdCounts$count)
+``` 
+
+On it's own, `summarize` is obviously really not very useful. In combination with the `dplyr` function `group_by`, however, `summarize` becomes a powerful tool. First, let's look at what happens to our bird count dataset when we use the `group_by` function on the foraging field:
+
+```{r, eval = F}
+group_by(birdCounts, foraging)
+``` 
+
+Compare the output of this function with the birdCounts data frame:
+
+```{r, eval = F}
+birdCounts
+``` 
+
+You'll notice that the data frame itself wasn't changed, but there is additional output ... "Groups". 
+
+You can use this grouping to calculate the summary statistics across groups. For example, let's create a new data frame called "birdCountsForaging" and calculate the total counts for each foraging guild:
+
+```{r, eval = F}
+birdCountsForaging <- group_by(birdCounts, foraging)
+
+summarize(birdCountsForaging, N = sum(count))
+``` 
+
+We can also group and summarize by multiple groups:
+
+
+```{r, eval = F}
+birdCountsForagingDiet <- group_by(birdCounts, foraging, diet)
+
+summarize(birdCountsForagingDiet, N = sum(count))
+``` 
+
+This function is phenomenally powerful and memory efficient. In fact, the `summarize` function in `dplyr` has been found to be a whopping 10,000 times more memory efficient than the equivalent function in Hadley Wickham's `plyr` package, which itself is more memory effient than most of the other data summary methods out there!
+
 ----
 
 > **Exercise 6**    
-> Add
->
+> 1. Group birdCounts by species.  Assign the name "birdCountSp" to this data frame.    
+> 2. Calculate the sum total of counts for each species. Assign the name "birdCountSpSum" to your summary data frame and N to your count vector.    
+> 3. Sort birdCountSpSum from highest to lowest count.
 
 ----
 
 ## The **pipe** operator
 
-One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for hist package `magrittr` (named after Magritte's painting _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
+One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for his package `magrittr` (named after Magritte's painting _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
 
-Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Piped lines of code are read from left-to-right and the piping symbol, "%>%", can be thought of as the word "then". To understand how this works let's look at a `dplyr` function without and with piping.
+Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Take a moment to look at your Global Environment (upper right-hand pane in R Studio). You've got lots of objects in there. Likewise, if you didn't do a great job naming your R objects, you may have a hard time remembering what each was. Piping avoids the necessity to assign intermediate objects by conducting an analysis in sequence. Let's look at our `dplyr` summarizing operation above, first without and then with piping.
 
+```{r, eval = F}
+birdCountsForaging <- group_by(birdCounts, foraging)
+
+summarize(birdCountsForaging, N = sum(count))
+``` 
+
+To pipe this operation, we use the `%>%` symbol, which can be thought of as the word "then" ... in other words, first this, then that.
+
+```{r, eval = F}
+birdCounts %>% 
+  group_by(foraging) %>%
+  summarize(N = sum(count))
+```
+
+Notice in the above that I first defined the data frame we were using. This allowed me to omit the name of the data frame in the subsequent steps. Also notice that I used multiple lines of code. For maximal readibility, it is **highly recommended** that any multi-step operation should be formatted as such (this is considered **best management practices** for programmers across languages).
+
+It should be noted that piping is not really necessary here. Rather than assign objects to intermediate steps, we could nest the functions above, producing:
+
+```{r, eval = F}
+summarize(group_by(birdCounts, foraging), N = sum(count))
+``` 
+
+Take a moment to think of the difference between the piped and nested-function versions of this code. You'll notice that the piped version reads from left-to-right. The dataset becomes progressives smaller with each step to the right. Conversely, the summarize function reads from the inside out. The group_by function is actually the first step in the sequence, but instead it is nested in the middle of the summarize function! When functions are this simple, this likely seems like it's not a big deal. As our data analysis process becomes more complex, however, the nested-function method truly becomes problematically illegible.
 
 ----
 
 > **Exercise 7**    
-> Add
+> Give another try to Exercises 1-6 above, this time using piping to complete each in process in one step.
 >
 
 ----
