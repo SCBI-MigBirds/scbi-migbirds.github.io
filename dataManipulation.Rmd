@@ -13,9 +13,25 @@ Smithsonian Conservation Biology Institute
 Migratory Bird Center_    
 _Note: This lesson borrows **heavily** from Hadley Wickham's awesome paper on Tidy Data (2014). We strongly recommend this paper to all R users!_
 
+## Before you begin
+Copy-and-paste the following code to read in the data we will be using in this lesson and load the packages:
+
+```{r, eval=FALSE}
+# Load the libraries:
+
+library(RCurl); library(tidyr); library(dplyr)
+
+# Provide the web addresses of the data files:
+
+birdCountsURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv')
+wideURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv')
+longURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/longCounts.csv')
+
+```
+
 ## Introduction
 
-  It is estimated that the process of preparing data for analysis, **data manipulation** or, as Hadley Wickham calls it, **data wrangling**, consumes up to 80 percent of total analysis time (Dasu and Johnson 2003).  In classes on statistics and applied data analysis, emphasis is generally placed on the analysis of data and, historically, comparatively little attention is paid to how to prepare one's data to be analyzed. With the expansion of "big data" analysis, however, this is beginning to change. Increasingly, journals are asking authors to publish both data and R code as supplemental information for their manuscripts. This helps advance scientific knownledge, as researchers do not have to reinvent the wheel every time they conduct a similar analysis, and ensures replicability, as interested parties (e.g., reviewers) can repeat your every step in your data analysis with the exception of the collection of field data! 
+  It is estimated that the process of preparing data for analysis, **data manipulation** or, as Hadley Wickham calls it, **data wrangling**, consumes up to 80 percent of total analysis time (Dasu and Johnson 2003).  In classes on statistics and applied data analysis, emphasis is generally placed on the analysis of data and, historically, comparatively little attention is paid to how to prepare one's data to be analyzed. With the expansion of "big data" analyses in ecology and increasing calls for reproducibility, however, this is beginning to change. Increasingly, journals are asking authors to publish both data and R code as supplemental information for their manuscripts. This helps advance scientific knownledge, as researchers do not have to reinvent the wheel every time they conduct a similar analysis, and ensures replicability, as interested parties (e.g., reviewers) can repeat your every step in your data analysis with the exception of the collection of field data! 
 
 Considering this, it is in all of our best interest that the data manipulation be simple, that our scripts are legible and easy-to-follow, and that we can avoid "script bloat" by using methods (such as functions and occasionally _for loops_!) to reduce the length of our scripts. It is highly recommended that you take a "cradle-to-grave" approach to data manipulation and analysis:
 
@@ -38,13 +54,13 @@ untidyFrame <- data.frame(subject, treatmentA, treatmentB)
 untidyFrame
 ```
 
-Tidy? Nope. In this case, each subject has its own row, not each observation. We would have to do some awkward wrangling in base R to get this into a tidy format. Luckily, Hadley Wickham (have we mentioned that we're wicked fans of Hadley Wickham? If not, we will ...) created the _tidyr_ package in R with the specific aim of turning messy datasets into tidy ones.
+Tidy? Nope. In this case, each subject has its own row, not each observation. We would have to do some awkward wrangling in base R to get this into a tidy format. Luckily, Hadley Wickham (have we mentioned that we're wicked fans of Hadley Wickham? If not, we will ...) created the `tidyr` package in R with the specific aim of turning messy datasets into tidy ones.
 
 ```{r, eval = T, echo=TRUE, warning=FALSE}
 library(tidyr)
 ```
 
-With the tidyr function _gather_, we collapse multiple columns into "key-value pairs". In the above example, we are interested in the treatment "values" for each of our "key" values. We can tidy the above dataset using:
+With the `tidyr` function _gather_, we collapse multiple columns into "key-value pairs". In the above example, we are interested in the treatment "values" for each of our "key" values. We can tidy the above dataset using:
 
 ```{r, eval = T, echo=TRUE}
 tidyFrame <- gather(data = untidyFrame, 
@@ -73,7 +89,7 @@ In the above, each bird is certainly an observation, but is each distance class 
 tidyCounts <- gather(dFrame, distance, obs, d10:d30)
 ```
 
-The above is what is often called a "long" data frame. Are all tidy data frames long? Heck no! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. For community data, however, your observational data will likely be site and each column would indeed be its own variable (species). You could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
+The above is what is often called a "long" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites it may be appropriate to consider sites as the unit of observation and species as variables. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
 
 ```{r, eval = T, echo=F, warning=FALSE}
 site <- c('site1', 'site2' ,'site2',rep('site3',3))
@@ -97,33 +113,52 @@ Well, there's a problem with the above. Do the NA values above (Not Available) r
 spread(wFrame, species, count, fill = 0)
 ```
 
-----
 
-> **Exercise 1**:
-> 1. Run the following script to read wideData.csv into R:
->
->```{r, eval=FALSE}
-> library(RCurl)
-> fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/wideCounts.csv')
-> wideCounts <- read.csv(text = fileURL)
->```
-> Convert the wide count data frame to a long format tidy dataset.
->
-> Run the following script to read wideData.csv into R:
->
->```{r, eval=FALSE}
-> fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/longCounts.csv')
-> longCounts <- read.csv(text = fileURL)
->```
-> Convert the long count data frame to a wide format tidy dataset.
->
+For the sake of brevity, we'll leave tidying data to just these two functions. There are a few other functions in tidyr (I strongly suggest reading Wickham's [Tidy Data](http://www.jstatsoft.org/v59/i10/paper) (2014) paper), but you'll have to explore those on your own to give us some time to explore the wonderful world of dplyr!
 
 ----
 
-For the sake of brevity, we'll leave tidying data to just these two functions. There are a few other functions in tidyr (I strongly suggest reading the tidyr paper reading some of the tidyr resources), but you'll have to explore those on your own to give us some time to explore the wonderful world of dplyr!
+> **Exercise 1**    
+> Run the following script to read the wide and long count datasets into R and use these dataset to answer the following questions.
+>
+> ```{r, eval=FALSE}
+wideCounts <- read.csv(text = wideURL)
+longCounts <- read.csv(text = longURL)
+> ```
+> 1. Convert the wide count data frame to a long format tidy dataset.
+> 2. Convert the long count data frame to a wide format tidy dataset.
+>
+
+----
 
 ## dplyr
 
+**dplyr** makes data manipulation simple by using just a few basic functions that satisfy most data manipulation tasks. Considerably faster than most other data manipulation, which can be quite important when analyzing big data.
+
+* **filter**: Remove rows that do not match a certain criteria
+
+* **select**: Remove or maintain columns in a data set
+
+* **arrange**: Reorder rows
+
+* **mutate**: Create new variables
+
+* **summarize**: Calculate a summary statistic -- this is most useful (or, perhaps, only useful) in combination with the function _group_by_.
+
+## The **pipe** operator
+
+One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for hist package `magrittr` (named after Magritte's painting _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
+
+Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Piped lines of code are read from left-to-right and the piping symbol, "%>%", can be thought of as the word "then". To understand how this works let's look at a `dplyr` function without and with piping.
+
+
+
+
+
+
+Joining data
+
+dplyr can also be used to extract and modify data directly from an SQL database. This means that you do not have to extract 
 
 
 _**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
