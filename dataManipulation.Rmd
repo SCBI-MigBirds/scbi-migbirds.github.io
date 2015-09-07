@@ -21,7 +21,7 @@ Copy-and-paste the following code into R to load the packages and read in the da
 ```{r, eval=FALSE}
 library(RCurl)
 
-url <-'https://raw.githubusercontent.com/SCBI-MigBirds/scbi-migbirds.github.io/master/sourceDataManip.R'
+url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/sourceDataManip.R'
 sourceURL <- getURL(url)
 
 eval(parse(text = sourceURL))
