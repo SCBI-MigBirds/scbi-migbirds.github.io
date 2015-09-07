@@ -113,6 +113,23 @@ spread(data = longFrame,
   fill = 0)
 ```
 
+Like all functions, the functions above can be **nested** within the other. Nesting helps avoid assigning intermediate objects -- this can (occasionally) make your scripts easier to read, reduce naming conventions that can be difficult to remember or follow, and reduces the number of objects that need to be stored in your R environment. Let's take a look at non-nested and nested versions of our spread and gather functions above:
+
+```{r, eval = T, warning=FALSE}
+
+# Non-nested functions:
+
+wideFrame <- spread(longFrame, species, count, fill = 0)
+
+longFrame2 <- gather(wideFrame, species, count, amro:grca)
+
+# Nested functions:
+
+longFrame2 <- gather(data = spread(longFrame, species, count, fill = 0),
+  species, count, amro:grca)
+```
+
+Be sure that you can successfully read the non-nested and nested versions of these functions!
 
 For the sake of brevity, we'll leave tidying data to just these two functions. There are a few other functions in `tidyr` (I strongly suggest reading Wickham's [Tidy Data](http://www.jstatsoft.org/v59/i10/paper) (2014) paper), but you'll have to explore those on your own to give us some time to explore the wonderful world of `dplyr`!
 
@@ -122,8 +139,10 @@ For the sake of brevity, we'll leave tidying data to just these two functions. T
 > The dataset "birdCounts" is located in your global environment. Using these data:
 >
 > 1. Convert birdCounts to a wide format dataset, setting NA values to 0. Assign the name "wideBirds" to this data frame.
-> 2. Convert wideBirds to a tidy long format dataset. Assign the name "longBirds" to this data frame.
-> 3. Use the `head` function to compare the birdCounts data frame and "longBirds".
+>
+> 2. Convert wideBirds to a tidy long format dataset. Assign the name "longBirds" to this data frame. _How do the birdCounts and longBirds data frames differ?_
+>
+> 3. Complete steps one and two using **nested** functions.
 
 ----
 
@@ -178,12 +197,13 @@ filter(birdCounts, foraging == 'foliage' & diet == 'omnivore' & count > 1)
 
 ----
 
-> <img style="PADDING-RIGHT:25px; PADDING-TOP: 0px; PADDING-BOTTOM: 5px" align = "left" src="http://www.allaboutbirds.org/guide/PHOTO/LARGE/carolina_chickadee_4.jpg" height="175px" width = "175px" title="Michael Drummond">
+> <img style="PADDING-LEFT:45px; PADDING-TOP: 0px; PADDING-BOTTOM: 5px" align = "right" src="http://www.allaboutbirds.org/guide/PHOTO/LARGE/carolina_chickadee_4.jpg" height="225px" width = "225px" title="Michael Drummond">
 > **Exercise 2**    
-Subset the birdCounts data frame to observations of Carolina Chickadee (_Poecile carolinensis_) in which two or more individuals were observed using:    
-1. indexing    
-2. dplyr's filter command  
+Subset the birdCounts data frame to observations of Carolina Chickadee (_Poecile carolinensis_) in which two or more individuals were observed using:
 >
+> 1. Indexing
+>    
+> 2. dplyr's `filter` command  
     
 ----
     
@@ -232,10 +252,15 @@ select(birdCounts, -site)
 
 ----
 
-> **Exercise 3**    
-> 1. Use the `select` function to subset the birdCounts data frame to species, count, and diet guild columns. Assign the name "birdCount1" to this data frame.    
-2. Use the `filter` function to subset your reduced data frame to observations of omnivores and granivores. Assign the name "birdCount2" to this data frame.    
-3. Use the `filter` function to subset  birdCount2 to counts that are greater than or equal to three individuals.
+> **Exercise 3**
+>
+> 1. Use the `select` function to subset the birdCounts data frame to species, count, and diet guild columns. Assign the name "birdCount1" to this data frame. 
+>
+> 2. Use the `filter` function to subset your reduced data frame to observations of omnivores and granivores. Assign the name "birdCount2" to this data frame.
+>
+> 3. Use the `filter` function to subset  birdCount2 to counts that are greater than or equal to three individuals.
+>
+> 4. Complete steps 1 - 3 using **nested** functions.
 >
 
 ----
@@ -283,11 +308,17 @@ arrange(birdCountsSpFdistinct, species)
 
 ----
 
-> **Exercise 4**        
-> 1. Subset birdCounts data frame to only species and diet fields. Assign the name "birdCountSpDiet" to this data frame.        
-2. Subset the dataset to only insectivorous species. Assign the name "birdCountInsect" to this data frame.       
-3. Use `distinct` to remove duplicate observations. Assign the name "birdCountInsectDistinct" to this data frame.    
-4. Use `arrange` to sort the species column alphabetically.
+> **Exercise 4**    
+>
+> 1. Subset birdCounts data frame to only species and diet fields. Assign the name "birdCountSpDiet" to this data frame.
+>
+> 2. Subset the dataset to only insectivorous species. Assign the name "birdCountInsect" to this data frame.       
+>
+> 3. Use `distinct` to remove duplicate observations. Assign the name "birdCountInsectDistinct" to this data frame.    
+>
+> 4. Use `arrange` to sort the species column alphabetically.
+>
+> 5. Complete steps 1 - 4 using **nested** functions.
 >
 
 ----
@@ -303,7 +334,14 @@ birdCountsPrank <- mutate(birdCounts, pRank = percent_rank(count))
 ----
 
 > **Exercise 5**    
-> The `paste` function in base R is used to concatenate character values (_Note: the syntax is `paste(column1, column2)`_). Use mutate and the paste function to create a new column names "forDiet" in the birdCountsPrank data frame that concatenates values in the foraging and diet vectors.
+>
+> 1. The `paste` function in base R is used to concatenate character values (_Note: the syntax is `paste(column1, column2)`_). Use `mutate` and `paste` functions to create a new column named "forDiet". Assign the name "birdCountsForDiet"" to this data frame.
+> 
+> 2. Use the `select` function to subset "birdCountsForDiet" to just the "forDiet" field.  Assign the name "forDietFrame" to this data frame.      
+>
+> 3. Use the `distinct` function to view all unique combinations of foraging and diet guilds.
+>
+> 4. Complete steps 1 - 3 using **nested** functions.
 >
 
 ----
@@ -358,9 +396,15 @@ This function is phenomenally powerful and memory efficient. In fact, the `summa
 ----
 
 > **Exercise 6**    
-> 1. Group birdCounts by species.  Assign the name "birdCountSp" to this data frame.    
+>
+> 1. Group birdCounts by species.  Assign the name "birdCountSp" to this data frame.
+>
 > 2. Calculate the sum total of counts for each species. Assign the name "birdCountSpSum" to your summary data frame and N to your count vector.    
-> 3. Sort birdCountSpSum from highest to lowest count.
+>
+> 3. Sort birdCountSpSum from highest to lowest count.    
+>
+> 4. Complete steps 1 - 3 using **nested** functions.
+>
 
 ----
 
@@ -368,7 +412,7 @@ This function is phenomenally powerful and memory efficient. In fact, the `summa
 
 One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for his package `magrittr` (named after Magritte's painting, _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
 
-Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Take a moment to look at your Global Environment (upper right-hand pane in R Studio). You've got lots of objects in there. Likewise, if you didn't do a great job naming your R objects, you may have a hard time remembering what each was. Piping avoids the necessity to assign intermediate objects by conducting an analysis in sequence. Let's look at our `dplyr` summarizing operation above, first without and then with piping.
+Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Take a moment to look at your Global Environment (upper right-hand pane in R Studio). You've got lots of objects in there. Likewise, if you didn't do a great job naming your R objects, you may have a hard time remembering what each was. Likewise, I'm going to guess that you may have had some difficulty **nesting** the functions in the exercises above. Even constructing nested functions did not prove too difficult a task, each of the nested functions are problematically complicated to read. Piping avoids the necessity to assign intermediate objects and makes scripts legible by conducting analyses in sequence. Let's look at our `dplyr` summarizing operation above.
 
 ```{r, eval = F}
 birdCountsForaging <- group_by(birdCounts, foraging)
@@ -376,7 +420,13 @@ birdCountsForaging <- group_by(birdCounts, foraging)
 summarize(birdCountsForaging, N = sum(count))
 ``` 
 
-To pipe this operation, we use the `%>%` symbol, which can be thought of as the word "then" ... in other words, first this, then that.
+To we nest these functions, we write:
+
+```{r, eval = F}
+summarize(group_by(birdCounts, foraging), N = sum(count))
+``` 
+
+To pipe this operation, we use the `%>%` symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed me to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up).  which can be thought of as the word "then" ... in other words, first this, then that.
 
 ```{r, eval = F}
 birdCounts %>% 
@@ -384,15 +434,11 @@ birdCounts %>%
   summarize(N = sum(count))
 ```
 
-Notice in the above that I first defined the data frame we were using. This allowed me to omit the name of the data frame in the subsequent steps. Also notice that I used multiple lines of code. For maximal readibility, it is **highly recommended** that any multi-step operation should be formatted as such (this is considered **best management practices** for programmers across languages).
+The piping symbol, `%>%`, represents the word "then". We would read the above as "use the data frame bird counts _then_ group by foraging _then_ calculate the sum for each group".
 
-It should be noted that piping is not really necessary here. Rather than assign objects to intermediate steps, we could nest the functions above, producing:
+Notice that I used multiple indented lines of code. For maximal readibility, it is **highly recommended** that any multi-step operation should be formatted as such (this is considered **best management practices** for programmers across languages).
 
-```{r, eval = F}
-summarize(group_by(birdCounts, foraging), N = sum(count))
-``` 
-
-Take a moment to think of the difference between the piped and nested-function versions of this code. You'll notice that the piped version reads from left-to-right. The dataset becomes progressives smaller with each step to the right. Conversely, the summarize function reads from the inside out. The group_by function is actually the first step in the sequence, but instead it is nested in the middle of the summarize function! When functions are this simple, this likely seems like it's not a big deal. As our data analysis process becomes more complex, however, the nested-function method truly becomes problematically illegible.
+Take a moment to think of the difference between the piped and nested-function versions of the operation above. You'll notice that the piped version reads from left-to-right (or up-to-down). The dataset becomes progressively smaller with each step to the right (or down). Conversely, the summarize function reads from the inside out. In the nested functions, `group_by` is actually the first step in the sequence, but it is instead nested in the middle of the `summarize` function! This is what makes reading nested functions, especially if data analyses are complex, so difficult to read.
 
 ----
 
