@@ -96,7 +96,7 @@ it may be appropriate to consider sites as the unit of observation and species a
 longFrame
 ```
 
-Thus, for many community data analyses, sites may be considered the observational units with species listed as columns. To convert this from a long to a wide frame, we use the `spread` function in `tidyr`:
+Thus, for many community data analyses, sites may be considered the observational units with species listed as columns. To convert this from a long to a wide frame, we use the `spread` function in `tidyr`. _Note that usage of the key-value pair is essentially the opposite of the usage within the gather function!_
 
 ```{r, eval = T, warning=FALSE}
 spread(data = longFrame, 
