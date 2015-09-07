@@ -448,7 +448,7 @@ Take a moment to think of the difference between the piped and nested-function v
 
 ----
 
-_**A final note**: You should consider **every** script you write to be not just data analysis but rather a **communication**, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!_
+_**A final note**: You should consider **every** script you write to be a **communication** between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly -- future you and your fellow scientists will appreciate it greatly!_
 
 ----
 
