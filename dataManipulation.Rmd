@@ -87,6 +87,7 @@ In the above, each bird is certainly an observation, but is each distance class 
 
 ```{r, eval = TRUE, echo=TRUE}
 tidyCounts <- gather(dFrame, distance, obs, d10:d30)
+tidyCounts
 ```
 
 The above is what is often called a "**long**" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites
