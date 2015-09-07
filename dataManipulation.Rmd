@@ -155,9 +155,7 @@ The `filter` fuction in `dplyr` works similarly, but the script is more concise:
 filter(birdCounts, foraging == 'foliage')
 ```
 
-Note that the left side of the argument above is the data frame we are subsetting and the right hand of the argument is the logical condition. Because we have already specified the data frame from which we are filtering, it is not necessary to provide the name of the data frame within the logical condition.
-
-The advantage of this becomes readily apparent when we are filtering based on multiple conditions. Consider we would like to subset our birdCounts frame to foliage foraging species with an omnivorous diet. Let's compare the indexing and `dplyr` solution.
+Note that the left side of the argument above is the data frame we are subsetting and the right hand of the argument is the logical condition. Because we have already specified the data frame from which we are filtering, it is not necessary to provide the name of the data frame within the logical condition. The advantage of this becomes readily apparent when we are filtering based on multiple conditions. Consider we would like to subset our birdCounts frame to foliage foraging species with an omnivorous diet. Let's compare the indexing and `dplyr` solution.
 
 ```{r eval = F}
 
@@ -265,21 +263,21 @@ arrange(birdCounts, desc(count))
 arrange(birdCounts, species)
 ```
 
-This can be used in combination with another `dplyr` function, `distinct`, which removes duplicate observations from a data frame. For example, let's use `select`, as above, to create a reduced data frame that contains only species, `distinct` to remove all duplicate observations, and arrange the species names alphabetically:
+This can be used in combination with another `dplyr` function, `distinct`, which removes duplicate observations from a data frame. For example, let's use `select`, as above, to create a reduced data frame that contains only species and foraging fields, `distinct` to remove all duplicate observations, and arrange the species names alphabetically:
 
 ```{r eval = F}
 
 # Subset birdCounts to only the species column:
 
-birdCountsSp <- select(birdCounts, species)
+birdCountsSpF <- select(birdCounts, species, foraging)
 
 # Use distinct to remove duplicate rows:
 
-birdCountsSpDistinct <- distinct(birdCountsSp)
+birdCountsSpFdistinct <- distinct(birdCountsSpF)
 
 # Arrange alphabetically
 
-arrange(birdCountsSpDistinct, species)
+arrange(birdCountsSpFdistinct, species)
 
 ```
 
@@ -288,7 +286,7 @@ arrange(birdCountsSpDistinct, species)
 > **Exercise 4**        
 > 1. Subset birdCounts data frame to only species and diet fields. Assign the name "birdCountSpDiet" to this data frame.        
 2. Subset the dataset to only insectivorous species. Assign the name "birdCountInsect" to this data frame.       
-3. Use `distinct` to remove duplicate observations. Assign the name "birdCountInsectDistinct" to this data frame.
+3. Use `distinct` to remove duplicate observations. Assign the name "birdCountInsectDistinct" to this data frame.    
 4. Use `arrange` to sort the species column alphabetically.
 >
 
