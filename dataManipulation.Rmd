@@ -111,8 +111,9 @@ For the sake of brevity, we'll leave tidying data to just these two functions. T
 > **Exercise 1**    
 > The dataset "birdCounts" is located in your global environment. Using these data:
 >
-> 1. Convert birdCounts to a wide format dataset.
-> 2. Convert longBirds to a tidy wide format dataset.
+> 1. Convert birdCounts to a wide format dataset, setting NA values to 0. Assign the name "wideBirds" to this data frame.
+> 2. Convert wideBirds to a tidy long format dataset. Assign the name "longBirds" to this data frame.
+> 3. Use the `head` function to compare the birdCounts data frame and "longBirds".
 
 ----
 
