@@ -426,7 +426,7 @@ To we nest these functions, we write:
 summarize(group_by(birdCounts, foraging), N = sum(count))
 ``` 
 
-To pipe this operation, we use the `%>%` symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed me to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up).  which can be thought of as the word "then" ... in other words, first this, then that.
+To pipe this operation, we use the `%>%` symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed us to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up).  which can be thought of as the word "then" ... in other words, first this, then that.
 
 ```{r, eval = F}
 birdCounts %>% 
