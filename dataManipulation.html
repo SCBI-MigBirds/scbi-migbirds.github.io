@@ -365,7 +365,7 @@ summarize(birdCountsForaging, N = sum(count))</code></pre>
 <p>Take a moment to think of the difference between the piped and nested-function versions of the operation above. You’ll notice that the piped version reads from left-to-right (or up-to-down). The dataset becomes progressively smaller with each step to the right (or down). Conversely, the summarize function reads from the inside out. In the nested functions, <code>group_by</code> is actually the first step in the sequence, but it is instead nested in the middle of the <code>summarize</code> function! This is what makes reading nested functions, especially if data analyses are complex, so difficult to read.</p>
 <hr />
 <blockquote>
-<p><strong>Exercise 7</strong><br />Give another try to Exercises 1-6 above, this time using piping to complete each in process in one step.</p>
+<p><strong>Exercise 7</strong><br />Give another try to Exercises 1-6 above, this time using <strong>piping</strong> rather than <strong>nesting</strong> to complete each in process.</p>
 </blockquote>
 <hr />
 <p><em><strong>A final note</strong>: You should consider <strong>every</strong> script you write to be not just data analysis but rather a <strong>communication</strong>, between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly, future you and your fellow scientists will appreciate it greatly!</em></p>

@@ -443,7 +443,7 @@ Take a moment to think of the difference between the piped and nested-function v
 ----
 
 > **Exercise 7**    
-> Give another try to Exercises 1-6 above, this time using piping to complete each in process in one step.
+> Give another try to Exercises 1-6 above, this time using **piping** rather than **nesting** to complete each in process.
 >
 
 ----
