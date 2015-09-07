@@ -153,13 +153,18 @@ tidyCounts</code></pre>
 ## 5 site3    carw     1
 ## 6 site3    grca     2</code></pre>
 <p>Thus, for many community data analyses, sites may be considered the observational units with species listed as columns. To convert this from a long to a wide frame, we use the <code>spread</code> function in <code>tidyr</code>:</p>
-<pre class="r"><code>spread(longFrame, species, count)</code></pre>
+<pre class="r"><code>spread(data = longFrame, 
+  key = species, 
+  value = count)</code></pre>
 <pre><code>##    site amro carw grca
 ## 1 site1    1   NA   NA
 ## 2 site2   NA    1    2
 ## 3 site3    5    1    2</code></pre>
 <p>Well, there’s a problem with the above. Do the NA values above (Not Available) really mean NA? Technically, zero observations are zeroes, with NA’s constrained to unsampled data. Luckily we can “fill” the NA values with zeroes as below:</p>
-<pre class="r"><code>spread(longFrame, species, count, fill = 0)</code></pre>
+<pre class="r"><code>spread(data = longFrame,
+  key = species, 
+  value = count, 
+  fill = 0)</code></pre>
 <pre><code>##    site amro carw grca
 ## 1 site1    1    0    0
 ## 2 site2    0    1    2

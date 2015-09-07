@@ -99,13 +99,18 @@ longFrame
 Thus, for many community data analyses, sites may be considered the observational units with species listed as columns. To convert this from a long to a wide frame, we use the `spread` function in `tidyr`:
 
 ```{r, eval = T, warning=FALSE}
-spread(longFrame, species, count)
+spread(data = longFrame, 
+  key = species, 
+  value = count)
 ```
 
 Well, there's a problem with the above. Do the NA values above (Not Available) really mean NA? Technically, zero observations are zeroes, with NA's constrained to unsampled data. Luckily we can "fill" the NA values with zeroes as below:
 
 ```{r, eval = T, warning=FALSE}
-spread(longFrame, species, count, fill = 0)
+spread(data = longFrame,
+  key = species, 
+  value = count, 
+  fill = 0)
 ```
 
 
