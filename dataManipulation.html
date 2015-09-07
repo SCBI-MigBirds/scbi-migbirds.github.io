@@ -116,23 +116,23 @@ tidyFrame</code></pre>
 ## 5       B treatmentB   3.2
 ## 6       C treatmentB   4.6</code></pre>
 <p>Let’s give a more bird-y example. I (Brian) collected point count data from sites in Washington, D.C. For each bird, I calculated the distance between myself and the individual, in units of 10 meters. On my datasheet I recorded the following:</p>
-<pre><code>##   species....c..amro....carw....grca.. d10 d20 d30
-## 1                                 amro   0   1   0
-## 2                                 carw   0   1   0
-## 3                                 grca   1   0   0</code></pre>
+<pre><code>##   species d10 d20 d30
+## 1    amro   0   1   0
+## 2    carw   0   1   0
+## 3    grca   1   0   0</code></pre>
 <p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:</p>
 <pre class="r"><code>tidyCounts &lt;- gather(wideFrame, distance, obs, d10:d30)
 tidyCounts</code></pre>
-<pre><code>##   species....c..amro....carw....grca.. distance obs
-## 1                                 amro      d10   0
-## 2                                 carw      d10   0
-## 3                                 grca      d10   1
-## 4                                 amro      d20   1
-## 5                                 carw      d20   1
-## 6                                 grca      d20   0
-## 7                                 amro      d30   0
-## 8                                 carw      d30   0
-## 9                                 grca      d30   0</code></pre>
+<pre><code>##   species distance obs
+## 1    amro      d10   0
+## 2    carw      d10   0
+## 3    grca      d10   1
+## 4    amro      d20   1
+## 5    carw      d20   1
+## 6    grca      d20   0
+## 7    amro      d30   0
+## 8    carw      d30   0
+## 9    grca      d30   0</code></pre>
 <p>The above is what is often called a “<strong>long</strong>” data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites it may be appropriate to consider sites as the unit of observation and species as variables – thus data are arranged in “<strong>wide</strong>” format. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study … but then, of course, you’d be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let’s consider the following count data:</p>
 <pre><code>##    site species count
 ## 1 site1    amro     1
