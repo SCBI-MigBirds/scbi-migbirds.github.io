@@ -122,12 +122,12 @@ tidyFrame</code></pre>
 ## 4       A treatmentB   2.9
 ## 5       B treatmentB   3.2
 ## 6       C treatmentB   4.6</code></pre>
-<p>Let’s give a more bird-y example. I (Brian) collected point count data from sites in Washington, D.C. For each bird, I calculated the distance between myself and the individual, in units of 10 meters. On my datasheet I recorded the following:</p>
+<p>Let’s give a more bird-y example. I (Brian) collected point count data from sites in Washington, D.C. For each bird, I calculated the distance between myself and the observed birds, in units of 10 meters. On my datasheet I recorded the following:</p>
 <pre><code>##   species d10 d20 d30
 ## 1    amro   0   1   0
 ## 2    carw   0   1   0
 ## 3    grca   1   0   0</code></pre>
-<p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled tidy our data by collapsing the distances into an individual column. In the script below we use the <code>tidyr</code> function <code>gather</code> as:</p>
+<p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are compelled to tidy our data by collapsing the distances into an individual column. In the script below we use the <code>tidyr</code> function <code>gather</code> as:</p>
 <pre class="r"><code>tidyCounts &lt;- gather(data = wideFrame, 
   key = distance,
   value = obs, 
