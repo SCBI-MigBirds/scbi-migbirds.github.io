@@ -120,7 +120,13 @@ tidyFrame</code></pre>
 ## 1    amro   0   1   0
 ## 2    carw   0   1   0
 ## 3    grca   1   0   0</code></pre>
-<p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:</p>
+<p>In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data). In the script below we use the <code>tidyr</code> function <code>gather</code> by providing:</p>
+<ol style="list-style-type: decimal">
+<li>The data frame (“wide frame”)</li>
+<li>The name of the new “key” field for which we are gathering the data (“distance”)</li>
+<li>The name of the new “value” field where the values for that field will be stored</li>
+<li>The columns for which the values will be restructured (these may be referred to by name or column number)</li>
+</ol>
 <pre class="r"><code>tidyCounts &lt;- gather(wideFrame, distance, obs, d10:d30)
 tidyCounts</code></pre>
 <pre><code>##   species distance obs
@@ -156,9 +162,9 @@ tidyCounts</code></pre>
 <p>For the sake of brevity, we’ll leave tidying data to just these two functions. There are a few other functions in <code>tidyr</code> (I strongly suggest reading Wickham’s <a href="http://www.jstatsoft.org/v59/i10/paper">Tidy Data</a> (2014) paper), but you’ll have to explore those on your own to give us some time to explore the wonderful world of <code>dplyr</code>!</p>
 <hr />
 <blockquote>
-<p><strong>Exercise 1</strong><br />The datasets “wideBirds” and “longBirds” are located in your global environment. Using these data:</p>
+<p><strong>Exercise 1</strong><br />The dataset “birdCounts” is located in your global environment. Using these data:</p>
 <ol style="list-style-type: decimal">
-<li>Convert wideBirds to a tidy long format dataset.</li>
+<li>Convert birdCounts to a wide format dataset.</li>
 <li>Convert longBirds to a tidy wide format dataset.</li>
 </ol>
 </blockquote>

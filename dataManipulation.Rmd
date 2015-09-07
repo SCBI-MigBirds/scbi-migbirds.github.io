@@ -72,7 +72,12 @@ Let's give a more bird-y example. I (Brian) collected point count data from site
 wideFrame
 ```
 
-In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data), using:
+In the above, each bird is certainly an observation, but is each distance class (which represents 10 to 30 m from the point count location) truly a separate variable? Nope. As such, we are be compelled to collapse our distances to an individual column (if we believe in tidy data). In the script below we use the `tidyr` function `gather` by providing:
+
+1. The data frame ("wide frame")
+2. The name of the new "key" field for which we are gathering the data ("distance")
+3. The name of the new "value" field where the values for that field will be stored
+4. The columns for which the values will be restructured (these may be referred to by name or column number)
 
 ```{r, eval = TRUE, echo=TRUE}
 tidyCounts <- gather(wideFrame, distance, obs, d10:d30)
@@ -104,9 +109,9 @@ For the sake of brevity, we'll leave tidying data to just these two functions. T
 ----
 
 > **Exercise 1**    
-> The datasets "wideBirds" and "longBirds" are located in your global environment. Using these data:
+> The dataset "birdCounts" is located in your global environment. Using these data:
 >
-> 1. Convert wideBirds to a tidy long format dataset.
+> 1. Convert birdCounts to a wide format dataset.
 > 2. Convert longBirds to a tidy wide format dataset.
 
 ----
