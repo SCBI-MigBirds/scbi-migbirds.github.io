@@ -28,7 +28,8 @@ Open R Studio. Use the keyboard combination _CTRL+SHIFT+N_ to create a new R scr
 
 Copy-and-paste the following code into your new script. Highlight the entire section with your mouse and use the keyboard combination _CTRL+R_ to run the code. This will automatically load all of the data and functions we will be using for this lesson.
 
-```{r, eval=TRUE, message=FALSE, warning=FALSE}
+
+```r
 library(RCurl)
 
 url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceStructureIndexLogic.R'
@@ -47,19 +48,22 @@ Use the keyboard combination _CTRL+S_ to save this script. Name the file "MigBir
 
 The **function** is what Hadley Wickham calls the "fundamental building block of R". Functions are a special type of R object that allow you to conduct often lengthy evaluations with limited work. The R environment contains many functions for data management, graphical display, and statistical analysis. To run a function, you type the name of the function followed by a set of parentheses enclosing what you want your function to evaluate. For example, perhaps you would like to **combine** the integers 1, 1, and 2, as above into a single object. The combine function in R is "c". To combine these values you would type:
 
-```{r, eval=FALSE}
+
+```r
 threeValuesOneObject <- c(1,1,2)
 ```
 
 R has comprehensive help files associated with each function. To access the help file for a given function, simply the "?" and then the name of the function. The help file will be displayed in the **View Pane**. For example, the function "sum" adds the values in a vector. To view this function type the following into the Source or Console Pane:
 
-```{r, eval=FALSE}
+
+```r
 ?sum
 ```
 
 Many functions contain **arguments** in addition to the object you are evaluating. These arguments modify the behavior of the function (_Note: Some arguments are necessary while some are optional_). For example, the function "mean" contains an argument "na.rm" that tells R whether you want to remove NA (data Not Available) prior to running the function. Let's make an object with two integers and an NA and calculate the mean of the data with (na.rm = TRUE) and without (na.rm = FALSE) the modifier argument:
 
-```{r, eval=FALSE}
+
+```r
 twoValuesWithNA <- c(5,8,NA)
 
 mean(twoValuesWithNA, na.rm = FALSE)
@@ -69,7 +73,8 @@ mean(twoValuesWithNA, na.rm = TRUE)
 
 Functions can also be **nested** inside other functions. This means that you run a function inside of another function. For example, we could have completed the above mean operation using:
 
-```{r, eval=FALSE}
+
+```r
 mean(c(5,8,NA), na.rm = TRUE)
 ```
 
@@ -98,22 +103,24 @@ There are numerous classes of **values**, however, those that we normally intera
 
 As we've only worked with numeric integer values so far, let's create a character value as an example. To do so, you surround the character in single or double quotation marks. For example, to create an R object of the character string "Hello world", you would type:
 
-```{r, eval=FALSE}
+
+```r
 exampleCharacterValue0 <- "hello world"
 
 exampleCharacterValue0
-
 ```
 
 To convert a character value to a factor, you can use the "factor" function. Factor values take up less system memory than characters and can be implemented in statistical modeling as categorical variables. Run the following and note how the output differs from that of the character:
 
-```{r, eval=FALSE}
+
+```r
 factor(exampleCharacterValue0)
 ```
 
 We can find out the class of a value by using the function "class":
 
-```{r, eval=FALSE}
+
+```r
 class(generation1)
 
 class(exampleCharacterValue0)
@@ -127,15 +134,21 @@ Multiple values may be strung together into a single object, as we did with gene
 
 * **Vector**: A one-dimensional collection of values. All values must be of the same class. If this is not the case, the class of the component values will be modified.
 
-```{r, eval=T}
+
+```r
 vector1 <- c(1,1,2,3,5,8)
 
 vector1
 ```
 
+```
+## [1] 1 1 2 3 5 8
+```
+
 You can determine how many values comprise a vector using the "length" function:
 
-```{r, eval=FALSE}
+
+```r
 length(vector1)
 ```
 
@@ -143,15 +156,24 @@ length(vector1)
 
 Let's turn vector1 into a two-column matrix using the matrix function. Arguments "ncol" and "nrow" specify the number of columns and rows, respectively, of the matrix:
 
-```{r, eval=T}
+
+```r
 matrix1 <- matrix(vector1,  nrow = 3, ncol = 2)
 
 matrix1
 ```
 
+```
+##      [,1] [,2]
+## [1,]    1    3
+## [2,]    1    5
+## [3,]    2    8
+```
+
 * **Data frame**: A two-dimensional collection of values, arranged as rows and columns. Component vectors may be of different classes -- because of this, data frames are very useful for storing data. For example, banding (ringing) data most often include numeric  (e.g., measurement data) and categorical (e.g., species of bird) variables. Let's create and explore a simple data frame composed of two vectors:
 
-```{r, eval=T}
+
+```r
 vector1a <- c(1,1,2)
 vector2 <- c('a', 'b','c')
 
@@ -160,15 +182,24 @@ dataframe1 <- data.frame(vector1a, vector2)
 dataframe1
 ```
 
+```
+##   vector1a vector2
+## 1        1       a
+## 2        1       b
+## 3        2       c
+```
+
 To determine the number of rows in a data frame or matrix you can use the "nrow" function:
 
-```{r, eval=FALSE}
+
+```r
 nrow(dataframe1)
 ```
 
 To determine the number of columns in a data frame, you can use the "ncol" or "length" function (because the columns of data frames and matrices are vectors):
 
-```{r, eval=FALSE}
+
+```r
 ncol(dataframe1)
 
 length(dataframe1)
@@ -176,14 +207,16 @@ length(dataframe1)
 
 And also view the number of rows and columns (values one and two, respectively) in one step using the "dim" function:
 
-```{r, eval=FALSE}
+
+```r
 dim(dataframe1)
 ```
 
 It may be unclear whether an object is a vector, matrix, or data frame. If this is the case, you can use "class" as above to determine the class of the object.
 
 
-```{r, eval=FALSE}
+
+```r
 class(matrix1)
 
 class(dataframe1)
@@ -191,7 +224,8 @@ class(dataframe1)
 
 As objects such as data frames may contain multiple object classes, you may be interested in knowing the classes of each of the components. To do so, you use the "str" (structure) function:
 
-```{r, eval=FALSE}
+
+```r
 str(dataframe1)
 ```
 
@@ -225,25 +259,29 @@ Create the vector "rabbits" in R using the combine function.
 
 To extract the second value (6) of the vector rabbits, we would use:
 
-```{r, eval=FALSE}
+
+```r
 rabbits[2]
 ```
 
 We can also extract multiple values at a time. To extract the 1^st^ through 3^rd^ values (3, 6, and 9) within rabbits, we separate the starting and ending location values with a ":" symbol:
 
-```{r, eval=FALSE}
+
+```r
 rabbits[1:3]
 ```
 
 Or use the combine function to select non-adjacent (or adjacent!) values:
 
-```{r, eval=FALSE}
+
+```r
 rabbits[c(1,3)]
 ```
 
 Additionally, we can nest functions within our vector location map. For example, perhaps we're interested in the last value of a vector but the vector is so long that it is unfeasible to count. To address this, we can nest the function "length" within our mapping operation. In the below, notice how the "length" function returns the number of values that make up the vector, which is also the location of the last value:
 
-```{r, eval=FALSE}
+
+```r
 length(rabbits)
 
 rabbits[7]
@@ -265,28 +303,34 @@ rabbits[length(rabbits)]
 
 The location map of values within matrices and data frames are similar to that of vectors but have two components, one representing the row and the other the column. These components are written as [row, column]. To illustrate this, lets take another look at matrix1:
 
-```{r, eval=T, echo = F}
-matrix1
+
+```
+##      [,1] [,2]
+## [1,]    1    3
+## [2,]    1    5
+## [3,]    2    8
 ```
 
 You'll notice that the column location is provided after the the comma at the top of each column. Likewise, the row location is provided before the comma.
 
 You can use this row and column address to extract the value at that location. For example, use the following to determine the value at row three, column one of the matrix:
 
-```{r, eval=FALSE}
+
+```r
 matrix1[3,1]
 ```
 
 Notice what happens when you do not provide any address information for matrix1:
 
-```{r, eval=FALSE}
+
+```r
 matrix1[,]
 ```
 
 By leaving out the address information on either side of the comma, you are telling R to return all of the rows and all of the columns of matrix1. You can extract a vector representing a single column or row by providing the address of the row or column you are interested in and leaving the other side of the comma blank:
 
-```{r, eval=FALSE}
 
+```r
 # Example One:
 
 matrix1[1,] # Extracts row one of matrix1
@@ -294,15 +338,14 @@ matrix1[1,] # Extracts row one of matrix1
 # Example Two. 
 
 matrix1[,1] # Extracts column one of matrix1
-
 ```
 
 The above tells R to return all of the values in row one across columns in Example One and all of the values in column two across rows in Example Two. 
 
 Similar to our use of the function "length" in our vector assignment, we can nest the functions "nrow" and "ncol" inside matrix or data frame addresses to extract the vector associated with the last row or column, respectively:
 
-```{r, eval=FALSE}
 
+```r
 # Example One:
 
 matrix1[nrow(matrix1),] # Extracts the last row of matrix1
@@ -310,18 +353,19 @@ matrix1[nrow(matrix1),] # Extracts the last row of matrix1
 # Example Two. 
 
 matrix1[,ncol(matrix1)] # Extracts the last column of matrix1
-
 ```
 
 As with vectors, you can use the ":" to extract adjacent columns and rows from data frames and matrices:
 
-```{r, eval=FALSE}
+
+```r
 dataframe1[2:3,]
 ```
 
 Or use the combine function to select non-adjacent (or adjacent!) rows or columns:
 
-```{r, eval=FALSE}
+
+```r
 matrix1[c(1,3),]
 ```
 
@@ -342,27 +386,29 @@ matrix1[c(1,3),]
 
 Just as you can assign a name to an object, you can also provide names for the columns or rows of matrices and data frames. This allows you to refer to an object within a matrix or data frame by name rather than just by location. To add names to a dataframe you use the "name" function, followed by a vector of names (in quotations):
 
-```{r, eval=FALSE}
 
+```r
 names(dataframe1) <- c('popSize', 'population')
 ```
 
 To add names to a matrix, you use the "colnames" function
 
-```{r, eval=FALSE}
 
+```r
 colnames(matrix1) <- c('N0', 'N1')
 ```
 
 You can add names the rows of a matrix or data frame using the "row.names" function:
 
-```{r, eval=FALSE}
+
+```r
 row.names(dataframe1)<-c('Population.A','Population.B','Population.C')
 ```
 
 Because names are a vector, you can access a single name or assign a different name using its address within a vector. For example, you could change the name of the second column in dataframe1:
 
-```{r, eval=FALSE}
+
+```r
 names(dataframe1)
 
 names(dataframe1)[2]
@@ -374,7 +420,8 @@ names(dataframe1)
 
 Naming columns and rows is useful because you can extract the object from its parent object using the name of the object as its address rather than its numeric location: 
 
-```{r, eval=FALSE}
+
+```r
 dataframe1[,'N0']
 
 dataframe1['PopulationA',]
@@ -382,7 +429,8 @@ dataframe1['PopulationA',]
 
 As a shortcut, you can extract or view columns of a dataframe (but not a matrix) or list elements using the "$":
 
-```{r, eval=FALSE}
+
+```r
 dataframe1$N0
 ```
 
@@ -407,7 +455,8 @@ There are a number of useful functions for further exploring the structure of th
 
 The function "head" shows the first six rows of birdCounts. If we use the "n" argument, we can specify the number of rows we would like to show in the console:
 
-```{r, eval=FALSE}
+
+```r
 head(birdCounts)
 
 head(birdCounts, n = 10)
@@ -415,13 +464,15 @@ head(birdCounts, n = 10)
 
 You could also extract the first 10 records using the address of the rows. The above is equivalent to:
 
-```{r, eval=FALSE}
+
+```r
 birdCounts[1:10,]
 ```
 
 The function "tail" shows the last six rows of data and the "n" argument is used to specify the number of rows:
 
-```{r, eval=FALSE}
+
+```r
 tail(birdCounts)
 
 tail(birdCounts, n = 10)
@@ -429,7 +480,8 @@ tail(birdCounts, n = 10)
 
 We may be interested in observing the number of unique factor levels within the object. To do so, we can use the "levels" function (factors only) or "unique" function (any vector data class) to view the number of factor levels for a given vector within the object:
 
-```{r, eval=FALSE}
+
+```r
 levels(birdCounts$diet)
 
 unique(birdCounts$diet)
@@ -437,7 +489,8 @@ unique(birdCounts$diet)
 
 We can nest the above function in the function "length" to determine how many dietary classes are represented within the dataset:
 
-```{r, eval = F}
+
+```r
 length(unique(birdCounts$diet))
 ```
 
@@ -452,7 +505,8 @@ Providing basic summary statistics is often a crucial part of data exploration. 
 
 Finally, we can view several summary statistics for the dataset across fields using the "summary" function:
 
-```{r, eval=FALSE}
+
+```r
 summary(birdCounts)
 ```
 
@@ -470,7 +524,8 @@ summary(birdCounts)
 
 Recall that we used addresses [row, column] to extract columns and rows above, for example:
 
-```{r, eval = FALSE}
+
+```r
 birdCounts[,c('foraging', 'count')]
 ```
 
@@ -478,29 +533,22 @@ In plain English, the code above tells R that you would like to return a subset 
 
 You can also specify logical conditions to subset a data frame the values associated with a given field. The logical operators include:
 
-```{r, results = 'asis', echo = F}
-tableCat <- function(inFrame) {
-    outText <- paste(names(inFrame), collapse = " | ")
-    outText <- c(outText, paste(rep("---", ncol(inFrame)), collapse = " | "))
-    invisible(apply(inFrame, 1, function(inRow) {
-        outText <<- c(outText, paste(inRow, collapse = " | "))
-    }))
-    return(outText)
-}
-logicTable <- data.frame(Symbol = c('==','!=','<','<=', '>','>=','x | y','x & y'), 
-                         Expression  = c('Is equal to', 'Does not equal', 'Less than','Less than or equal to',
-                                         'Greater than','Greater than or equal to','Or','And'),
-                         Class = c('numeric, factor, character', 'numeric, factor, character',
-                         'numeric', 'numeric','numeric', 'numeric', 'numeric, factor, character',
-                         'numeric, factor, character'))
-t1 <- tableCat(logicTable)
-cat(t1, sep = "\n")
-```
+Symbol | Expression | Class
+--- | --- | ---
+== | Is equal to | numeric, factor, character
+!= | Does not equal | numeric, factor, character
+< | Less than | numeric
+<= | Less than or equal to | numeric
+> | Greater than | numeric
+>= | Greater than or equal to | numeric
+x | y | Or | numeric, factor, character
+x & y | And | numeric, factor, character
 
 
 Before we use logic to subset data frames, let's take a look at what happens when we test a vector with a logical operator. In the following code, we subset the foraging vector to the first 20 entries, and then test which entries matches the term "ground".
 
-```{r eval = F}
+
+```r
 foraging2 <- birdCounts$foraging[1:20]
 
 foraging2 == 'ground'
@@ -508,67 +556,78 @@ foraging2 == 'ground'
 
 We can see that most, but not all, of the foraging2 vector satisfies this condition. If we want to know how many values satisfy this condition, we can use the sum function (TRUE = 1, FALSE = 0):
 
-```{r eval = F}
+
+```r
 sum(foraging2 == 'ground')
 ```
 
 We can also subset the vector foraging2 to only values that satisfy this condition:
 
-```{r eval = F}
+
+```r
 foraging2[foraging2 == 'ground']
 ```
 
 Not a very meaningful result, however, we can use the same principle to subset our birdCounts data frame to include only ground foraging species. In the script below, we are telling R to return all of the columns of the birdCounts frame for which the row values of foraging are equal to ground (_Note: we are returning all columns in which our row condition is TRUE_):
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$foraging == 'ground',]
 ```
 
 We can also return a column and row subset using logic. For example, perhaps we are interested in counts of ground foragers. We could return all columns in which the row condition "ground" is true and just the column "count" as:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$foraging == 'ground','count']
 ```
 
 We can use mathematical logical operators, such as our less than or greater than symbols, on our numeric columns. For example, we may be interested only in species counts that are greater than or equal to three:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$count >= 3,]
 ```
 
 Mathematical logical operators can be combined with statistical summary functions. For example, to subset records to only sites that are greater than or equal to the median value of counts:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$count >= median(birdCounts$count),]
 ```
 
 Operators can also be combined. Let's use the "&" symbol to extract rows of birdCounts in which the count is greater than the median and species are ground foragers:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$count >= median(birdCounts$count)&birdCounts$foraging == 'ground',]
 ```
 
 The "or" logical operator can be a bit dangerous. Let's see what happens when we use "|" with the operation above:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$count >= median(birdCounts$count)|birdCounts$foraging == 'ground',]
 ```
 
 The above returned all records for which the count was greater than the median OR the foraging strategy was equal to ground! "Or"" _can_ be quite useful though. For example, we could pull out all records for which foraging stategies are aerial or foliage:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$foraging == 'aerial'|birdCounts$foraging == 'foliage',]
 ```
 
 Note that the above returns a reduced data frame that satisfies our conditions. We can use this to extract a single column of the data frame as well. Let's look at just the counts vector that satisfies the above condition:
 
-```{r eval = F}
+
+```r
 birdCounts[birdCounts$foraging == 'aerial'|birdCounts$foraging == 'foliage','count']
 ```
 
 We can then obtain the average count of aerial and foliage foragers observed (note that this does not include zero observations!):
 
-```{r eval = F}
+
+```r
 mean(birdCounts[birdCounts$foraging == 'aerial'|birdCounts$foraging == 'foliage','count'])
 ```
 
