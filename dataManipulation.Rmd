@@ -411,13 +411,13 @@ birdCountsForaging <- group_by(birdCounts, foraging)
 summarize(birdCountsForaging, N = sum(count))
 ``` 
 
-To nest these functions, we write:
+To nest these functions, we would write:
 
 ```{r, eval = F}
 summarize(group_by(birdCounts, foraging), N = sum(count))
 ``` 
 
-To pipe this operation, we use the `%>%` symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed us to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up).  which can be thought of as the word "then" ... in other words, first this, then that.
+To pipe this operation, we use the `%>%` symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed us to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up).
 
 ```{r, eval = F}
 birdCounts %>% 
@@ -429,7 +429,7 @@ The piping symbol, `%>%`, represents the word "then". We would read the above as
 
 Notice that I used multiple indented lines of code. For maximal readibility, it is **highly recommended** that any multi-step operation should be formatted as such (this is considered **best management practices** for programmers across languages).
 
-Take a moment to think of the difference between the piped and nested-function versions of the operation above. You'll notice that the piped version reads from left-to-right (or up-to-down). The dataset becomes progressively smaller with each step to the right (or down). Conversely, the summarize function reads from the inside out. In the nested functions, `group_by` is actually the first step in the sequence, but it is instead nested in the middle of the `summarize` function! This is what makes reading nested functions, especially if data analyses are complex, so difficult to read.
+Take a moment to think of the difference between the piped and nested-function versions of the operation above. You'll notice that the piped version reads from left-to-right (or up-to-down). The dataset becomes progressively smaller with each step to the right (or down). Conversely, the summarize function reads from the inside out. In the nested functions, `group_by` is actually the first step in the sequence, but it is instead nested in the middle of the `summarize` function! This is what makes nested functions, especially if data analyses are complex, so difficult to read.
 
 ----
 
