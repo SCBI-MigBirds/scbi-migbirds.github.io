@@ -320,7 +320,7 @@ arrange(birdCountsSpFdistinct, species)
 
 ### Create new variables
 
-We can use the `dplyr` function `mutate` to add new derived variables to our data frame. For example, we can calculate the percentile ranks of our count column and give our new column the name "pRank" (admittedly not a very useful summary statistic at this juncture!):
+We can use the `dplyr` function `mutate` to add new derived variables to our data frame. For example, we can calculate the percentile ranks of our count column (admittedly not a very useful summary statistic at this juncture!). To do so, we use the `percent_rank` function within `mutate` and the name "pRank" to our new column:
 
 ```{r, eval = F}
 birdCountsPrank <- mutate(birdCounts, pRank = percent_rank(count))
@@ -341,10 +341,10 @@ birdCountsPrank <- mutate(birdCounts, pRank = percent_rank(count))
 
 ### Summarize data
 
-The biggest asset of `dplyr` is that it provides a flexible and memory efficient tool for summarizing data, the function `summarize`. `summarize` allows you to calculate summary statistics across a data frame. For example, to calculate the sum of counts, you would use:
+The biggest asset of `dplyr` is that it provides a flexible and memory efficient tool for summarizing data, the function `summarize`. `summarize` allows you to calculate summary statistics across a data frame. For example, to calculate the sum of counts, you would use the `sum` function within summarize as:
 
 ```{r, eval = F}
-summarize(birdCounts, sum(count))
+summarize(birdCounts, N = sum(count))
 ``` 
 
 This may seem (on its surface) a bit silly, as you could have gotten the same result as above using:
@@ -434,7 +434,7 @@ Take a moment to think of the difference between the piped and nested-function v
 ----
 
 > **Exercise 7**    
-> Give another try to Exercises 1-6 above, this time using **piping** to complete each in process.
+> Give another try to Exercises 1-6 above, this time using **piping** to complete each exercise in one step.
 >
 
 ----

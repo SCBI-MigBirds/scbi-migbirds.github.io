@@ -298,7 +298,7 @@ arrange(birdCountsSpFdistinct, species)</code></pre>
 </div>
 <div id="create-new-variables" class="section level3">
 <h3>Create new variables</h3>
-<p>We can use the <code>dplyr</code> function <code>mutate</code> to add new derived variables to our data frame. For example, we can calculate the percentile ranks of our count column and give our new column the name “pRank” (admittedly not a very useful summary statistic at this juncture!):</p>
+<p>We can use the <code>dplyr</code> function <code>mutate</code> to add new derived variables to our data frame. For example, we can calculate the percentile ranks of our count column (admittedly not a very useful summary statistic at this juncture!). To do so, we use the <code>percent_rank</code> function within <code>mutate</code> and the name “pRank” to our new column:</p>
 <pre class="r"><code>birdCountsPrank &lt;- mutate(birdCounts, pRank = percent_rank(count))</code></pre>
 <hr />
 <blockquote>
@@ -313,8 +313,8 @@ arrange(birdCountsSpFdistinct, species)</code></pre>
 </div>
 <div id="summarize-data" class="section level3">
 <h3>Summarize data</h3>
-<p>The biggest asset of <code>dplyr</code> is that it provides a flexible and memory efficient tool for summarizing data, the function <code>summarize</code>. <code>summarize</code> allows you to calculate summary statistics across a data frame. For example, to calculate the sum of counts, you would use:</p>
-<pre class="r"><code>summarize(birdCounts, sum(count))</code></pre>
+<p>The biggest asset of <code>dplyr</code> is that it provides a flexible and memory efficient tool for summarizing data, the function <code>summarize</code>. <code>summarize</code> allows you to calculate summary statistics across a data frame. For example, to calculate the sum of counts, you would use the <code>sum</code> function within summarize as:</p>
+<pre class="r"><code>summarize(birdCounts, N = sum(count))</code></pre>
 <p>This may seem (on its surface) a bit silly, as you could have gotten the same result as above using:</p>
 <pre class="r"><code>sum(birdCounts$count)</code></pre>
 <p>On it’s own, <code>summarize</code> is obviously really not very useful. In combination with the <code>dplyr</code> function <code>group_by</code>, however, <code>summarize</code> becomes a powerful tool. First, let’s look at what happens to our bird count dataset when we use the <code>group_by</code> function on the foraging field:</p>
@@ -361,7 +361,7 @@ summarize(birdCountsForaging, N = sum(count))</code></pre>
 <p>Take a moment to think of the difference between the piped and nested-function versions of the operation above. You’ll notice that the piped version reads from left-to-right (or up-to-down). The dataset becomes progressively smaller with each step to the right (or down). Conversely, the summarize function reads from the inside out. In the nested functions, <code>group_by</code> is actually the first step in the sequence, but it is instead nested in the middle of the <code>summarize</code> function! This is what makes nested functions, especially if data analyses are complex, so difficult to read.</p>
 <hr />
 <blockquote>
-<p><strong>Exercise 7</strong><br />Give another try to Exercises 1-6 above, this time using <strong>piping</strong> to complete each in process.</p>
+<p><strong>Exercise 7</strong><br />Give another try to Exercises 1-6 above, this time using <strong>piping</strong> to complete each exercise in one step.</p>
 </blockquote>
 <hr />
 <p><em><strong>A final note</strong>: You should consider <strong>every</strong> script you write to be a <strong>communication</strong> between you and your future self and yourself and fellow scientists. Make sure your scripts communicate clearly – future you and your fellow scientists will appreciate it greatly!</em></p>
