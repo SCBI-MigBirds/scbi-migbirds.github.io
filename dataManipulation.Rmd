@@ -420,7 +420,7 @@ birdCountsForaging <- group_by(birdCounts, foraging)
 summarize(birdCountsForaging, N = sum(count))
 ``` 
 
-To we nest these functions, we write:
+To nest these functions, we write:
 
 ```{r, eval = F}
 summarize(group_by(birdCounts, foraging), N = sum(count))

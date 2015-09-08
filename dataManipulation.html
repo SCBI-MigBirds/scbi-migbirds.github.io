@@ -354,7 +354,7 @@ summarize(birdCountsForagingDiet, N = sum(count))</code></pre>
 <pre class="r"><code>birdCountsForaging &lt;- group_by(birdCounts, foraging)
 
 summarize(birdCountsForaging, N = sum(count))</code></pre>
-<p>To we nest these functions, we write:</p>
+<p>To nest these functions, we write:</p>
 <pre class="r"><code>summarize(group_by(birdCounts, foraging), N = sum(count))</code></pre>
 <p>To pipe this operation, we use the <code>%&gt;%</code> symbol to separate arguments. Our first argument is the name of the data frame we are evaluating. This allowed us to omit the name of the data frame in the functions that follow. For each subsequent step, functions are carried out on the data frame reduced by the step to the left (or up). which can be thought of as the word “then” … in other words, first this, then that.</p>
 <pre class="r"><code>birdCounts %&gt;% 
