@@ -7,8 +7,7 @@ output: html_document
     
   <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
   
-# Introduction to Program R
-## _The structure of R objects, indexing, and logic_
+# Introduction to Program R: _Object structure, indexing, and logic_
 
 _Brian S. Evans  
 Smithsonian Conservation Biology Institute  
