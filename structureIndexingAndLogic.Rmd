@@ -460,7 +460,7 @@ summary(birdCounts)
 
 > **Exercise Six:** For the birdCounts dataset, address the following:
 >
-> 1. What is the mean count for the birdCounts2 object you created in Exercise 5? 
+> 1. What is the mean count for the birdCounts2 object that you created in Exercise 5? 
 >
 > 2. How many unique species does birdCounts2 contain?
 

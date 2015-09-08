@@ -292,12 +292,10 @@ names(dataframe1)[2]
 names(dataframe1)[2]&lt;-'N0'
 
 names(dataframe1)</code></pre>
-<p>Naming columns, rows is useful because you can extract the object from its parent object using the name of the object as its address rather than its numeric location:</p>
+<p>Naming columns and rows is useful because you can extract the object from its parent object using the name of the object as its address rather than its numeric location:</p>
 <pre class="r"><code>dataframe1[,'N0']
 
-dataframe1['PopulationA',]
-
-matrix1[,'N0']</code></pre>
+dataframe1['PopulationA',]</code></pre>
 <p>As a shortcut, you can extract or view columns of a dataframe (but not a matrix) or list elements using the “$”:</p>
 <pre class="r"><code>dataframe1$N0</code></pre>
 <hr />
@@ -349,7 +347,7 @@ unique(birdCounts$diet)</code></pre>
 <blockquote>
 <p><strong>Exercise Six:</strong> For the birdCounts dataset, address the following:</p>
 <ol style="list-style-type: decimal">
-<li><p>What is the mean count for the birdCounts2 object you created in Exercise 5?</p></li>
+<li><p>What is the mean count for the birdCounts2 object that you created in Exercise 5?</p></li>
 <li><p>How many unique species does birdCounts2 contain?</p></li>
 </ol>
 </blockquote>
