@@ -125,7 +125,7 @@ longFrame2 <- gather(wideFrame, species, count, amro:grca)
 
 # Nested functions:
 
-longFrame2 <- gather(data = spread(longFrame, species, count, fill = 0),
+longFrame2 <- gather(spread(longFrame, species, count, fill = 0),
   species, count, amro:grca)
 ```
 
@@ -259,9 +259,6 @@ select(birdCounts, -site)
 > 2. Use the `filter` function to subset your reduced data frame to observations of omnivores and granivores. Assign the name "birdCount2" to this data frame.
 >
 > 3. Use the `filter` function to subset  birdCount2 to counts that are greater than or equal to three individuals.
->
-> 4. Complete steps 1 - 3 using **nested** functions.
->
 
 ----
 
@@ -318,8 +315,6 @@ arrange(birdCountsSpFdistinct, species)
 >
 > 4. Use `arrange` to sort the species column alphabetically.
 >
-> 5. Complete steps 1 - 4 using **nested** functions.
->
 
 ----
 
@@ -335,13 +330,11 @@ birdCountsPrank <- mutate(birdCounts, pRank = percent_rank(count))
 
 > **Exercise 5**    
 >
-> 1. The `paste` function in base R is used to concatenate character values (_Note: the syntax is `paste(column1, column2)`_). Use `mutate` and `paste` functions to create a new column named "forDiet". Assign the name "birdCountsForDiet"" to this data frame.
+> 1. The `paste` function in base R is used to concatenate character values (_Note: the syntax is `paste(column1, column2)`_). Use the `mutate` and `paste` functions to create a new column named "forDiet" by pasting the foraging and diet columns together. Assign the name "birdCountsForDiet"" to this data frame.
 > 
 > 2. Use the `select` function to subset "birdCountsForDiet" to just the "forDiet" field.  Assign the name "forDietFrame" to this data frame.      
 >
 > 3. Use the `distinct` function to view all unique combinations of foraging and diet guilds.
->
-> 4. Complete steps 1 - 3 using **nested** functions.
 >
 
 ----
@@ -403,8 +396,6 @@ This function is phenomenally powerful and memory efficient. In fact, the `summa
 >
 > 3. Sort birdCountSpSum from highest to lowest count.    
 >
-> 4. Complete steps 1 - 3 using **nested** functions.
->
 
 ----
 
@@ -412,7 +403,7 @@ This function is phenomenally powerful and memory efficient. In fact, the `summa
 
 One of the greatest recent advancements in the world of R is the implementation of the **pipe operator**. A pipe operator allows you to set the output of one process as the input of another -- thus sequences of calculations are chained together without having to define intermediate steps as R objects (_Note: Piping is sometimes called chaining_). Piping was first implemented in R by ecologist and R guru Ben Bolker, in an answer to a question on stackoverflow. <img style="PADDING-LEFT:25px; PADDING-TOP: 5px" align = "right" src="https://upload.wikimedia.org/wikipedia/en/b/b9/MagrittePipe.jpg" height="300px" width = "300"/>  Hadley Wickham introduced his version of piping to his `dplyr` package in 2013 while concurrently Stefan Milton Bache developed a more flexible version for his package `magrittr` (named after Magritte's painting, _The Treachery of Images_). In 2014, Wickham and Bache teamed up and Bache's pipe was incorporated into `dplyr`.
 
-Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Take a moment to look at your Global Environment (upper right-hand pane in R Studio). You've got lots of objects in there. Likewise, if you didn't do a great job naming your R objects, you may have a hard time remembering what each was. Likewise, I'm going to guess that you may have had some difficulty **nesting** the functions in the exercises above. Even constructing nested functions did not prove too difficult a task, each of the nested functions are problematically complicated to read. Piping avoids the necessity to assign intermediate objects and makes scripts legible by conducting analyses in sequence. Let's look at our `dplyr` summarizing operation above.
+Piping makes scripts more readable (see a pattern here?) and saves system memory by reducing the amount of data stored in R's Global Environment. Take a moment to look at your Global Environment (upper right-hand pane in R Studio). You've got lots of objects in there. Likewise, if you didn't do a great job naming your R objects, you may have a hard time remembering what each was. An alternative, nested functions, are problematically complicated to read. Piping avoids the necessity to assign intermediate objects and makes scripts legible by conducting analyses in sequence. Let's look at our `dplyr` summarizing operation above.
 
 ```{r, eval = F}
 birdCountsForaging <- group_by(birdCounts, foraging)
@@ -443,7 +434,7 @@ Take a moment to think of the difference between the piped and nested-function v
 ----
 
 > **Exercise 7**    
-> Give another try to Exercises 1-6 above, this time using **piping** rather than **nesting** to complete each in process.
+> Give another try to Exercises 1-6 above, this time using **piping** to complete each in process.
 >
 
 ----
