@@ -26,14 +26,15 @@ R has become the universal quantitative interface for ecologists - it's free, po
 ## Course activities and lessons
 In order to ensure that we are all moving at a similar pace, we will place course lessons on this website immediately prior to classroom activies. All lessons placed on this site will remain following this course and you will therefore have permanent access to everything that we've learned.
 
+### In-class lessons
+
+* [**Lesson 1: Structure, Indexing, and Logic**](http: http://scbi-migbirds.github.io/structureIndexingAndLogic.html): In this lesson, which is a subset of our preliminary course, [**Introduction to R**](http://scbi-migbirds.github.io/IntroductionToR.html), we will review the overall structure of data in R and learn how to use that structure for data manipulation. The emphasis of this lesson is to build an understanding of the R language.
+
+### Preliminary lessons
+
 * [**SWIRL courses**](http://scbi-migbirds.github.io/swirlCourses.html): Instructions for completing the self-guided SWIRL courses to prepare you for this course. To get the most from this course, we strongly suggest completing these exercises prior to arrival. 
 * [**Introduction to R**](http://scbi-migbirds.github.io/IntroductionToR.html): An introductory lesson in R for completion prior to attending this course. Special attention is given to the format and structure of data in R.
 * [**Skill Assessment**](http://scbi-migbirds.github.io/skillAssessmentMigBirds.html): A worksheet for completion prior to attending the course intended to assess your current skill level with R.
-
-## Data links
-All data we will use in this course are available via the links below:
-
-* [**birdCounts**](https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv): An example dataset that we will use during introductory lessons on data exploration.
 
 ## Useful help file links
 
