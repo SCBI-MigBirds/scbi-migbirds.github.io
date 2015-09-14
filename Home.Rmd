@@ -28,7 +28,7 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 ### In-class lessons
 
-* [**Lesson 1: Structure, Indexing, and Logic**](http: http://scbi-migbirds.github.io/structureIndexingAndLogic.html): In this lesson, which is a subset of our preliminary course, [**Introduction to R**](http://scbi-migbirds.github.io/IntroductionToR.html), we will review the overall structure of data in R and learn how to use that structure for data manipulation. The emphasis of this lesson is to build an understanding of the R language.
+* [**Lesson 1: Structure, Indexing, and Logic**](http://scbi-migbirds.github.io/structureIndexingAndLogic.html): In this lesson, which is a subset of our preliminary course, [**Introduction to R**](http://scbi-migbirds.github.io/IntroductionToR.html), we will review the overall structure of data in R and learn how to use that structure for data manipulation. The emphasis of this lesson is to build an understanding of the R language.
 
 ### Preliminary lessons
 
