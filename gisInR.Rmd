@@ -1,4 +1,3 @@
-
 ---
 output: html_document
 ---
@@ -18,7 +17,7 @@ Description: This exercise guides workshop participants through some simple and 
 
 ## Basic-setup
 
-```{r, eval=TRUE, message=FALSE, warning=FALSE}
+```{r, eval=F, message=FALSE, warning=FALSE}
 library(RCurl)
 
 url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRgis.R'
