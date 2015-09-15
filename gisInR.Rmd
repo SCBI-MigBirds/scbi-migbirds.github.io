@@ -20,7 +20,7 @@ Description: This exercise guides workshop participants through some simple and 
 ```{r, eval=F, message=FALSE, warning=FALSE}
 library(RCurl)
 
-url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRgis.R'
+url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceGISinR.R'
 sourceURL <- getURL(url)
 
 eval(parse(text = sourceURL))
