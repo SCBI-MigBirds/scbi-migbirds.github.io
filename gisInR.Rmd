@@ -127,7 +127,7 @@ We can also change the color scheme:
 ```{r eval=F}
 plot(tmin01Sept, col = terrain.colors(255))
 
-plot(tmin14Sept, col = rev(rainbow(100)))
+plot(tmin01Sept, col = rev(rainbow(100)))
 
 map(usStates, add = T)
 
@@ -137,7 +137,7 @@ map(usStates, add = T)
 Or add the state boundaries layer to the above in one step:
 
 ```{r eval=F}
-plot(tmin14Sept, col = rev(rainbow(100)), addfun = map(us, add=T))
+plot(tmin01Sept, col = rev(rainbow(100)), addfun = map(us, add=T))
 ```
 
 <img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/newColors.png" />
