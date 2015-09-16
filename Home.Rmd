@@ -32,6 +32,8 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 2: For loops and Functions**](http://scbi-migbirds.github.io/ForLoopsAndFunctions.html): In this lesson you will learn how to build for loops and construct your own functions.
 
+* [**Lesson 3: Data manipulation**](http://scbi-migbirds.github.io/dataManipulation.html): In this lesson you will learn the basics of cleaning and summarizing data using the packages **tidyr** and **dplyr**.
+
 ### Preliminary lessons
 
 * [**SWIRL courses**](http://scbi-migbirds.github.io/swirlCourses.html): Instructions for completing the self-guided SWIRL courses to prepare you for this course. To get the most from this course, we strongly suggest completing these exercises prior to arrival. 
