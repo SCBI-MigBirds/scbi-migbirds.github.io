@@ -80,6 +80,10 @@ url &lt;-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source
 sourceURL &lt;- getURL(url)
 
 eval(parse(text = sourceURL))</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    1    3
+## [2,]    1    5
+## [3,]    2    8</code></pre>
 <p>Take a look at your Workspace Pane. You will notice that the “Data”&quot; section of the <strong>Global Environment</strong> now includes the R objects “birdCounts”, “exampleData”, and “exampleData2”.</p>
 <p>Use the keyboard combination <em>CTRL+S</em> to save this script. Name the file “MigBirdsIndexingAndLogic” and save it to your Dropbox folder.</p>
 <hr />
