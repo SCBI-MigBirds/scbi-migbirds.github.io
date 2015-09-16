@@ -17,312 +17,446 @@ Description: This exercise guides workshop participants through some simple and 
 
 ## Basic-setup
 
-```{r, eval=F, message=FALSE, warning=FALSE}
+```{r, eval=F}
 library(RCurl)
 
 url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceGISinR.R'
 sourceURL <- getURL(url)
 
+
+
+dataURL <- getURL('https://github.com/SCBI-MigBirds/MigBirds/raw/master/data/Tmin/PRISM_tmin_early_4kmD1_20150901_bil.zip')
+
+
 eval(parse(text = sourceURL))
 ```
 
-## Download raster temperature files from the internet and project rasters into R.
+## Loading raster files
 
-To prepare a raster file for analyis, we need to first download the file from PRISM website and project the files as a raster object. To do so, we use the following steps:
-1. Create an empty temp file for storage    
-2. Provide the website from which the data are retrieved  
-3. Download the file into the temp slot 
-4. PRISM data are provided as zip files, these must be unzipped 
-5. Convert to raster format 
-6. Specify projection information 
+Set working directory to the location of the raster files on your hard drive:
 
-# Create a temporary storage location for the rasters:
-
-```{R eval=F}
-tmin02_09 = tempfile()
-
-tmin04_09 = tempfile()
-
-tmin06_09 = tempfile()
-
-tmin08_09 = tempfile()
-
-tmin10_09 = tempfile()
-
-tmin12_09 = tempfile()
-
-tmin14_09 = tempfile()
+```{r, eval=F}
+setwd('Tmin')
 ```
 
-# Specify website:
+Create a list of file names:
 
-ftp02_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150902_bil.zip'
-
-ftp04_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150904_bil.zip'
-
-ftp06_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150906_bil.zip'
-
-ftp08_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150908_bil.zip'
-
-ftp10_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150910_bil.zip'
-
-ftp12_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150912_bil.zip'
-
-ftp14_09 = 'ftp://prism.oregonstate.edu/daily/tmin/2015/PRISM_tmin_early_4kmD1_20150914_bil.zip'
-
-### Download the files:
-
-``` {r eval=F}
-
-download.file(ftp02_09,tmin02_09)
-
-download.file(ftp04_09,tmin04_09)
-
-download.file(ftp06_09,tmin06_09)
-
-download.file(ftp08_09,tmin08_09)
-
-download.file(ftp10_09,tmin10_09)
-
-download.file(ftp12_09,tmin12_09)
-
-download.file(ftp14_09,tmin14_09)
+```{r, eval=F}
+rasterAddressList <- list.files(pattern = '.zip')
 ```
 
-# Unzip:
+Create an empty raster list and populate with raster files:
 
-tmin02_09 = unzip(tmin02_09)
+```{r, eval=F}
+rasterList <- list()
 
-tmin04_09 = unzip(tmin04_09)
+for(i in 1:length(rasterAddressList)){
+  # Unzip file:
+    outFile <- unzip(rasterAddressList[[i]])
+  # Make raster object:
+    rasterList[[i]] <- raster(outFile[1])
+}
+```
 
-tmin06_09 = unzip(tmin06_09)
+Make a **raster stack** object. Raster stacks are collections of rasters with the same spatial extent and resolution. Stacks allow us to run a function on each raster simultaneously (thus, no need to use complex functions or _for loops_).
 
-tmin08_09 = unzip(tmin08_09)
+```{r, eval=F}
+tminStack<-stack(rasterList)
+```
 
-tmin10_09 = unzip(tmin10_09)
+We will now define the projection and datum of the raster. The geodetic datum (i.e., the point of reference for which locations are measured -- Google Earth is WGS 1984) and the type of coordinates used (e.g., latitude, longitude or UTM).
 
-tmin12_09 = unzip(tmin12_09)
+```{r, eval=F}
+crs(tminStack) = "+proj=longlat +datum=WGS84"
+```
 
-tmin14_09 = unzip(tmin14_09)
+Let's give the stack names. The stack represents dates for the first half of September of this year.
+
+```{r, eval=F}
+names(tminStack)<-c("Sept1", "Sept2", "Sept3", "Sept4", "Sept5", "Sept6",
+  "Sept7", "Sept8", "Sept9", "Sept10", "Sept12", "Sept13", "Sept14")
+```
+
+## Plotting rasters.
+
+We can plot the entire stack at once in a single diagram using:
+
+```{r eval=F}
+plot(tminStack)
+```
+
+Or use a _for loop_ to plot all of the rasters in succession:
+
+```{r eval=F}
+for(i in 1:length(tminStack)) plot(tminStack[[i]], main = names(tminStack[[i]]))
+```
+
+We can use list notation (double brackets) to plot a single raster.
+
+```{r eval=F}
+plot(tminStack[[1]])
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/sept01.png" />
+
+If we are only interested in one raster object, we can assign a name based on the location of the object within the raster stack:
+
+```{r eval=F}
+tmin01Sept <- tminStack[[1]]
+```
+
+And plot this raster object:
+
+```{r eval=F}
+plot(tmin01Sept)
+```
+
+You can also add state boundaries to a map. For example, let's add US state boundaries to the 14 September map you made above:
+
+```{r eval=F}
+usStates <- data('state')
+
+map(usStates, add = T)
+
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/tminSept01WithStates.png" />
+
+We can also change the color scheme:
+
+```{r eval=F}
+plot(tmin01Sept, col = terrain.colors(255))
+
+plot(tmin14Sept, col = rev(rainbow(100)))
+
+map(usStates, add = T)
+
+```
 
 
-# Convert to raster format:
+Or add the state boundaries layer to the above in one step:
 
-tmin02_09 = raster(tmin02_09[1])
+```{r eval=F}
+plot(tmin14Sept, col = rev(rainbow(100)), addfun = map(us, add=T))
+```
 
-tmin04_09 = raster(tmin04_09[1])
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/newColors.png" />
 
-tmin06_09 = raster(tmin06_09[1])
+----
 
-tmin08_09 = raster(tmin08_09[1])
+> **Exercise 1:**
+>
+> 1. Assign the name "tmin14Sept" to the raster file that represents the minimum temperatures for the 14th of September, 2015.    
+> 2. Plot the minimum temperatures for 14, September, 2015.
+> 3. Change the color scheme to `rainbow`.    
+> 4. Add the state boundaries to your plot.    
 
-tmin10_09 = raster(tmin10_09[1])
+----
 
-tmin12_09 = raster(tmin12_09[1])
+## Exploring the temperature raster
 
-tmin14_09 = raster(tmin14_09[1])
+Let's start by looking at the summary information for the raster layer you just created:
 
-# 
+```{r eval=F}
+tmin14Sept
+```
 
+We can determine the value at a given point using the `click` function (**Note: Hit 'Escape' to exit turn off the clicker**):
 
-s1 <- stack(tmin02_09, tmin04_09, tmin06_09, tmin08_09, tmin10_09, tmin12_09, tmin14_09)
+```{r eval=F}
+click(tmin14Sept)
+```
 
-for(i in 1:length(s1)) plot(s1[[i]])
+Calculate a few descriptive statistics:
 
-# Have a look!
+```{r eval=F}
+cellStats(tmin14Sept, 'mean')
+cellStats(tmin14Sept, 'min')
+cellStats(tmin14Sept, 'max')
+cellStats(tmin14Sept, 'sd')
+ncell(tmin14Sept)
+```
 
+How are the temperature data distributed? Let's plot a histogram:
 
-levelplot(s1)
+```{r eval=F}
+hist(tmin14Sept)
+```
 
-# Provide projection information:
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/hist1.png" />
 
-crs(tmin) = "+proj=longlat +datum=WGS84"
+Or (Brandt will show you how to make pretty plots tomorrow) ... 
 
-#----------------------------------------------------------------------------
-# Plotting the temperature raster
-#============================================================================
-# Note: If you aren't using RStudio, be sure to turn on the plot history
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/hist_plot.png" />
 
-plot(tmin, ext = extent(tmin))
-
-# Note: Does your plot have lots of white space?
-# Just reshape your plot window!
-
-# Add the states file as an overlay:
-
-map(us, add = T)
-
-# Change the color scheme:
-
-plot(tmin, ext = extent(tmin), col = terrain.colors(255))
-
-plot(tmin, ext = extent(tmin), col = rev(rainbow(100)), addfun = map(us, add=T))
-
-# Note in the above: I added the states layer to the map in one function
-
-#----------------------------------------------------------------------------
-# Exploring the temperature raster
-#============================================================================
-
-# View raster summary data:
-
-tmin
-
-# Calculate a few descriptive statistics:
-
-cellStats(tmin, 'mean')
-cellStats(tmin, 'min')
-cellStats(tmin, 'max')
-cellStats(tmin, 'sd')
-ncell(tmin)
-
-# How are the temperature data distributed?
-
-hist(tmin)
-
-# Or ... for a better looking histogram that includes all cell values:
-
-hist(tmin, maxpixels = ncell(tmin), freq = F,
+```{r eval=F, echo=F}
+hist(tmin14Sept, maxpixels = ncell(tmin), freq = F,
      xlab = expression('Temperature ('*degree*C*')'),
-     main = 'Minimum temperatures, 4/27/2014',
-     cex.lab = 1.5, cex.main = 2,
+     xlim = c(0, 32), ylim = c(0, .12),
+     cex.lab = 1.5, cex.main = 1.5,
      col = rev(rainbow(19)))
+```
 
-# Add a density line to the plot
+## Cropping the raster
 
-lines(density(tmin, plot = F), lwd = 3)
+We can zoom into the map by clicking the upper left and lower right hand corner of a bounding box:
 
-# Calculate the value at a given point:
+```{r eval=F}
+zoom(tmin14Sept,col = rev(rainbow(100)))
+```
 
-click(tmin)
+And zoom back out to previous extent:
 
-# Hit 'Escape' to exit turn off the clicker
+```{r eval=F}
+plot(tmin14Sept, extent(tmin14Sept), addfun = map(us, add= T))
+```
 
-# Zoom into the map by clicking the upper left
-# and lower right hand corner of a bounding box:
+To create a raster for a reduced extent, draw a new extent around Virginia by clicking the upper left and lower right hand corner of a bounding box that contains the state boundaries:
 
-zoom(tmin,col = rev(rainbow(100)))
+```{r eval=F}
+extentVirginia = drawExtent()
+```
 
-# Add the states again:
+Crop the raster to the new extent and assign the name tminVirginia:
 
-map(us, add = T)
+```{r eval=F}
+tminVirginia <- crop(tmin14Sept, extentVirginia)
+```
 
-#----------------------------------------------------------------------------
-# Cropping the raster
-#============================================================================
+Plot the new reduced raster:
 
-# Zoom back out to previous extent:
+```{r eval=F}
+plot(tminVirginia,col = rev(rainbow(100)), addfun = map(us, add= T))
+```
 
-zoom(tmin, extent(tmin), addfun = map(us, add= T))
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/tminVirg.png" />
 
-# Draw a new extent around the Southeastern US by clicking the upper left
-# and lower right hand corner of a bounding box that contains the 
-# Southeastern states:
+## Working with point data
 
-e2 = drawExtent()
+Spatial points are defined by their longitude and latitude (or x and y location). Our banding station is located at the following coordinates (a vector of longitude and latitude):
 
-# Crop the raster to the new extent:
+```{r eval=F}
+bandingLL <- data.frame(-78.162958, 38.891603)
+```
 
-tmin_se = crop(tmin,e2)
+We can convert the latitude and longitude data to a spatial points object:
 
-# Plot the new reduced raster:
+```{r eval=F}
+bandingPt <- SpatialPoints(coordinates(bandingLL))
+```
 
-plot(tmin_se,col = rev(rainbow(100)), addfun = map(us, add= T))
+We need to set the projection of the points object, using the `crs` function to copy the coordinate system of the temperature raster:
 
-#----------------------------------------------------------------------------
-# Extracting data to points
-#============================================================================
+```{r eval=F}
+crs(bandingPt) = crs(tminVirginia)
+```
 
-# Generate random points within the raster:
+Then we can add our banding station location to the map:
 
-pts = randomPoints(tmin_se,500)
+```{r eval=F}
+points(bandingPt)
+```
 
-# These points can be converted to spatial points:
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/virgPt1.png" />
 
-pts = SpatialPoints(pts)
-crs(pts) = crs(tmin)
+If you're having a hard time seeing it, you can use the argument `pch` to change the type of point displayed. Let's use `pch = 19` and see what the new point object looks like:
 
-# Add the points to the map:
+```{r eval=F}
+points(bandingPt, pch = 19)
+```
 
-points(pts, pch = 21, cex = .75, col = 1, bg = 'white')
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/virgPt2.png" />
 
-# You can extract temperatures for each point:
+Still a little hard to see? Let's use the `col` argument to change the color of the point:
 
-ext.1 = extract(tmin_se, pts)
+```{r eval=F}
+points(bandingPt, pch = 19, col = 'white')
+```
 
-# This can be directly appeneded to the points data frame:
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/virgPt3.png" />
 
-pts = extract(tmin_se, pts, sp = T)
+To make our points even easier to see might want to surround our points with a border (`pch = 21`) and give them a background color (`bg = 'white'`):
 
-# View the data temperature data for the points:
+```{r eval=F}
+points(bandingPt, pch = 21, bg = 'white')
+```
 
-head(pts)
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/virgPt4.png" />
 
-# Terrible naming convention, so let's change it:
+## Extracting values to points
 
-names(pts) = 'tmin'
+We can easily extract raster values to points using the `extract` function. For example, to extract the minimum temperature at our banding station on 14 September, we would write:
 
-# You can also extract the values of a raster within a given radius around each point:
-# Not run:
-# pts = extract(tmin_se, pts,buffer = 3000, sp = T, na.rm = T)
+```{r eval=F}
+extract(tminVirginia, bandingPt)
+```
+
+Uh-oh. It doesn't work! This is because there are multiple R packages that include the function `extract`. You can tell R which package you would like to use by giving the name of the package, in this case `raster`, followed by "::" and the name of the function.
+
+```{r eval=F}
+raster::extract(tminVirginia, bandingPt)
+```
+
+We can use the function and the stack object above to see the minimum temperature at our banding station since the first of September:
+
+```{r eval=F}
+raster::extract(tminStack, bandingPt)
+```
+
+You can also extract the values of a raster within a given radius around a given point (or multiple points). Let's look at the average minimum temperature within 10 km of the banding point:
+
+```{r eval=F}
+raster::extract(tminVirginia, bandingPt, buffer = 10000, fun = mean, na.rm = T)
+```
+
+It is often necessary to save point values to your point object. Let's run the following code with the argument `sp=T` to attach values to our banding point:
+
+```{r eval=F}
+bandPtV <- raster::extract(tminVirginia, bandingPt, sp = T)
+```
+
+----
+
+> **Exercise 2**: Compare the objects bandingPt and bandPtV. How do they differ?
+
+----
+
+## Generating and extracting values to random points.
+
+In R, it is quite easy to generate random points within a raster:
+
+```{r eval=F}
+# Generate points:
+  rPointsVirginia = randomPoints(tminVirginia, 500)
+
+# Make points spatial:
+  rPointsVirginiaSp = SpatialPoints(rPointsVirginia)
+
+# Project points:
+  crs(rPointsVirginiaSp) = crs(tminVirginia)
+```
+
+Let's add the random points to the map:
+
+```{r eval=F}
+points(rPointsVirginiaSp, pch = 21, cex = .75, col = 1, bg = 'white')
+```
+
+Just as we extracted to individual points, we can extract temperatures for each point:
+
+```{r eval=F}
+ext1 = extract(rPointsVirginiaSp, tminVirginia)
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/withRandomPts.png" />
 
 
-#----------------------------------------------------------------------------
-# A simple interpolation (IDW)
-#============================================================================
+Let's view just the first 20 minimum temperature records:
 
-# Let's try to see how well our point data can do at predicting temperatures
-# outside of the points (interpolation between point locations):
+```{r eval=F}
+head(ext1)
+```
 
-tmin_se.grid = as(tmin_se,'SpatialGridDataFrame')
-tmin.idw = idw(tmin~1,pts, tmin_se.grid) 
+----
 
-tmin.idw.r = raster(tmin.idw)
+> **Exercise 3**: 
+>
+> 1. Generate 300 spatial points within the raster tminVirginia. Assign the name "rPoints" to the object.    
+> 2. Convert to a spatial object and assign the name "rPointsSp" to the object.    
+> 3. Extract values of tminVirginia to rPointsSp (Note: Use `sp = T`). Assign the name "rPointsV" to the resultant object.    
+> 4. Use the functions `class`, `str`, `names`, `head`, and `summary` to explore the structure of rPointsV.
 
-# How did we do?
+----
 
-plot(tmin.idw.r,col = rev(rainbow(100)),addfun = map(us, add= T))
+## A simple interpolation (Inverse Distance Weighting, IDW)
 
-# Looks pretty terrible like most IDW!
+Let's try to see how well our random point data can do at predicting temperatures outside of the points (interpolation between point locations). we first create a spatial grid to store our data and use the `idw` formula to calculate predicted values.
 
-# Compare with the real data:
+```{r eval=F}
+tminGrid = as(tminVirginia,'SpatialGridDataFrame')
+tminIDW = idw(Sept14~1,rPointsV, newdata = tminGrid) 
+```
 
-plot(tmin_se,col = rev(rainbow(100)),addfun = map(us, add= T))
+Convert the above to a raster object:
 
+```{r eval=F}
+tminIDWr = raster(tminIDW)
+```
 
-#----------------------------------------------------------------------------
-# A big advantage: Stats and GIS in one place!
-#============================================================================
+How did we do?
 
-# A silly example, but ...
+```{r eval=F}
+plot(tminIDWr,col = rev(rainbow(100)),addfun = map(us, add= T))
+```
 
-mod = lm(tmin~y, data = pts)
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/idw1.png" />
+
+It looks pretty terrible like most IDW! Let's visually compare it to the real data:
+
+```{r eval=F}
+plot(tminVirginia,col = rev(rainbow(100)),addfun = map(us, add= T))
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/tminIDWcompare.png" />
+
+If we want to view both plots at once, we could create a stack of the two rasters and plot the stack:
+
+```{r eval=F}
+idwStack <- stack(tminVirginia, tminIDWr)
+plot(idwStack, col = rev(rainbow(100)),addfun = map(us, add= T))
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/idwCompare.png" />
+
+## A big advantage: Stats and GIS in one place!
+
+Let's look at a very silly example, we want to ask the question of whether the minimum temperature at our banding station declined between the 1st and 14th of September. First, let's again extract the values from our raster stack at the banding station:
+
+```{r eval=F}
+bandTemps <- raster::extract(tminStack, bandingPt)
+
+bandTemps
+```
+
+Looking at the band temps file, what do you notice? What sort of object is this? **Convert band temps into a vector prior to completing the following tasks** (_assign the name bandTempsV_).
+
+Note that some days are missing. Create a vector of days that accounts for this:
+
+```{r eval=F}
+
+days <- c(1:10, 12:14)
+```
+
+Let's plot minimum temperature by day to take a look:
+
+```{r eval=F}
+plot(bandTempsV~days)
+```
+
+<img src="https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/Tmin/terriblePlot.png" />
+
+Now let's make a very simple linear model (OLS regression) and explore the output.
+
+```{r eval=F}
+mod = lm(bandTempsV~days)
 
 summary(mod)
+```
 
-plot(tmin~y,data = pts,
-     pch = 19, cex = .75, col = 'gray50', bty = 'l', 
-     cex.lab = 1.25, cex.main = 2,
-     ylab = expression('Minimimum Temperature ( '*degree*'C)'),
-     xlab = 'Latitude',
-     main = 'Minimum temperatures in the
-     Southeastern US, 4/17/2014')
+## Viewing and sharing your files interactively! Say no to cartography!
 
-abline(mod, lwd = 2)
+There are lots of ways to explore maps interactively, one way that's fun is to share maps via Google Earth:
 
-#----------------------------------------------------------------------------
-# But do you want to view the file more interactively?
-#============================================================================
+```{r eval=F}
+KML(tminVirginia, 'tminVirginia.kml', col = rev(rainbow(100)), colNA=NA)
+```
 
-# There are lots of ways to explore maps interactively, one way that's fun
-# is to share maps via Google Earth:
+Open up Google Earth and add your data and take a look! To do so, navigate to, and double-click on your KML file in your file explorer. 
 
-KML(tmin_se, 'tmin_se.kml', col = rev(rainbow(100)), colNA=NA)
+----
 
+The above is, of course, just a few basic GIS tasks and really represents the tip-of-the-iceburg of what R can do as a GIS. Check out this [**website**](http://cran.r-project.org/web/views/Spatial.htm) to see the variety of packages and analyses available.
 
-#============================================================================
+----
 
-# This is, of course, just a few basic GIS tasks and really represents the
-# tip-of-the-iceburg of what R can do as a GIS.
-# Check out the following website to see the variety of packages and
-# analyses available: http://cran.r-project.org/web/views/Spatial.htm
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
