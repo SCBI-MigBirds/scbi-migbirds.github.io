@@ -32,7 +32,9 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 2: For loops and Functions**](http://scbi-migbirds.github.io/ForLoopsAndFunctions.html): In this lesson you will learn how to build for loops and construct your own functions.
 
-* [**Lesson 3: Data manipulation**](http://scbi-migbirds.github.io/dataManipulation.html): In this lesson you will learn the basics of cleaning and summarizing data using the packages **tidyr** and **dplyr**.
+* [**Lesson 3: Data manipulation**](http://scbi-migbirds.github.io/dataManipulation.html): In this lesson you will learn the basics of cleaning and summarizing data using the packages **tidyr** and **dplyr**.    
+
+* [**Using R as a GIS**](http://scbi-migbirds.github.io/gisInR.html): In this lesson you will learn how to use R as a geographic information system.
 
 ### Preliminary lessons
 
@@ -50,6 +52,7 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 * [**R Graphics Cookbook**](http://www.cookbook-r.com/Graphs/): This website provides detailed instructions for using ggplot2 and is a condensed version of Leland Chang's R Graphics Cookbook.
 * [**Data visualization cheat sheet**](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): This guide is a quick reference guide for ggplot2.
 * [**ggplot2 reference site**](http://docs.ggplot2.org/current/): List of ggplot2 functions with graphical examples.
+
 
 
 
