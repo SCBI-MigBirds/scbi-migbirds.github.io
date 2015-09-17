@@ -36,6 +36,8 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 4: Using R as a GIS**](http://scbi-migbirds.github.io/gisInR.html): In this lesson you will learn how to use R as a geographic information system.
 
+* [**Lesson 5: Grammar of graphics**](http://scbi-migbirds.github.io/GrammarOfGraphics.html): In this lesson you will learn how to make [**HANDSOME**](http://had.co.nz/me.jpg) graphs using ggplot2.
+
 ### Preliminary lessons
 
 * [**SWIRL courses**](http://scbi-migbirds.github.io/swirlCourses.html): Instructions for completing the self-guided SWIRL courses to prepare you for this course. To get the most from this course, we strongly suggest completing these exercises prior to arrival. 
