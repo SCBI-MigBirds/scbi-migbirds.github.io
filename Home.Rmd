@@ -38,7 +38,7 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 5: Grammar of graphics**](http://scbi-migbirds.github.io/GrammarOfGraphics.html): In this lesson you will learn how to make [**HANDSOME**](http://had.co.nz/me.jpg) graphs using ggplot2.
 
-* [**Lesson 6: Isotope Lab**](http://scbi-migbirds.github.io/IsotopeLab.html): In this lesson, we will analyze isotope data to estimate the breeding locations of migratory American Redstart (_Setophaga ruticilla_).
+* [**Lesson 6: Isotope Lab**](http://scbi-migbirds.github.io/IsotopeLab.html): In this lesson, we will analyze isotope data to estimate the breeding locations of migratory American Redstart (_Setophaga ruticilla_). **Important**: Prior to beginning this exercise, you will need to download and install the JAGS (Just Another Gibbs Sampler), located [**here**](http://sourceforge.net/projects/mcmc-jags/?source=typ_redirect).
 
 ### Preliminary lessons
 
