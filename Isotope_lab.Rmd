@@ -1,0 +1,721 @@
+---
+  output: html_document
+---
+  
+  <img style="float:right;padding-right:25px;border:none" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+  
+  <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+
+# Determining breeding origins of migratory birds using stable hydrogen isotopes
+_Clark Rushing
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_  
+
+In this lab, we will learn how to use stable hydrogen isotopes to probabilistically determine the breeding origin of migratory songbirds.  
+
+To aid this lab, I have created a very bare bones R package called *iso.assign*. This package contains several several functions used to assign birds to breeding locations and validate the performance of the model with known-origin samples. The package is located on Github so we will need to use the *devtools* package to install it. The following code will install and load the *devtools*, *iso.assign*, and *crushingr* (this package will install and load a few other necessary packages, plus set some default plotting parameters) packages:  
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+# install.packages("devtools")
+devtools::install_github("crushing05/iso.assign2")
+devtools::install_github("crushing05/crushingr")
+
+library(iso.assign2)
+library(crushingr)
+```
+
+## Data
+
+For this lab, we will be using stable hydrogen isotope data collected from breeding and non-breeding American redstarts (*Setophaga ruticilla*). These data are currently unpublished so cannot be distributed outside of this lab. To load the data, run the following lines:  
+
+```{r}
+library(RCurl)
+
+# Provide the web address of the file:
+
+valURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/amre_val.csv')
+stopURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/amre_stop.csv')
+baseURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/amre_base.csv')
+
+# Read in the data:
+
+amre_val <- read.csv(text = valURL)
+amre_stop <- read.csv(text = stopURL)
+amre_base <- read.csv(text = baseURL)
+
+```
+
+The data consist of three dataframe. The first dataframe (*amre_val*) contains deuterium values (and several individual attributes) from redstarts sampled at known breeding locations. We will use these data to determine how well our assignment models can determine the breeding origin of redstarts. The second dataframe (*amre_stop*) contains deuterium values (and several individual attributes) from redstarts captured at three stopover sites along the Gulf of Mexico during spring migration. We will use these data to determine how breeding origin influences where and when individuals cross the Gulf of Mexico during spring migration. 
+
+Assigning birds to breeding origins requires a basemap of spatial variation in deuterium values (i.e., an isoscape). The third dataframe (*amre_base*) contains deuterium values for just over 6700 raster cells that make up the American redstart breeding range.
+
+> Exercise 1: Check the first few lines of each dataframe. What are the column names in each? 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+```{r}
+head(amre_val)
+
+```
+
+```{r}
+head(amre_stop)
+
+```
+
+```{r}
+head(amre_base)
+
+```
+
+*Site note for those of you that are interested. The deuterium isoscape was created by first downloading a raster file containing predicted precipitation deuterium values for North America ([link](www.waterisotopes.org)). This map was then clipped to contain only cells within the redstart breeding range (this was done in ArcGIS but could easily be done in R). Finally, the precipitation deuterium values were converted to feather deuterium using the published (Hobson et al. 2012 PlosOne) correction:* 
+
+$$\delta ^2H_{f} = 0.95 -27.09 \times \delta ^2H_{p}$$
+
+> Exercise 2: What type of object is the basemap? 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+
+Although there are numerous ways to treat this basemap in R (e.g. as a raster object), we will treat it as a dataframe, which makes it easier to manipulate, makes calculations slightly faster, and makes it easy to visualize the data using ggplot2. Each row of this dataframe represents one breeding cell and columns contain the attribute values associated with that location. Latitude and longitude are the coordinates of the center of the cell. The column *dd* contains the predicted feather deuterium for that cell. As we discussed during the lecture, breeding abundance can be used to improve estimates of breeding origin. Therefore, the basemap we just downloaded also contains relative breeding abundance estimates for each cell (*rel.abun*). These estimates are based on data from the Breeding Bird Survey. See Hallworth et al. (2014) ror more details about the estimation of relative abundance. 
+
+Before moving on, let's quickly visualize both the $\delta ^2H_f$ isoscape and redstart breeding abundance. To do this in ggplot2, we'll use geom_raster():
+
+```{r}
+# Get polygon boundaries for states and countries
+  all_countries <- map_data("world") %>% 
+         filter(region %in% c("Canada", "USA") & long < -30 & lat > 30 & lat < 70) 
+  all_countries <- all_countries[-which(all_countries$subregion =="Alaska"),]
+  all_states <- map_data("state")
+
+# Plot d2H isoscape
+  ggplot() + 
+    geom_raster(data = amre_base, aes(x = long, y = lat, fill = dd)) +
+    geom_polygon(data=all_states, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+    geom_polygon(data=all_countries, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+    scale_fill_gradient2(low = "red", mid = "blue", high = "green", midpoint = -100)
+  
+```
+
+> Exercise 3:  
+  1. Change the isoscape we just created to show breeding abundance instead of $\delta ^2H_f$ values.  
+  2. Change the fill gradient to go from off white (use #fbf4eb) to red.    
+
+## Basic assignment functions
+
+The primary function for this lab will be iso_assign(). As with all R functions, we can (and should!) see what iso_assign() does behind the scenes.  
+
+> Exercise 4: View the code that the iso_assign() function uses.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+```{r}
+iso_assign
+```
+
+Let's start with the arguments (most of this information can also be obtained by typing ?iso_assign). iso_assign() takes three arguments, two of which are required:   
+
+  1. *dd*  A vector containing the $\delta ^2H_f$ values of the individuals we want to assign. There is no limit to number of individuals we can assign but it is usually best to apply the function to groups of individuals that share some common attribute (e.g., sampling site, age, sex, etc.).   
+  
+  2.  *df.base*  A vector containing the predicted $\delta ^2H_f$ values for each breeding cell. Note that this is a vector, not a dataframe, which means that this function does not contain any information about where each breeding cell is located. That's ok because later on we will merge the assignment output with the lat/long information for the original basemap file.   
+  
+  3. *odds*  The odds ratio used to classify breeding cells as likely or likely. Odds takes an integer value and sets the likely threshold as 1/odds. So if odds = 3 (the default value), all cells with a relative probabilty < 0.33 will be classified as unlikely (and all cells with relative probability > 0.33 will be classified as likely).  
+
+Now let's look at the first few lines of the function:  
+
+```{r, eval = FALSE}
+    assign <- data.frame(matrix(ncol = length(dd), nrow = length(df.base)))
+    colnames(assign) <- seq(1:length(dd))
+    tassign <- t(assign)
+    colnames(tassign) <- round(df.base, digits = 2)
+    assign <- t(tassign)
+```
+
+These lines are simply setting up an empty dataframe, called **assign**. Each row represents one breeding cell (`nrow = length(df.base)`) and each column represents one individual in our sample (`ncol = length(dd)`). We have found that, for some reason unknown to us, including row names speeds up the assignment model. So the next few lines set the column names of the original df, tranpose the df, sets the column names of the transposed df, and the transposes back to the original format.  
+
+The next few lines actually do the likelihood estimation:
+
+```{r, eval = FALSE}
+    for (i in 1:length(dd)) {
+        for (k in 1:length(df.base)) {
+            assign[k, i] = dnorm(dd[i], mean = df.base[k], sd = 12)
+        }
+    }
+```
+
+For each individual (indexed by *i*), the function loops over each breeding cell (indexed by *k*) and estimates the likelihood that the individual originated from that cell. It does this using the *dnorm* function, which calculates the probability that a given value (in this case, the individual's $\delta ^2H_f$ value) came from a normal distribution with a given mean (in this case, the predicted $\delta ^2H_f$ value for that cell) and a given standard deviation (which in this case, we assume to be 12). The likelihood for each cell is stored in the **assign** dataframe we created above. After estimating the likelihood for each cell, the function then goes on to the next individual and does it all over again. Pretty simple.  
+
+The next two lines calculate the relative probabilities for each cell and the likely/unlikely cells:
+
+```{r, eval = FALSE}
+    iso.prob <- apply(assign, 2, function(x) x/max(x))
+    iso.origin <- ifelse(iso.prob < 1/odds, 0, 1)
+```
+
+For each individual, the relative probabilities are estimated by dividing each cells' likelihood value by the highest likelihood value of all the cells. The apply function makes this easy. We simply tell it to take the **assign** dataframe and apply a function to each column (i.e, individual) separately (that's what the 2 does. A 1 would apply the function to rows). In this case, the function takes each value (x) and divides it by the maximum value of x within that column. So now all cells have a relative likelihood between 0 and 1, stored in an object called **iso.prob**. The next line takes the relative probabilities and converts them in 0's or 1's based on whether the relative probabilities are > or < the odds ratio we specified. 
+
+> UnderRstanding quesiton 1: What are the dimensions of the *iso.prob* and *iso.origin* objects?
+
+The last two lines package the raw likelihoods, relative probabilities, and likely/unlikely cells into a list, which is returned by the function. 
+
+```{r, eval = FALSE}
+    iso.data <- list(iso.like = assign, iso.prob = iso.prob, 
+        iso.origin = iso.origin)
+    return(iso.data)
+```
+
+> UnderRstanding quesiton 2: What are the dimensions of the *iso.data* object?
+
+## Assignment validation using known-origin samples
+
+Assignment models are only useful if they can correctly identify the origin of (most) individuals so an important first step to this analysis is determine how well our assignment models perform. We will do this by applying the iso_assign() function to American redstarts that were sampled at their breeding site. Because their origin is known[^1], we can use some simple summary statistics to quantify the performance of our model.   
+
+Our validation data contains `r nrow(amre_val)` individuals from `r length(unique(amre_val$state))` breeding sites. We will first apply the iso_assign() function to all individuals within each site.   
+
+```{r, warning = FALSE}
+# Subset birds from each site
+  nc <- amre_val %>% filter(state == " NC")
+  la <- amre_val %>% filter(state == " LA")
+  vt <- amre_val %>% filter(state == " VT")
+  md <- amre_val %>% filter(state == " MD")
+  mi <- amre_val %>% filter(state == " MI")
+  mo <- amre_val %>% filter(state == " MO")
+  
+# Assign individuals
+  nc.assign <- iso_assign(dd = nc$dd, df.base = amre_base$dd)
+  la.assign <- iso_assign(dd = la$dd, df.base = amre_base$dd)
+  vt.assign <- iso_assign(dd = vt$dd, df.base = amre_base$dd)
+  md.assign <- iso_assign(dd = md$dd, df.base = amre_base$dd)
+  mi.assign <- iso_assign(dd = mi$dd, df.base = amre_base$dd)
+  mo.assign <- iso_assign(dd = mo$dd, df.base = amre_base$dd)
+
+# Recombine assignments
+  amre.like   <- cbind(nc.assign$iso.like, la.assign$iso.like, vt.assign$iso.like,
+                       md.assign$iso.like, mi.assign$iso.like, mo.assign$iso.like)
+  amre.prob   <- cbind(nc.assign$iso.prob, la.assign$iso.prob, vt.assign$iso.prob,
+                       md.assign$iso.prob, mi.assign$iso.prob, mo.assign$iso.prob)
+  amre.origin <- cbind(nc.assign$iso.origin, la.assign$iso.origin, vt.assign$iso.origin,
+                       md.assign$iso.origin, mi.assign$iso.origin, mo.assign$iso.origin)
+```
+
+Ok, now all of  the individuals have be assigned to potential breeding locations. There are many ways to validate our model but we will use two relatively simple metrics of accuracy and precision.    
+
+The first step in our model validation is to determine whether or not each individual was correctly assigned to it's actual breeding location. We will call this accuracy and it is pretty straightforward to estimate. In our original dataframe, one of the columns is called **origin** and contains the cell (actually the row) of the basemap that corresponds to the individuals' breeding location. So all we need to do is determine, for each individual, whether that origin cell was correctly classified as likely. To make it even easier, the *iso.assign* package comes with a function to estimate the error rate (i.e., the proportion of individuals that are incorrectly assigned. Error rate is just 1 - accuracy but I find it more intuitive to think about minimizing error). First, let's look at the function:  
+
+```{r}
+  
+  error_rate
+  
+```
+
+Under the hood, this is a very simple function. It first creates an empty vector called **correct**. Next, it loops over each individual (i.e., column) and checks whether that individuals' true origin is classified as likely. Finally, it estimates the proportion of individuals that were misclassified and returns that value.   
+
+Now let's apply the error rate function, first to all of the redstarts in our sample (to get the overall error rate) and then to each site separetely to see if there is any geographic variation in the model accuracy.   
+
+```{r}
+## Overall error rate
+# Because the columns (i.e. individuals) of our assignment output may be different from the original
+#  order of individuals, we need to recombine the origin cells to be sure they are consistent
+  amre.new.origin <- c(nc$origin, la$origin, vt$origin, md$origin, mi$origin, mo$origin)
+  error_rate(origin = amre.origin, origin.cell = amre.new.origin)
+
+## Error rate by site
+# North Carolina
+  error_rate(origin = nc.assign$iso.origin, origin.cell = nc$origin)
+# Louisiana
+  error_rate(origin = la.assign$iso.origin, origin.cell = la$origin)
+# Vermont
+  error_rate(origin = vt.assign$iso.origin, origin.cell = vt$origin)
+# Maryland
+  error_rate(origin = md.assign$iso.origin, origin.cell = md$origin)
+# Michigan
+  error_rate(origin = mi.assign$iso.origin, origin.cell = mi$origin)
+# Missouri
+  error_rate(origin = mo.assign$iso.origin, origin.cell = mo$origin)
+
+```
+
+That's good news, `r round(error_rate(origin = amre.origin, origin.cell = amre.new.origin),2)*100`% is about as low as we could hope for. But accuracy is not the only metric of success. We could easily get 0% error rate by just calling the entire breeding range "likely" but that wouldn't do us any good! What we really want it to get the assignment right but also identify the smallest area possible as "likely." That assignment area, which we will call precision, is also easy to measure: it's just the number of "likely" cells. As with the error rate, the *iso.assign* package has a built in function to estimate assignment area:  
+
+```{r}
+  area_assign
+```
+
+This function is even more simple than error_rate(). The function first uses the apply function to estimate the number of likely cells for each individual.  
+
+> UnderRstanding quesiton 3: What function is used by apply() to determine the number of likely cells? 
+
+Next, the function estimates the mean number of cells per individual and divides it by the total number of breeding cells. This proportion, which we interpret at the average proportion of the breeding range identified as likely for each individual, is then returned.    
+
+This function is so simple it may seem silly to even have a function at all. 
+
+> UnderRstanding quesiton 4: What are some of the advantages of putting even simple code in functions?  
+
+Apply the area_assign() function to the redstart assignment:
+```{r}
+# Overall assignment area
+  area_assign(origin = amre.origin)
+
+# Assignment area for each site
+  area_assign(origin = nc.assign$iso.origin)
+  area_assign(origin = la.assign$iso.origin)
+  area_assign(origin = vt.assign$iso.origin)
+  area_assign(origin = md.assign$iso.origin)
+  area_assign(origin = mi.assign$iso.origin)
+  area_assign(origin = mo.assign$iso.origin)
+
+```
+
+So on average, about `r round(area_assign(origin = amre.origin)*100, 2)`% of the breeding range is classified as likely for each individual, although some sites are quite a bit lower (e.g. Lousiana at `r round(area_assign(origin = la.assign$iso.origin)*100,2)`%) and some were quite a bit higher (e.g. Michigan at `r round(area_assign(origin = mi.assign$iso.origin)*100,2)`%). This is pretty typical of assignments based only on hydrogen data - the resolution of one isotope is pretty low so fairly large areas get identified as likely. But at least we know the model is getting the origin right nearly 95% of the time!  
+
+[^1] This is not technically true. We sample a bird at a given location but the feather we collect for isotope analysis was actually grown the previous year. If the bird is breeding at the same location as the previous year (i.e. showed site fidelity), than we are good. However, if the bird dispersed between different breeding sites, than our sample does not actually represent the current breeding location. For this reason, we typically use only adult birds for our validation (because adults tend to show higher site fidelty than young individuals) and we eliminate individuals with $\delta ^2H_f$ values that are really different from other individuals sampled at the same location. Furthermore, because most birds disperse relatively short distances (< a few km) and our isotope data is relatively corse (> 10's km), most dispersal events won't greatly influence our conclusions. For these reasons, we can be fairly confident that our validation samples provide an accurate estimate of model performance.   
+
+
+## Assignment of stopover samples
+
+Now that we are confident that the assignment model works, we will move on to answering some interesting biological questions about migration behavior. For this analysis, we will use $\delta ^2H_f$ values collected from American redstarts stopping over on the gulf coast during their spring migration. Individuals were captured at three sites spanning the Gulf of Mexico: Mad Island, TX, Johsnon's Bayou, LA, and Apalachicola, FL. 
+
+```{r}
+  site.coords <- data.frame(site = c("MAD", "JOB", "APP"),
+                          lat = c(28.65, 29.85, 29.72),
+                          long = c(-96.11, -93.78, -84.99))
+  
+  gulf_states <- map_data("state") %>% filter(region %in% c("texas", "louisiana", "mississippi",
+                                                          "georgia","alabama", "florida", "arkansas",
+                                                          "south carolina"))
+
+  ggplot() + coord_map() +
+  geom_polygon(data = gulf_states, aes(x = long, y = lat, group = region), 
+                 fill = "lightyellow", color = "grey40") +
+  geom_point(data = site.coords, aes(x = long, y = lat, label = site), color = "red", size = 5) +
+  geom_text(data = site.coords, aes(x = long, y = lat, label = site), vjust = 2) +
+  theme(axis.line = element_blank(), axis.title = element_blank())
+  
+
+```
+
+In addition to the $\delta ^2H_f$ values, the *amre_stop* dataset also contains covariates for each individual:
+
+```{r}
+  head(amre_stop)
+```
+
+These attributes will allow us to ask many other interesting questions, including when birds cross the Gulf in relation to where they breed, how this passage timing differs across age/sex classes, how breeding location influences body condition at crossing, and potentially many others. 
+
+Before we can answer any of these questions, we have to do the assignments!
+
+```{r, warning = FALSE}
+  ## Subset data by site
+  app_stop <- amre_stop %>% filter(site == "APP")
+  job_stop <- amre_stop %>% filter(site == "JOB")
+  mad_stop <- amre_stop %>% filter(site == "MAD")
+
+## Assign individuals from each site 
+  app_assign <- iso_assign(dd = app_stop$dd, df.base = amre_base$dd)
+  job_assign <- iso_assign(dd = job_stop$dd, df.base = amre_base$dd)
+  mad_assign <- iso_assign(dd = mad_stop$dd, df.base = amre_base$dd)
+
+```
+
+One of the first things we can do with these assignments is visualize where individuals from each site are breeding. We only want one map per site so we need to first summarise all of the individuals assignments within each site.  
+
+> Exercise 4:   
+  1. For each site, use the apply function to sum the number of individuals assigned (i.e. origin == likely) to each breeding cell.  
+  2. Divide the the summed likely values for each cell by the total number of individuals from the site to get the relative probability of origin for each cell.    
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+
+```{r}
+  ## Create dataframe with assignment results
+  amre_assign <- data.frame(Latitude = amre_base$lat,
+                            Longitude = amre_base$long,
+                            app_origin = apply(app_assign$iso.origin, 1,sum)/ncol(app_assign$iso.like),
+                            job_origin = apply(job_assign$iso.origin, 1,sum)/ncol(job_assign$iso.like),
+                            mad_origin = apply(mad_assign$iso.origin, 1,sum)/ncol(mad_assign$iso.like))
+```
+
+One problem with this dataframe is that it's not *tidy*. 
+
+> UndeRstanding questions 4 & 5: What makes it untidy? Why is that a problem? 
+
+> Exercise 5: Tidy the amre_assign dataframe. 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+
+```{r}
+  amre_tidy <- amre_assign %>% 
+                 gather(site, origin.prob, -Latitude, -Longitude) %>%
+                   separate(site, into = c("site", "origin"), sep = "\\_") %>%
+                     select(-origin)
+```
+
+Now that we have a tidy dataframe, plotting the assignment results is simple:
+
+```{r fig.height = 3, fig.width = 9}
+  amre_map <- ggplot() + 
+        geom_raster(data = amre_tidy, aes(x = Longitude, y = Latitude, fill = origin.prob)) +
+        geom_polygon(data=all_states, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        geom_polygon(data=all_countries, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        scale_fill_gradient(low = "#fbf4eb", high = "red") +
+        facet_wrap(~site, nrow = 1) + 
+        theme(axis.title = element_blank())
+  amre_map
+```
+
+This map shows that there are clear differences in the breeding origin of individuals stopping over at the three sites. As you might predict, the birds stopping over at Apalachicola mainly breed in the southeastern portion of the breeding range whereas birds crossing at Mad Island are mainly going to the northwest. Johnson's Bayou appears to be somewhat intermediate, though the difference between MAD and JOB is pretty striking given how close the two sites are.  
+
+The spatial variation in Gulf passage is very interesting but there may also be temporal variation as well. Most studies of stopover ecology have suggested that birds breeding at southern latitudes pass through stopoever sites earlier than birds heading to more northerly breeding sites. We can use our dataset to test this prediction for American redstarts at three separate stopover sites.  
+
+Let's assume that an individuals' $\delta ^2H_f$ value is a proxy for it's breeding latitude. Thus, more negative values indicate for northerly breeding latitudes and vice versa. If our prediction is correct, we would expect to see a negative relationship between $\delta ^2H_f$ and passage date. Let's test this using a simple linear regression:
+
+```{r}
+  # First, plot the relationship between passage day and breeding latitude
+  ggplot(data = amre_stop, aes(x = dd, y = day)) + geom_point() + stat_smooth(method = "lm")
+  
+  # Fit linear regression model
+  mod1 <- with(amre_stop, lm(day ~ dd))
+  
+  # View model results
+  summary(mod1)
+```
+
+The steep slope of the regression line and the significant p-value indicates that breeding latitude has a significant impact on passage date. Technically, we shouldn't use the p-value from lm to judge significance. It is better to fit a model without breeding latitude and compare the two models using a likelihood ratio test:
+
+```{r}
+  
+  # Fit intercept-only model
+  mod2 <- with(amre_stop, lm(day ~ 1))
+  
+  # Compare models using likelihood ratio test 
+  anova(mod2, mod1)
+
+```
+
+As expected, the result is highly signficant. But there is still a lot of unexplained variation in passage timing. Maybe some of that variation is driven by differences in passage timing across sites. Let's test that:
+
+```{r}
+  # Again, plot the relationship between passage day and site
+  ggplot(data = amre_stop, aes(x = dd, y = day)) + geom_point() +
+    stat_smooth(method = "lm") +
+    facet_wrap(~site, nrow = 1)
+  
+  # Fit intercept-only model
+  mod3 <- with(amre_stop, lm(day ~ dd*site))
+  summary(mod3)
+  
+  # Compare models using likelihood ratio test 
+  anova(mod3, mod1)
+
+```
+
+Again, the likelihood ratio test is highly signficant, indicating that there is a strong interaction between site and breeding latitude. Looking at the figure, it appears that the relationship between passage day and breeding latitude is much stronger for Johnson's Bayou and Mad Island than for Appalachicola. Why might that be?  
+
+There are many other interesting questions we could explore with these data but for the sake of time, we will leave that for personal fulfillment (or hopefully check back for the awesome paper that we will write using these very same data!). 
+
+## Incorporating breeding abundance
+### Caution: Proceed carefully!
+
+As we saw above, the resolution of assignments based on hydrogen is quite low. One popular approach to refining isotope-based breeding assignments is to incorporate information about breeding abundance. There is a solid logical appeal to this approach but in practice it can be problematic. To illustrate the potential pitfalls of this approach (and to show how to include information about abundance in assignments), we'll use another function from the *iso.assign* package: abun_assign(). Before we see that code, let's **briefly** go over the statistical basis for incorporating abundance.  
+
+The iso_assign() function technically gives us the *likelihood* that an individual with a given $\delta ^2H_f$ value (let's call it x\*) originated from a given breeding cell (which we'll call *b*). Mathmatically, we write this as:  
+
+$$Pr(x*|b)$$
+
+Read this as: the probability of x\* *given* *b*. An important point to understand here is that these likelihoods are not true probabilities because they do not sum to 1. This means that the likelihood function does not allow us to make probabilitistic statements about breeding origins. Instead, the likelihood function weighs the relative support for different breeding locations, given the data. This makes sense when we look at what the *dnorm()* function does:
+
+```{r}
+?dnorm
+```
+
+dnorm estimates the probability of a value x\* given a known mean and sd. In practice, of course, we don't want to know the probability of x\* given *b*. We want to know the opposite: what is the probability that *b* is the breeding origin, given x\*. This is where Bayes theorem comes in. We won't worry about the details too much, but here's the formula:
+
+$$Pr(b|x*) = (Pr(x*|b) \times Pr(b))/Pr(x)$$
+
+Very briefly, the right hand side is called the posterior probability and it is exactly what we want: the probability of *b* given x\*. On the left hand side, we see that the likelihood is multiplied by Pr(*b*), which is called the prior. Effectively, the prior tells us the probability that breeding cell *b* is the origin, prior to any data collection. This is where the logic of breeding abundance comes in. If we captured a redstart at a stopover site and had no isotope data (and no information about migratory connectivity!), our best guess of where it came from would just be the breeding site with the highest breeding abundance. Thus, Bayes theorem gives us two things:   
+  1. A way to get what we really want (the posterior probability); and  
+  2. A way to include information about breeding abundance   
+  
+The denominator of Bayes theorem is simply a normalizing constant - it ensures that the posterior is a true probability, i.e. it sums to one. In many applications, Pr(x) is very hard to estimate. Luckily, it's pretty easy in this case (more on that below).
+
+The *iso.assign* package contains a function for estimating the posterior probability of each cell using information on breeding abundance. Let's first see what abun_assign() does: 
+```{r}
+  abun_assign
+```
+
+abun_assign takes five arguments:  
+  1. *iso.like* A matrix or dataframe containing the likelihood values from iso_assign();    
+  2. *rel.abun* A vector containing the relative abundance values for each breeding cell. Because these data will serve as our prior, they must be a true probability (i.e., sum to 1);   
+  3. *iso.weight* A value to weight the likelihood data;  
+  4. *abun.weight* A value to weight the abundance data;  
+  5. *odds* Same as the iso_assign() function.  
+  
+The first two lines of *abun_assign* take the exponent of the two weighting values. We'll discuss this more below but basically, this allows you to input the weights as any values from -1 to 1.  
+
+```{r, eval = FALSE}
+    iso.weight <- 10^iso.weight
+    abun.weight <- 10^abun.weight
+```
+
+Next, the function multiplies the likelihood for each breeding cell by the relative abundance of that cell and uses a base R function called prop.table to ensure that the cells sum to 1 for each individual. This gives our posterior probabilities:
+
+```{r, eval = FALSE}
+     prob <- prop.table(rel.abun^abun.weight * iso.like^iso.weight, 2)
+```
+
+The next two lines estimates the relative probability of each cell and the converts those to likely/unlikely:
+
+```{r, eval = FALSE}
+     rel.prob <- apply(prob, 2, function(x) x/max(x))
+     origin <- ifelse(rel.prob < 1/odds, 0, 1)
+```
+
+The last lines bundle a return the posteriors and likely/unlikely cells:
+
+```{r, eval = FALSE}
+    wght.summ <- list(origin = origin, prob = prob)
+    return(wght.summ)
+```
+
+Next, let's use the abun_assign() function to add breeding abundance into the assignments we did using the isotope data. For now, we won't worry about the weights (note that 10^0 = 1, so the isotope and abundance data remained unchanged here: 
+
+```{r}
+  
+  ## Assignment
+  app_abun <- abun_assign(iso.like = app_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = 0, abun.weight = 0)
+  job_abun <- abun_assign(iso.like = job_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = 0, abun.weight = 0)
+  mad_abun <- abun_assign(iso.like = mad_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = 0, abun.weight = 0)
+  
+  # Recombine and tidy
+  
+  abun.assign <- data.frame(Latitude = amre_base$lat,
+                            Longitude = amre_base$long,
+                            app_origin = apply(app_abun$origin, 1,sum)/ncol(app_abun$origin),
+                            job_origin = apply(job_abun$origin, 1,sum)/ncol(job_abun$origin),
+                            mad_origin = apply(mad_abun$origin, 1,sum)/ncol(mad_abun$origin))
+
+  abun_tidy <- abun.assign %>% gather(site, origin.prob, -Latitude, -Longitude) %>%
+    separate(site, into = c("site", "origin"), sep = "\\_") %>%
+    select(-origin)
+```
+
+Next, let's plot the assignments:
+```{r fig.height=3, fig.width=9}
+  # Plot assignments
+  abun_map <- ggplot() + 
+        geom_raster(data = abun_tidy, aes(x = Longitude, y = Latitude, fill = origin.prob)) +
+        geom_polygon(data=all_states, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        geom_polygon(data=all_countries, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        scale_fill_gradient(low = "#fbf4eb", high = "red") +
+        facet_wrap(~site, nrow = 1) + 
+        theme(axis.title = element_blank())
+  abun_map
+```
+
+Obviously something is wrong here. First, all three maps look pretty much identical, so we lost those interesting patterns that we saw earlier. To see why, let's start by compare those plots to the original plot of redstart breeding abundance:
+
+```{r}
+  amre_abun <- ggplot() +
+        geom_raster(data = amre_base, aes(x = long, y = lat, fill = rel.abun))+
+        geom_raster(data = abun_tidy, aes(x = Longitude, y = Latitude, fill = origin.prob)) +
+        geom_polygon(data=all_states, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        geom_polygon(data=all_countries, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        scale_fill_gradient(low = "#fbf4eb", high = "red")
+  amre_abun
+```
+
+Comparing these maps highlights the problem with using abundance: Our assignments have basically just become abundance maps! That's not very helpful for answering questions about migratory connectivity.  
+
+The problem is that relative abundance serves as a very strong prior. To illustrate why, it's useful to go back to the likelihood. Our isotope-only assignment did not explicity contain any prior information, which is equivilent to saying that each breeding cell has the same prior probability. Statistically, we would call this a uniform prior.
+
+When we use relative abundance as a prior, we change the uniform distribution of the prior quite dramatically:
+
+```{r}
+   ggplot(data = amre_base) + geom_histogram(aes(x = rel.abun, y = ..density..), 
+                                           color = "black", fill = "white")
+   
+```
+
+As you can see, the vast majority of the cells have a prior probability of 0 (or very close to it). When we multiply the likelihood by this prior, the posterior will also be 0 (or very close to it). Thus, our two approaches sit at opposite ends of the Bayesian spectrum. The likelihood approach imposes no prior information on our assignments (what is usually called an *uninformative prior*), whereas the abundance a very strong (i.e. very *informative*) prior on the assignments. Neither approach is wrong (one can make a logical argument in favor of either approach and both are statistically valid) but neither approach is ideal (*side note: this issue actually captures one of the major debates between frequentists and Bayesians. That is, is it appropriate to shape your inference based on information other than your data? But that's a subject for a different lecture). The resolution of the isotope-only approach leaves much to be desired but including abundance data will lead to very inaccurate assignments (except for the few individuals that do happen to come from the high abundance sites). We can see just how inaccurate using the known-origin birds:
+
+```{r, warning=FALSE}
+## Incorporate abundance into isotope assignments
+  nc.abun.assign <- abun_assign(iso.like = nc.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  la.abun.assign <- abun_assign(iso.like = la.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  vt.abun.assign <- abun_assign(iso.like = vt.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  md.abun.assign <- abun_assign(iso.like = md.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  mi.abun.assign <- abun_assign(iso.like = mi.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  mo.abun.assign <- abun_assign(iso.like = mo.assign$iso.like, rel.abun = amre_base$rel.abun,
+                                iso.weight = 0, abun.weight = 0)
+  
+## Estimate error rate for each site
+  # North Carolina
+  error_rate(origin = nc.abun.assign$origin, origin.cell = nc$origin)
+# Louisiana
+  error_rate(origin = la.abun.assign$origin, origin.cell = la$origin)
+# Vermont
+  error_rate(origin = vt.abun.assign$origin, origin.cell = vt$origin)
+# Maryland
+  error_rate(origin = md.abun.assign$origin, origin.cell = md$origin)
+# Michigan
+  error_rate(origin = mi.abun.assign$origin, origin.cell = mi$origin)
+# Missouri
+  error_rate(origin = mo.abun.assign$origin, origin.cell = mo$origin)
+
+```
+  
+Nearly 100% of birds are misclassified! Hopefully you're convinced that this approach to including abundance does not work (and that it is critical to validate your model!).  
+
+Even though the above model does not work very well, there is still sound logical and practical arguements for including abundance. Logically, low abundance sites *should* get lower prior probability because birds are less likely to come from them. Practically, we would still like to improve the resolution of our isotope-based assignments. One solution to this problem is to try to make the prior less informative, which we can do by down-weighting the abundance data. This down-weighting is done by raising the relative abundance data to a power between 0 and 1. We do not have time to explore the right weighting in this lab but we have done this and found that a weighting of around `r round(10^-0.9,2)` works pretty well for redstarts (interestingly, slightly down-weighting the isotope data by `r round(10^-0.1,2)` also improves the model). To see what this down-weighting does, let's visualize the down-weighted prior distribution of abundance values:
+
+```{r}
+   # Add a new column to the base map by raising the relative abundance values to 0.1259
+   weight <- 10^-0.9
+   amre_base %<>% mutate(wght.abun = rel.abun^weight)
+
+   ggplot(data = amre_base) + geom_histogram(aes(x = wght.abun, y = ..density..), 
+                                           color = "black", fill = "white")
+```
+
+As you can see, we have effectively "smoothed" out the abundance distribution: low abundance sites are still down-weighted but overall the distribution is more uniform (the isotope down-weighting does the same thing but to a lesser extent).  
+
+The abun_assign() function allows to easily incorporate this weighting into the assignments (note that the weights are given as log(weight, base = 10)):
+
+```{r fig.height=3, fig.width=9}
+     ## Assignment
+  app_abun <- abun_assign(iso.like = app_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = -0.1, abun.weight = -0.9)
+  job_abun <- abun_assign(iso.like = job_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = -0.1, abun.weight = -0.9)
+  mad_abun <- abun_assign(iso.like = mad_assign$iso.like, rel.abun = amre_base$rel.abun, 
+                          iso.weight = -0.1, abun.weight = -0.9)
+  
+  # Recombine and tidy
+  
+  abun.assign <- data.frame(Latitude = amre_base$lat,
+                            Longitude = amre_base$long,
+                            app_origin = apply(app_abun$origin, 1,sum)/ncol(app_abun$origin),
+                            job_origin = apply(job_abun$origin, 1,sum)/ncol(job_abun$origin),
+                            mad_origin = apply(mad_abun$origin, 1,sum)/ncol(mad_abun$origin))
+  
+  abun_tidy <- abun.assign %>% gather(site, origin.prob, -Latitude, -Longitude) %>%
+    separate(site, into = c("site", "origin"), sep = "\\_") %>%
+    select(-origin)
+  
+  # Plot assignments
+  abun_map <- ggplot() + 
+        geom_raster(data = abun_tidy, aes(x = Longitude, y = Latitude, fill = origin.prob)) +
+        geom_polygon(data=all_states, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        geom_polygon(data=all_countries, aes(x=long, y=lat, group = group),colour="black", fill =NA) +
+        scale_fill_gradient(low = "#fbf4eb", high = "red") +
+        facet_wrap(~site, nrow = 1) + 
+        theme(axis.title = element_blank())
+  abun_map
+```
+As you can see, this weighting mostly preserves the patterns we observed with the isotope-only assignments. However, the precision of our new assignments is slightly improved:
+
+```{r}
+## Appalachicola (isotope-only vs. abundance)
+  area_assign(app_assign$iso.origin)
+  area_assign(app_abun$origin)
+  
+## Johnson's Bayou (isotope-only vs. abundance)
+  area_assign(job_assign$iso.origin)
+  area_assign(job_abun$origin)
+  
+## Mad Island (isotope-only vs. abundance)
+  area_assign(mad_assign$iso.origin)
+  area_assign(mad_abun$origin)
+```
+
+For redstarts, it turns out that the gain in precision is pretty small when abundance is added to the model. However, for other species the gain can be pretty big (~20%). However, it must be noted that it is impossible to add abundance without at least slightly increasing assignment error; it is simply a fact of the model that birds from low abundance sites will have a lower probability of being assigned to their correct breeding location. Thus, although abundance data can help improve the resolution of assignments models, the real improvements to model accuracy **and** precision come from adding additional sources of data (e.g., other isotopes, genetic data, morphological traits). See readings below for examples of these approaches.  
+
+## Citations
+
+Hallworth, M. T., Studds, C. E., Scott Sillett, T., & Marra, P. P. (2013). Do archival light-level geolocators and stable hydrogen isotopes provide comparable estimates of breeding-ground origin?. The Auk, 130(2), 273-282.  
+
+Hobson, K. A., Van Wilgenburg, S. L., Wassenaar, L. I., & Larson, K. (2012). Linking hydrogen (δ 2 H) isotopes in feathers and precipitation: sources of variance and consequences for assignment to isoscapes. PLoS One, 7(4), e35137.  
+
+## Further reading:
+
+Royle, A.J., & Rubenstein, D. R. (2004). The role of species abundance in determining breeding origins of migratory birds with stable isotopes. Ecological Applications, 14(6), 1780-1788.  
+
+Ruegg, K. C., Anderson, E. C., Paxton, K. L., Apkenas, V., Lao, S., Siegel, R. B., ... & Smith, T. B. (2014). Mapping migration in a songbird using high‐resolution genetic markers. Molecular ecology, 23(23), 5726-5739.  
+
+Rundel, C. W., Wunder, M. B., Alvarado, A. H., Ruegg, K. C., Harrigan, R., Schuh, A., ... & Novembre, J. (2013). Novel statistical methods for integrating genetic and stable isotope data to infer individual‐level migratory connectivity. Molecular Ecology, 22(16), 4163-4176.  
+
+Rushing, C. S., Ryder, T. B., Saracco, J. F., & Marra, P. P. (2014). Assessing migratory connectivity for a long-distance migratory bird using multiple intrinsic markers. Ecological Applications, 24(3), 445-456.  
+
+----
+
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
+
