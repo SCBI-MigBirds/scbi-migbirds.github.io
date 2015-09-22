@@ -375,3 +375,6 @@ Exercises
 5) Perform a 2D asymptote analysis for bird b, How many points until home range stabilizes in 2D?
 
 ----
+
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
+
