@@ -304,9 +304,18 @@ Vol95c<-contourSizes(fhatc, cont=95)
 plotting the home ranges in 3D (Note: You may have to install the program X11 do to this):
 
 ```{r eval=F}
-plot(fhata,cont=c(95),colors=("green"),drawpoints=TRUE,xlab="", ylab="", zlab="",xlim=c(minX,maxX),ylim=c(minY,maxY),zlim=c(minZ,maxZ),size=2, ptcol="green") 
-plot(fhatb,cont=c(95),colors=("black"),add=TRUE,drawpoints=TRUE,xlab="", ylab="", zlab="",size=2,ptcol="black")
-plot(fhatc,cont=c(95),colors=("red"),add=TRUE,drawpoints=TRUE,xlab="", ylab="", zlab="",size=2,ptcol="red")
+plot(fhata,cont=c(95),
+  colors=("green"),drawpoints=TRUE,
+  xlab="", ylab="", zlab="",
+  xlim=c(minX,maxX),ylim=c(minY,maxY),zlim=c(minZ,maxZ),
+  size=2, ptcol="green") 
+plot(fhatb,cont=c(95),
+  colors=("black"),add=TRUE,drawpoints=TRUE,
+  xlab="", ylab="", zlab="",
+  size=2,ptcol="black")
+plot(fhatc,cont=c(95),colors=("red"),add=TRUE,drawpoints=TRUE,
+  xlab="", ylab="", zlab="",
+  size=2,ptcol="red")
 ```
 
 
@@ -320,12 +329,17 @@ Start the clock!
 ptm <- proc.time()
 
 set.seed(0) # creates the dataset
-Vol95.1 = matrix(0, nrow=10, ncol=nrow(b)-4) # nrow is number of samples - <100 would be ideal but will take forever
+Vol95.1 = matrix(0, nrow=10, ncol=nrow(b)-4) 
+
+# Note on the above: nrow is number of samples - <100 
+# would be ideal but will take forever
 
 # nested for() loop to run the bootstrap
 # careful, because this for loop takes a long time - took 123 min on my machine.
 
-The following step does the calculation from 60 till the length of the dataset. If you could run every few pts instead of every one it would be much faster but haven't figured out how to do that yet.
+# The following step does the calculation from 60 till the length of the dataset. If 
+# you could run every few pts instead of every one it would be much faster but have not
+# figured out how to do that yet.
 
 for (x in 60:nrow(b)) { 
   for (k in 1:nrow(Vol95.1)) {  
@@ -342,8 +356,10 @@ proc.time() - ptm
 
 # Export data
 write.csv(asymptote.csv)
+```
 
 ---- 
+  
 Exercises
 
 1) plot the bootstrapped home ranges from the asymptote analysis, When does 3D home range stabilize for bird b?    
@@ -352,8 +368,10 @@ Exercises
 
 2) For the 2D home ranges, change the colors of the animal home ranges to blue, pink, and orange    
 
-3) Use adehabitat package to determine the amount of overlap (in 2D) between the first and second birds in the locs dataset. I haven't done this yet, so seek help online    
+3) Use adehabitat package to determine the amount of overlap (in 2D) between the first and second birds in the locs dataset. I have not done this yet, so seek help online    
 
 4) Does anyone know trigonometry?  If so, write a function to calculate the intersection of two animal signals in the telem dataset hint, solve the problem first, then write the function    
 
 5) Perform a 2D asymptote analysis for bird b, How many points until home range stabilizes in 2D?
+
+----

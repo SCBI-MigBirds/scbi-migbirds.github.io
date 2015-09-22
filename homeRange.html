@@ -233,9 +233,18 @@ ctc &lt;- contourLevels(fhatc, cont=95, approx=FALSE)</code></pre>
 Vol95b&lt;-contourSizes(fhatb, cont=95)
 Vol95c&lt;-contourSizes(fhatc, cont=95)</code></pre>
 <p>plotting the home ranges in 3D (Note: You may have to install the program X11 do to this):</p>
-<pre class="r"><code>plot(fhata,cont=c(95),colors=(&quot;green&quot;),drawpoints=TRUE,xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,xlim=c(minX,maxX),ylim=c(minY,maxY),zlim=c(minZ,maxZ),size=2, ptcol=&quot;green&quot;) 
-plot(fhatb,cont=c(95),colors=(&quot;black&quot;),add=TRUE,drawpoints=TRUE,xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,size=2,ptcol=&quot;black&quot;)
-plot(fhatc,cont=c(95),colors=(&quot;red&quot;),add=TRUE,drawpoints=TRUE,xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,size=2,ptcol=&quot;red&quot;)</code></pre>
+<pre class="r"><code>plot(fhata,cont=c(95),
+  colors=(&quot;green&quot;),drawpoints=TRUE,
+  xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,
+  xlim=c(minX,maxX),ylim=c(minY,maxY),zlim=c(minZ,maxZ),
+  size=2, ptcol=&quot;green&quot;) 
+plot(fhatb,cont=c(95),
+  colors=(&quot;black&quot;),add=TRUE,drawpoints=TRUE,
+  xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,
+  size=2,ptcol=&quot;black&quot;)
+plot(fhatc,cont=c(95),colors=(&quot;red&quot;),add=TRUE,drawpoints=TRUE,
+  xlab=&quot;&quot;, ylab=&quot;&quot;, zlab=&quot;&quot;,
+  size=2,ptcol=&quot;red&quot;)</code></pre>
 </div>
 <div id="bonus-code-asymptote-analysis-on-bird-b-in-3d" class="section level3">
 <h3>Bonus code: Asymptote analysis on bird b in 3d</h3>
@@ -244,12 +253,17 @@ plot(fhatc,cont=c(95),colors=(&quot;red&quot;),add=TRUE,drawpoints=TRUE,xlab=&qu
 <pre class="r"><code>ptm &lt;- proc.time()
 
 set.seed(0) # creates the dataset
-Vol95.1 = matrix(0, nrow=10, ncol=nrow(b)-4) # nrow is number of samples - &lt;100 would be ideal but will take forever
+Vol95.1 = matrix(0, nrow=10, ncol=nrow(b)-4) 
+
+# Note on the above: nrow is number of samples - &lt;100 
+# would be ideal but will take forever
 
 # nested for() loop to run the bootstrap
 # careful, because this for loop takes a long time - took 123 min on my machine.
 
-The following step does the calculation from 60 till the length of the dataset. If you could run every few pts instead of every one it would be much faster but haven't figured out how to do that yet.
+# The following step does the calculation from 60 till the length of the dataset. If 
+# you could run every few pts instead of every one it would be much faster but have not
+# figured out how to do that yet.
 
 for (x in 60:nrow(b)) { 
   for (k in 1:nrow(Vol95.1)) {  
@@ -265,22 +279,18 @@ for (x in 60:nrow(b)) {
 proc.time() - ptm
 
 # Export data
-write.csv(asymptote.csv)
-
----- 
-Exercises
-
-1) plot the bootstrapped home ranges from the asymptote analysis, When does 3D home range stabilize for bird b?    
- 
-1) change the maximum on the 3D Z axis to 10 and replot this way the graphs will be easier to visualize    
-
-2) For the 2D home ranges, change the colors of the animal home ranges to blue, pink, and orange    
-
-3) Use adehabitat package to determine the amount of overlap (in 2D) between the first and second birds in the locs dataset. I haven't done this yet, so seek help online    
-
-4) Does anyone know trigonometry?  If so, write a function to calculate the intersection of two animal signals in the telem dataset hint, solve the problem first, then write the function    
-
-5) Perform a 2D asymptote analysis for bird b, How many points until home range stabilizes in 2D?</code></pre>
+write.csv(asymptote.csv)</code></pre>
+<hr />
+<p>Exercises</p>
+<ol style="list-style-type: decimal">
+<li><p>plot the bootstrapped home ranges from the asymptote analysis, When does 3D home range stabilize for bird b?</p></li>
+<li><p>change the maximum on the 3D Z axis to 10 and replot this way the graphs will be easier to visualize</p></li>
+<li><p>For the 2D home ranges, change the colors of the animal home ranges to blue, pink, and orange</p></li>
+<li><p>Use adehabitat package to determine the amount of overlap (in 2D) between the first and second birds in the locs dataset. I have not done this yet, so seek help online</p></li>
+<li><p>Does anyone know trigonometry? If so, write a function to calculate the intersection of two animal signals in the telem dataset hint, solve the problem first, then write the function</p></li>
+<li><p>Perform a 2D asymptote analysis for bird b, How many points until home range stabilizes in 2D?</p></li>
+</ol>
+<hr />
 </div>
 </div>
 </div>
