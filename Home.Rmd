@@ -21,7 +21,7 @@ R has become the universal quantitative interface for ecologists - it's free, po
 
 * Download and install the current version of [<img src = "http://rhrv.r-forge.r-project.org/css/images/R.png" height="30px" width = "30px"/>](https://www.r-project.org/)
 
-* Download and install [<img src = "https://www.rstudio.com/wp-content/uploads/2014/03/blue-250.png" height="75px" width = "75px"/>](https://www.rstudio.com/products/rstudio/download/)
+* Download and install [**R Studio**](https://www.rstudio.com/products/rstudio/download/)
 
 ## Course activities and lessons
 In order to ensure that we are all moving at a similar pace, we will place course lessons on this website immediately prior to classroom activies. All lessons placed on this site will remain following this course and you will therefore have permanent access to everything that we've learned.
@@ -42,7 +42,7 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 7: Introduction to home range analysis**](http://scbi-migbirds.github.io/homeRange.html): In this lesson, we will learn how to estimate two- and three-dimensional home ranges.
 
-* [**Lesson 8a Geolocator analysis**](http://scbi-migbirds.github.io/Geolocator_GeoLight.html): An introductory geolocator analysis.
+* [**Lesson 8a Geolocator analysis**](http://scbi-migbirds.github.io/Geolocator_GeoLight.html): An introductory geolocator analysis. Please click this [**link**](http://scbi-migbirds.github.io/loadGeolocatorData.html) to load the geolocator data and source script.
 
 * [**Lesson 8b Geolocator analysis**](http://scbi-migbirds.github.io/Geolocator_SGAT.html): An advanced geolocator analysis.
 
