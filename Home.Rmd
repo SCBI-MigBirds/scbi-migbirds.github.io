@@ -46,6 +46,8 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 8b Geolocator analysis**](http://scbi-migbirds.github.io/Geolocator_SGAT.html): An advanced geolocator analysis.
 
+* [**Lesson 9: Introduction to mark-recapture analysis**](http://scbi-migbirds.github.io/IntroToRMark.html): In this lesson, we will review the early steps in conducting a Cormack Jolly Seber analysis in R Mark.
+
 
 ### Preliminary lessons
 
