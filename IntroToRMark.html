@@ -76,6 +76,7 @@ img {
 <p>RMark is not a stand alone program but, rather, an R interface to <strong>Program Mark</strong>. If you run this program on your own, you will have to install Program Mark on you computer. It is located <a href="http://www.phidot.org/software/mark/downloads/"><strong>here</strong></a>.</p>
 <p>Program MARK has a thorough and valuable resource, <em>Program MARK - A ‘gentle introduction’</em> (available for download <a href="http://www.phidot.org/software/mark/docs/book/"><strong>here</strong></a>), that provides information on the background and application of MARK models. Utilizing this resource really is necessary to understand the often complicated world of modeling survival using mark-recapture data. Additionally, Appendix C of the Gentle Introduction contains more than 100 pages dedicated to RMark (available <a href="http://www.phidot.org/software/mark/docs/book/pdf/app_3.pdf"><strong>here</strong></a>) and is the source of much of the material used in this lesson.</p>
 <pre class="r"><code>install.packages('RMark')
+install.packages('expm')
 library('RMark')</code></pre>
 <p>For Mac and Linux users, you must provide R with the path to the executable Mark file. On my computer, this is done as follows (<strong>DO NOT RUN</strong>):</p>
 <pre class="r"><code>MarkPath='/Users/bsevans/Applications'</code></pre>
@@ -130,9 +131,11 @@ ch &lt;- apply(eNoca[,1:13], 2,dotFun)</code></pre>
 <p>And convert the value in each row to a single character string and remove the encounters:</p>
 <pre class="r"><code>ch&lt;- apply(ch[,1:13], 1, paste, collapse='')  
 
-eNocaCh &lt;- eNoca[,-c(1:13)] </code></pre>
+eNocaCh &lt;- eNoca[,-c(1:13)]
+
+eNocaCh$ch &lt;- ch</code></pre>
 <p>Next, let’s rearrange the columns:</p>
-<pre class="r"><code>noca &lt;- eNocaCh[,c(6:8, 1:5)]</code></pre>
+<pre class="r"><code>noca &lt;- eNocaCh[,c(6:7, 1:5)]</code></pre>
 <hr />
 <p>The field “ch” stands for encounter (capture) history. Notice that each encounter history record contains a string of 0’s (no encounter) and 1’s (capture or recapture). Preceding 1’s are not analyzed (nor is the initial 1, directly).</p>
 </div>
@@ -140,6 +143,8 @@ eNocaCh &lt;- eNoca[,-c(1:13)] </code></pre>
 <h2>Run the simplest of MARK models</h2>
 <p>We’ll now start right away by running a very simple MARK model, but before we do that we need to take a precautionary step. When you run a MARK analysis, it generates a lot of files. Find your current working directory in R (getwd function) and in your file system create a new folder called “mark_scratch”. Reset your working directory as follows:</p>
 <pre class="r"><code>setwd('mark_scratch')</code></pre>
+<p>Take a look on your computer at where Program Mark is located. It should be program files (x86)/MARK. If so, set the Mark Path as (if not, call us over!):</p>
+<pre class="r"><code>MarkPath='C:/Program Files (x86)/MARL'</code></pre>
 <p>Run simple MARK model:</p>
 <pre class="r"><code>mark1 = mark(noca)</code></pre>
 <p>On the output you will see: The MARK model: Phi(<sub>1)p(</sub>1) (intercept-only model) Parameter count, Negative log-likelihood, and AIC (more on this later) Beta parameters (slopes), with standard error and confidence intervals Real parameter estimates.</p>
@@ -172,7 +177,7 @@ summary(example.data)</code></pre>
 <p>To run this model, we will first make it ready for running in MARK. At this point, it is necessary to know that MARK views continuous and categorical (nominal) variables differently. Categorical variables are known as group variables and must be specified accordingly. Continuous variables are known as covariates (which are simpler in model construction but provide challenges in assessment).</p>
 <p>First we will process the encounter history data frame.</p>
 <pre class="r"><code>d.proc = process.data(example.data,
-                      groups='sex'),
+                      groups='sex',
                       begin.time = 2000)</code></pre>
 <p>Explore the process data:</p>
 <pre class="r"><code>class(d.proc)
@@ -183,18 +188,18 @@ names(d.proc)</code></pre>
 <p>As above, take a moment ot explore the output of the design data.</p>
 <p>Now, we are ready to construct our models. We must name each model for each parameter, covariate, and group variable of interest. Be careful, however, these models can get cumbersome very quickly!</p>
 <p>One variable for Phi:</p>
-<pre class="r"><code>Phi.dot = (formula=~1)
-Phi.sex = (formula=~sex)
-Phi.mass = (formula=~mass)</code></pre>
+<pre class="r"><code>Phi.dot = list(formula=~1)
+Phi.sex = list(formula=~sex)
+Phi.mass = list(formula=~mass)</code></pre>
 <p>To make an additive model, simple use a “+” sign.Two variables for Phi, additive:</p>
-<pre class="r"><code>Phi.sex.mass = (formula=~sex+mass)</code></pre>
+<pre class="r"><code>Phi.sex.mass = list(formula=~sex+mass)</code></pre>
 <p>For an interaction term, there are two ways to express it. Two variables for Phi, interaction:</p>
-<pre class="r"><code>Phi.sex.i.mass = (formula=~sex+mass+sex:mass)</code></pre>
+<pre class="r"><code>Phi.sex.i.mass = list(formula=~sex+mass+sex:mass)</code></pre>
 <p>Alternatively …</p>
-<pre class="r"><code>Phi.sex.i.mass = (formula=~sex*mass)</code></pre>
+<pre class="r"><code>Phi.sex.i.mass = list(formula=~sex*mass)</code></pre>
 <p>Define models for p (we’ll just use year and sex)</p>
-<pre class="r"><code>p.dot = (formula=~1)
-p.sex = (formula=~sex)</code></pre>
+<pre class="r"><code>p.dot = list(formula=~1)
+p.sex = list(formula=~sex)</code></pre>
 <p>Now we collect all of the models into a single model list:</p>
 <pre class="r"><code>cml = create.model.list(&quot;CJS&quot;)</code></pre>
 <p>Then run the models all at once:</p>

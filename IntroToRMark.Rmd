@@ -32,6 +32,7 @@ Program MARK has a thorough and valuable resource, _Program MARK - A 'gentle int
 
 ```{r eval = F}
 install.packages('RMark')
+install.packages('expm')
 library('RMark')
 ```
 
@@ -126,13 +127,15 @@ And convert the value in each row to a single character string and remove the en
 ```{r eval = F}
 ch<- apply(ch[,1:13], 1, paste, collapse='')  
 
-eNocaCh <- eNoca[,-c(1:13)] 
+eNocaCh <- eNoca[,-c(1:13)]
+
+eNocaCh$ch <- ch
 ```
 
 Next, let's rearrange the columns:
 
 ```{r eval = F}
-noca <- eNocaCh[,c(6:8, 1:5)]
+noca <- eNocaCh[,c(6:7, 1:5)]
 ```
 ----
 
@@ -144,6 +147,12 @@ We'll now start right away by running a very simple MARK model, but before we do
 
 ```{r eval = F}
 setwd('mark_scratch')
+```
+
+Take a look on your computer at where Program Mark is located. It should be program files (x86)/MARK. If so, set the Mark Path as (if not, call us over!):
+
+```{r eval = F}
+MarkPath='C:/Program Files (x86)/MARL'
 ```
 
 Run simple MARK model:
@@ -206,7 +215,7 @@ First we will process the encounter history data frame.
 
 ```{r eval = F}
 d.proc = process.data(example.data,
-                      groups='sex'),
+                      groups='sex',
                       begin.time = 2000)
 ```
 
@@ -232,34 +241,34 @@ very quickly!
 One variable for Phi:
 
 ```{r eval = F}
-Phi.dot = (formula=~1)
-Phi.sex = (formula=~sex)
-Phi.mass = (formula=~mass)
+Phi.dot = list(formula=~1)
+Phi.sex = list(formula=~sex)
+Phi.mass = list(formula=~mass)
 ```
 
 To make an additive model, simple use a "+" sign.Two variables for Phi, additive:
 
 ```{r eval = F}
-Phi.sex.mass = (formula=~sex+mass)
+Phi.sex.mass = list(formula=~sex+mass)
 ```
 
 For an interaction term, there are two ways to express it. Two variables for Phi, interaction:
 
 ```{r eval = F}
-Phi.sex.i.mass = (formula=~sex+mass+sex:mass)
+Phi.sex.i.mass = list(formula=~sex+mass+sex:mass)
 ```
 
 Alternatively ...
 
 ```{r eval = F}
-Phi.sex.i.mass = (formula=~sex*mass)
+Phi.sex.i.mass = list(formula=~sex*mass)
 ```
 
 Define models for p (we'll just use year and sex)
 
 ```{r eval = F}
-p.dot = (formula=~1)
-p.sex = (formula=~sex)
+p.dot = list(formula=~1)
+p.sex = list(formula=~sex)
 ```
 
 Now we collect all of the models into a single model list:
