@@ -42,6 +42,11 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 7: Introduction to home range analysis**](http://scbi-migbirds.github.io/homeRange.html): In this lesson, we will learn how to estimate two- and three-dimensional home ranges.
 
+* [**Lesson 8a**: Geolocator analysis](http://scbi-migbirds.github.io/geolocator_geolight.html): An introductory geolocator analysis.
+
+* [**Lesson 8b** Geolocator analysis](http://scbi-migbirds.github.io/geolocator_sgat.html): An advanced geolocator analysis.
+
+
 ### Preliminary lessons
 
 * [**SWIRL courses**](http://scbi-migbirds.github.io/swirlCourses.html): Instructions for completing the self-guided SWIRL courses to prepare you for this course. To get the most from this course, we strongly suggest completing these exercises prior to arrival. 

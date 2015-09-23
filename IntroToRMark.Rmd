@@ -35,40 +35,65 @@ install.packages('RMark')
 library('RMark')
 ```
 
-For Mac and Linux users, you must provide R with the path to the executable
-Mark file. On my computer, this is done as follows (**DO NOT RUN**):
+For Mac and Linux users, you must provide R with the path to the executable Mark file. On my computer, this is done as follows (**DO NOT RUN**):
 
 ```{r eval = F}
 MarkPath='/Users/bsevans/Applications'
 ```
 
-PREPARING A CAPTURE HISTORY FOR MARK ANALYSIS
+## Preparing a capture history for Mark analysis
 
----- Exploring RMark basics ----
+We will use a dataset collected as a part of the Smithsonian Migratory Bird Center's Neighborhood Nestwatch program. The data are banded and resighted individals at a number of sites throughout Greater Washington D.C.
 
-We will use a dataset in the RMark package to learn the fundamentals
-of a mark-recapture file and explore the building blocks of RMark.
+Load the data:
 
-Get data (European Dipper capture history):
+```{r, eval=FALSE}
+# Load the library
 
-```{r eval = F}
-data(dipper)
+require(RCurl)
+
+# Provide the web address of the file:
+
+fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/encountersNN.csv')
+
+# Read in the data:
+
+encounters <- read.csv(text = fileURL)
 ```
 
 ----
-**Exercise 1: 
+
+>**Exercise 1**: 
+>
+> 1. Take a moment to explore the structure and composition of the data frame.  
+> 2. How many birds did Neighborhood Nestwatch band?
+> 3. In how many banding stations were birds banded ('fm_site')?
+> 4. How many species were banded by Neighborhood Nestwatch?
+> 5. Use the `dplyr` functions (including piping!) to subset the data frame to observations of Northern Cardinal (_Cardinalis cardinalis_), subset to  a data frame of individuals in which sex was identifiable (M or F), adult birds (AHY), then remove the following columns. Assign the name 'eNoca' to the new data frame.
+    * band_num    
+    * band_age
+    * Color.Band
+    * d_banded
+
 ----
-Take a moment to use the functions
+<P>
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+&nbsp    
+<P>
+eNoca <- tbl_df(encounters) %>%
+  dplyr::filter(sex != 'U' & band_age == 'AHY' & species == 'NOCA') %>% 
+  select(-band_num, -band_age, -Color.Band, -d_banded)
 
-```{r eval = F}
-class(dipper)
 
-summary(dipper)
 
-str(dipper)
-
-head(dipper)
-```
+----
 
 The field "ch" stands for encounter (capture) history. Notice that each encounter history record contains a string of 0's (no encounter) and 1's (capture or recapture). Preceding 1's are not analyzed (nor is the initial 1, directly).
 
