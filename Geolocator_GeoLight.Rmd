@@ -1,0 +1,414 @@
+---
+output: html_document
+---
+
+<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+    
+  <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+ 
+#Light-Level geolocator analysis using the GeoLight package#
+_Michael T. Hallworth  
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_
+
+
+### Introduction to Archival light-level geolocators
+The following document outlines the steps for analyzing data from archival light-level geolocators (hereafter geolocators). Geolocators have been used to track individuals since the early 1990s but were restricted to large organisms because of their large size. Recently, with the miniturization of geolocators, researchers are now able to deploy geolocators on smaller and smaller species.  Geolocators are devices that record ambient light levels every 2, 5, or 10 min depending on the model. Geolocators are attached to individuals which then migrate with the device while it records ambient light-levels throughout the year. Once recovered, the data are downloaded and analyzed to determine the time of sunrise and sunset. From the sunrise/sunset data the time of relative noon and midnight are determine. Geographical cooridnates are then derived from the relative 'noon' and 'midnight' times to give an approximate location of where the individual was throughout the year.
+
+<img src="http://www.lotek.com/images/bas-mk.jpg" height="175px" width="525px"/> <img src="http://mthallworth.weebly.com/uploads/1/8/3/8/18383927/2593529_orig.jpg" height = "150px" width= "150px"/>
+
+This tutorial uses geolocator data from a male Ovenbird (*Seiurus aurocapilla*) breeding at Hubbard Brook Experimental Forest, NH and a Wood Thrush (*Hylocichla mustelina*) breeding in Indiana and is part of an ongoing study modeling regional source-sink dynamics of a migratory songbird. Click [here](http://nationalzoo.si.edu/scbi/migratorybirds/research/marra/wood-thrush.cfm) for more information regarding the Wood Thrush project. The geolocators used for the two projects were purchased from [British Antarctic Survey](http://www.antarctica.ac.uk/bas_research/instruments/instrument7.php) (BAS) and [Lotek](htt://www.lotek.com/archival-birds.html) (LightBug). These models operate in the same manner but format the data differently. In order to use `GeoLight` to analyze the data, the data needed to be formatted correctly so `GeoLight` can read the data.
+
+### Analysis of geolocator data using the GeoLight package in R
+```{r echo=FALSE}
+#.libPaths("G:/Google_Drive/Hallworth_R_Library")
+```
+The following R packages are needed to conduct the tutorial
+```{r packages, message=FALSE, warning=FALSE}
+library(GeoLight)
+library(raster)
+library(ks)
+```
+
+The data format of geolocators purchased from different vendors are slightly different and need to be converted into a file format that is recognized by `GeoLight` 
+
+```{r}
+OvenRaw<-read.csv("data/2391_68559_000.lig",sep=",",skip=1,header=FALSE,col.names=c("Valid","Date","Julian","Light"))
+WothRaw<-read.table("data/0309_RAW.txt",sep="\t",header=TRUE)
+```
+Ovenbird Raw data from **British Antarctic Survey (.lig file)**
+```{r echo=FALSE}
+head(OvenRaw)
+```
+Wood Thrush Raw data from **Lotek LightBug (.txt file)**
+```{r echo=FALSE}
+head(WothRaw)
+```
+
+The following functions were created to convert the different raw data formats into the format needed to process light data in `GeoLight`. The functions need to be added to your R console to use the function. The `source` function is used to read in a function stored as an `R` file in your working directory.
+
+```{r}
+source("source/sourceRead_lig.R")      # function written by Simon Wotherspoon accessed from GitHUB
+source("source/sourceRead_Lightbug.R") # read_lig function modified by M.T.Hallworth to read in LightBug data
+```
+
+Import .lig file using read.lig fucntion to convert dates that GeoLight recognizes
+
+```{r}
+GL_68559<-read.lig("data/2391_68559_000.lig") 
+
+head(GL_68559)
+```
+
+Now that the data are formatted - you can use `GeoLight` to determine transitions (sunrise/sunset)
+
+In this example - a threshold of 5 was used - a larger or smaller value can be used but it will decrease/increase the number of transitions that need to be scored.
+
+`LightThreshold` - determines light levels over 5 as "sun has risen/set" and asks you to accept/reject them.
+
+**Note - determining the transitions in this file took approx. 45mins - 1hr**  
+
+The following code produces an interactive plot which asks the user to either accept or reject each light transition that passes over the threshold specified in the code. This document does not support interactive plots but the plot you will see should look similar to the one below. The blue line identifies the threshold level set in the code.
+
+```{r message=FALSE, warning=FALSE, cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/GeoLight/")}
+GL_68559_transitions<-twilightCalc(datetime = GL_68559[,2],
+                               light= GL_68559[,4],
+                               LightThreshold=1,    # Here is where you set the threshold level
+                               ask=FALSE)           # Here you can go through every twilight
+```
+
+```{r echo=FALSE}
+plot(GL_68559[10000:11000,4]~GL_68559[10000:11000,2],
+     type="l",
+     xlab="Time",
+     ylab="light")
+abline(h=1,col="blue",lty=2)
+```
+  
+***
+> **Exercise:**
+> Go through and assign a few twilights.  
+> *  How did you decide to either accept or reject twilight events?  
+> *  How do you think accepting / rejecting twilight events would influence the end result?
+> *  Change the threshold to a higher value - how does that change the number of shading events?
+
+***
+Once you have gone through the process of accepting or rejecting the transition events the data will look like this. `tFirst` and `tSecond` correspond to the time of the transitions and type illustrates whether the location will be dervied from relative 'noon' or 'midnight' locations. 
+
+```{r}
+head(GL_68559_transitions)
+```
+
+#### Sun-elevation angle
+
+The next step is to calculate the sun-elevation angle of a known capture location. The sun-elevation angle is the angle of the sun with respect to the horizon at the time the geolocator light data passed the threshold set by the user. Thus, the sun-elevation angle is unique to the threshold used in the analysis. 
+
+<img src="images/sunangleCartoon.png" height="300px" width="350px"/> <img src="images/sunangleCartoonResult.png" height="300px" width="350px"/>  
+
+
+Here I chose the dates between deployment of the geolocator and July 31 to ensure that only transitions when the bird was at the capture location were used to calculate the sun-elevation angle. 
+
+*The coordinates also need to be entered - (X,Y) in that order*
+
+*This Ovenbird was captured at Hubbard Brook Experimental Forest, NH (-71.45,43.945)*  
+ 
+```{r}
+SunElev<-getElevation(tFirst= GL_68559_transitions[1:102,1],
+             tSecond= GL_68559_transitions[1:102,2],
+             type=GL_68559_transitions[1:102,3],
+             known.coord=c(-71.45,43.945),
+             plot=TRUE)
+
+SunElev
+```
+
+#### Location estimates assuming no change in sun elevation angle throughout the year  
+
+```{r}
+GL_68559Locations<-coord(tFirst= GL_68559_transitions[,1],
+                         tSecond= GL_68559_transitions[,2],
+                         type=GL_68559_transitions[,3], 
+                         degElevation=SunElev)
+
+head(GL_68559Locations)
+```
+
+```{r include=FALSE}
+world<-shapefile("spatial_layers/TM_WORLD_BORDERS-0.3.shp")
+```
+
+#### Plot the location data
+
+Note - We accepted all twilights with the original .lig file. That file includes all transtions the geolocator recorded. Therefore, it may include transitions before it was attached to the bird, or after it was taken off.
+```{r}
+plot(GL_68559Locations, 
+     pch="*", 
+     col="red",
+     xlab="Longitude",
+     ylab="Latitude")
+plot(world,add=TRUE)
+```
+
+***
+> #### Exercise:
+> How would you subset the data to not include the extreme outliers? i.e. points in the old world.  
+> How could you check to see if those points were either at the beginning of the file, the end or both?  
+> Instead of removing the points - could you set the plot region to focus in on where the bird was?  
+> *hint* take a look at what the function drawExtent() does in the raster package.  
+
+***
+
+#### Create Kernel Density Estimates (KDE) around the stationary periods 
+
+The following packages were used to create KDE of stationary periods
+```{r message=FALSE,warning=FALSE}
+library(ks)
+library(raster)
+library(RColorBrewer)
+```
+Breeding locations were determined using location data described earlier in determining the sun-elevation angle.The non-breeding period determined as 1 November - 3 March (the start of spring Equinox period). See [Hallworth et al. 2015](https://www.researchgate.net/publication/273131898_Migratory_connectivity_of_a_Neotropical_migratory_songbird_revealed_by_archival_light-level_geolocators) for details.
+
+```{r}
+breeding_68559<-data.frame(GL_68559Locations[1:102,1],GL_68559Locations[1:102,2])
+NB_68559<-data.frame(GL_68559Locations[288:534,1],GL_68559Locations[288:534,2])
+```
+
+Determine bandwidth for the Kernel density estimate - the bandwidth parameter sets the 'smoothness' of the KDE. The bandwidth was estimated using least-square cross validation.
+
+```{r}
+Bwidth<-Hlscv(breeding_68559)
+NBwidth<-Hlscv(NB_68559)
+```
+The following script creates the KDE and converts the KDE to a raster.
+```{r}
+Breeding_KDE<-raster(kde(x=breeding_68559,H=Bwidth)) 
+NonBreeding_KDE<-raster(kde(x=NB_68559,H=NBwidth))
+```
+```{r echo=FALSE}
+#Color the values in the KDE similar for breeding and non-breeding
+Breed.breaks<-seq(from=0,to=maxValue(Breeding_KDE),(maxValue(Breeding_KDE)/100))
+NB.breaks<-seq(from=0,to=maxValue(NonBreeding_KDE),(maxValue(NonBreeding_KDE)/100))
+```
+Plot the results - *not elegant but you can dress it up from here anyway you want*
+
+```{r echo=FALSE}
+plot(world, ylim=c(-9.22,51.15),xlim=c(-107.7,-63.42))
+plot(Breeding_KDE,
+     axes=FALSE,
+     breaks=Breed.breaks,
+     col=colorRampPalette(brewer.pal(9,"Blues"))(100),
+     legend=FALSE,add=TRUE)
+plot(NonBreeding_KDE,
+     axes=FALSE,
+     breaks=NB.breaks,
+     col=colorRampPalette(brewer.pal(9,"Blues"))(100),
+     legend=FALSE,add=TRUE)
+plot(world,add=TRUE)
+```
+
+
+***
+> #### Exercise:
+> Plot the mean and median location for the non-breeding period (Nov 1 - March 31). 
+>
+> The locations are in the object GL_68559Locations which has two columns without headers.  
+> The first column (GL_68559Locations[,1]) is the longitude column.  
+> The corresponding rows in the data for Nov 1 and March 31 are rows 287 & 590.  
+>
+> * Do your conclusions about where the bird wintered change based on how you plot the data (mean, median, kernel density estimate)?  
+> * How might your conclusions change if the bird wintered in South America and not in the Caribbean. Would the way you present the data change your conclusions about where the bird wintered? 
+
+***
+```{r echo=FALSE}
+meanLocs<-apply(GL_68559Locations[287:590,],2,mean,na.rm=TRUE)
+medianLocs<-apply(GL_68559Locations[287:590,],2,median,na.rm=TRUE)
+MEAN<-SpatialPoints(cbind(meanLocs[1],meanLocs[2]))
+MEDIAN<-SpatialPoints(cbind(medianLocs[1],medianLocs[2]))
+plot(GL_68559Locations, 
+     pch="*", 
+     col="gray",
+     xlab="Longitude",
+     ylab="Latitude",
+     ylim=c(7,30),
+     xlim=c(-90,-60))
+plot(NonBreeding_KDE,
+     axes=FALSE,
+     breaks=NB.breaks,
+     col=colorRampPalette(brewer.pal(8.75,"Blues"))(100),
+     legend=FALSE,
+     add=TRUE)
+plot(MEAN,add=TRUE,pch=19,col="black")
+plot(MEDIAN,add=TRUE,pch=17,col="red")
+plot(world,add=TRUE)
+legend(-70,25,legend=c("Mean","Median"),pch=c(19,17),col=c("black","red"),bty="n")
+```
+  
+  
+#### Using different sun-elevation angles for different periods of the annual cycle
+
+Notice in the above figure how the non-breeding KDE is exclusively over the Caribbean and does not fall over land. The sun-elevation angle (described above) can make a big difference in the latitude of the locations. The sun-elevation angle can be influenced by a variatey of factors such as habitat type, topography, weather, and bird behavior. Thus, using multiple sun-elevation angles for different portions of the year may be justified. The following code demonstrates how the sun-elevation angle for different portions of the year can be determined. Few studies have in-habitat calibrations for both breeding and non-breeding periods of the year (but see Hallworth et al. 2015, Stanley et al. 2014, McKinnon et al. 2013). Thus the sun-elevation angle for different portions of the year need to be estimated. In `GeoLight` there is a function called `HillEkstromCalib` which determines the sun-elevation angle based on the transition events in the data. 
+
+In the following example the different periods of the year are determined manually based on the natural history of Ovenbirds.
+
+Create empty column to later fill with numeric values for period - 
+
+```{r}
+GL_68559_transitions$period<-rep(NA,dim(GL_68559_transitions)[1])
+
+head(GL_68559_transitions)
+```
+Define Breeding based on natural history of species.
+
+Ideally this would be done based on the biology (breeding season) and so on.
+
+Here we will define the breeding period as from the time of capture to July 31.
+
+We will define the non-breeding period as the dates between 1 November - 31 March.
+
+*see Hallworth et al. 2015 for details* 
+
+Assign a stationary period to the transition data
+
+0= Migratory Period, 1=Breeding, 2=Non-breeding 
+```{r}
+names(GL_68559_transitions)
+GL_68559_transitions[c(1:102,673:768),4]<-1
+GL_68559_transitions[103:287,4]<-0
+GL_68559_transitions[288:534,4]<-2
+GL_68559_transitions[535:672,4]<-0
+```
+
+Generate sun-elevation angles for different periods of the year using Ekstrom-Hill calibration. The Ekstrom-Hill calibrartion generates a sun-elevation angle for all non-zero periods.
+
+```{r warning=FALSE}
+HillEkstromCalib(tFirst= GL_68559_transitions[,1],
+                 tSecond= GL_68559_transitions[,2],
+                 type=GL_68559_transitions[,3],
+                 site=GL_68559_transitions[,4],
+                 start.angle=c(0,-3), #angle to start  process c(breeding,nonbreeding)
+                 plot=TRUE)
+```
+
+Define a column to store the sun elevation angles that were just generated.
+```{r}
+GL_68559_transitions$sun<-rep(NA,dim(GL_68559_transitions)[1])
+```
+
+Fill the new column using the sun-elevation angle for the known location (breeding = -2.55) and Ekstrom-Hill calibration for unknown locations (non-breeding = -2.1)
+
+```{r}
+names(GL_68559_transitions)
+GL_68559_transitions[c(1:102,673:768),5]<-(-2.55)
+GL_68559_transitions[103:287,5]<-(0) # Migration values are zero in this example
+GL_68559_transitions[288:534,5]<-(-2.1)
+GL_68559_transitions[535:672,5]<-(0) # Migration values are zero in this example
+```
+
+**Note** - *One could treat migration points differently - for example, the midpoint*
+*between breeding and non-breeding sun elevations could be used as a*
+*transition period (this would need to be justified in your manuscript)*
+*or you could use either the breeding or non-breeding sun angle but also*
+*would need to be justified.*  
+ 
+
+Generate new location data based on newly derived sun-elevation angles 
+```{r}
+GL_68559LocationsEHC<-coord(tFirst= GL_68559_transitions[,1],
+                        tSecond= GL_68559_transitions[,2],
+                        type=GL_68559_transitions[,3], 
+                        degElevation=GL_68559_transitions$sun,
+                        sites=GL_68559_transitions[,4])
+```
+
+#### Plot the new location data
+Left = Single sun-elevation angle (-2.55)
+
+Middle = Non-breeding sun-elevation angle determined using Esktrom-Hill calibration (-2.1)
+
+Right = Non-breeding sun-elevation angle determined using in-habitat calibration (-3.4) (not shown)
+[Hallworth et al. 2015](https://www.researchgate.net/publication/273131898_Migratory_connectivity_of_a_Neotropical_migratory_songbird_revealed_by_archival_light-level_geolocators) 
+
+```{r include=FALSE, cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/GeoLight/")}
+NB_68559EHC<-data.frame(GL_68559LocationsEHC[288:534,1],GL_68559LocationsEHC[288:534,2])
+NBwidthEHC<-Hlscv(NB_68559EHC)
+NonBreeding_KDE_EHC<-raster(kde(x=NB_68559EHC,H=NBwidthEHC))
+NB.breaksEHC<-seq(from=0,to=maxValue(NonBreeding_KDE_EHC),(maxValue(NonBreeding_KDE_EHC)/100))
+GL_68559_transitions$sunKnown<-rep(NA,dim(GL_68559_transitions)[1])
+GL_68559_transitions[c(1:102,673:768),6]<-(-2.55)
+GL_68559_transitions[103:287,6]<-(0) # Migration values are zero in this example
+GL_68559_transitions[288:534,6]<-(-3.4)
+GL_68559_transitions[535:672,6]<-(0) # Migration values are zero in this example
+GL_68559LocationsKnown<-coord(tFirst= GL_68559_transitions[,1],
+                        tSecond= GL_68559_transitions[,2],
+                        type=GL_68559_transitions[,3], 
+                        degElevation=GL_68559_transitions$sunKnown,
+                        sites=GL_68559_transitions[,4])
+NB_68559Known<-data.frame(GL_68559LocationsKnown[288:534,1],GL_68559LocationsKnown[288:534,2])
+NBwidthKnown<-Hlscv(NB_68559Known)
+NonBreeding_KDE_Known<-raster(kde(x=NB_68559Known,H=NBwidthKnown))
+NB.breaksKnown<-seq(from=0,to=maxValue(NonBreeding_KDE_Known),(maxValue(NonBreeding_KDE_Known)/100))
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=10}
+par(mfrow=c(1,3))
+plot(world, ylim=c(-9.22,51.15),xlim=c(-107.7,-63.42))
+plot(Breeding_KDE,
+     axes=FALSE,
+     breaks=Breed.breaks,
+     col=colorRampPalette(brewer.pal(9,"Blues"))(100),
+     legend=FALSE,add=TRUE)
+plot(NonBreeding_KDE,
+     axes=FALSE,
+     breaks=NB.breaks,
+     col=colorRampPalette(brewer.pal(9,"Blues"))(100),
+     legend=FALSE,add=TRUE)
+plot(world,add=TRUE)
+
+plot(world, ylim=c(-9.22,51.15),xlim=c(-107.7,-63.42))
+plot(Breeding_KDE,
+     axes=FALSE,
+     breaks=Breed.breaks,
+     col=colorRampPalette(brewer.pal(9,"Reds"))(100),
+     legend=FALSE,add=TRUE)
+plot(NonBreeding_KDE_EHC,
+     axes=FALSE,
+     breaks=NB.breaksEHC,
+     col=colorRampPalette(brewer.pal(9,"Reds"))(100),
+     legend=FALSE,add=TRUE)
+plot(world,add=TRUE)
+
+plot(world, ylim=c(-9.22,51.15),xlim=c(-107.7,-63.42))
+plot(Breeding_KDE,
+     axes=FALSE,
+     breaks=Breed.breaks,
+     col=colorRampPalette(brewer.pal(9,"Greens"))(100),
+     legend=FALSE,add=TRUE)
+plot(NonBreeding_KDE_Known,
+     axes=FALSE,
+     breaks=NB.breaksKnown,
+     col=colorRampPalette(brewer.pal(9,"Greens"))(100),
+     legend=FALSE,add=TRUE)
+plot(world,add=TRUE)
+```
+
+*** 
+> #### Excercise:
+> How could using a single sun-elevation angle throughout the year influence your interpretation of the data?   
+> Change the sun-elevation angles to see how the locations change.  
+> * what happens to the non-breeding locations?
+> * what happens to the breeding locations? 
+> * What factors may influence the sun-elevation angle?  
+> * Does it make sense to use a single or multiple sun-elevation angles throughout the year?  
+> * How could you design a project (locations to deploy geolocators) to get a better idea of how sun-elevation angles change throughout the year?
+
+***
+***
+> #### Advanced Exercise:
+> *  Here we ran through the entire analysis for the Ovenbird but we have a Wood Thrush example as well.  
+> *  Run through the entire analysis to determine where the Wood Thrush spent the non-breeding season.  
+
+***
+
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
+
+
