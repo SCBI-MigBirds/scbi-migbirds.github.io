@@ -1,0 +1,935 @@
+---
+output: html_document
+---
+
+<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+    
+  <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+  
+#Modeling abundance and occupancy using point count data
+_Michael T. Hallworth  
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_
+
+Point count data are a cost effective way of surveying large areas to answer ecological questions. For example, point count data can answer the questions:   
+- How many species are present in a given area?    
+- How many individuals of each species are there?  
+- How has the community changed over time?  
+- Which habitats is X species associated with?  
+
+These are just a few of the possible questions that can be answered using point count data. However, the question of interest determines how the data should be analyzed. If the question deals with *how many species are present here?* then using occupancy modeling would be a good fit. If the question is something like *How has the population size of Ovenbirds changed over time?*, then modeling abundance is more appropriate.
+
+Regardless of the question - accounting for imperfect detection is important. Failing to account for imperfect detection biases estimates of either species richness or abundance low - unless all species and/or individuals are detected perfectly. This is unlikely given that the study organisms are animals and move, may have been siting on a nest during your visit, preening instead of singing, etc.  
+
+The subsequent code illustrates how to use point count data to answer ecological questions while accounting for imperfect detection. In this tutorial we will use simulated data using 373 survey locations within Hubbard Brook Experimental Forest, NH that were visited three times during the 2015 breeding season. Three, 10 minute point count surveys were conducted along 15 transects spaced 500m apart. Each survey location wasseperated by either 100m, or 200m. All species seen or heard within 50m and 100m of the point during the 10 min count were recorded.
+
+### The data
+
+Read in the data and look at the first 5 rows and the names of the columns  
+
+```{r set-options, cache=FALSE}
+options(width = 100)
+# read in Point-count data #
+VWdata<-read.csv("data/HBEF_2015_simulated.csv",sep=",")
+
+# view the column names #
+names(VWdata)
+
+# View the first 5 rows of data #
+head(VWdata)
+```
+
+Notice that the number of each species is not in the data per se. Each time a species was encountered within the survey it was recorded using it's alpha code.    
+OVEN = Ovenbird    
+BTBW = Black-throated blue warbler, etc.    
+
+To perform the analyses we need the number of individuals of each species detected within each survey.
+
+***
+> #### Exercise:  
+> From the data you can see above: 
+> 1. how many individuals of each species were there?  
+> 2. how would/did you determine that?  
+>
+> Start thinking about what the script might look like to collate those data
+
+***
+Let's load the packages we will need before we go much further.
+
+
+```{r,warning=FALSE,message=FALSE}
+# load packages #
+library(unmarked)
+library(raster)
+library(rgeos)
+library(chron)
+library(abind)
+library(R2jags)
+```
+
+#### Brief overview of the subsequent code
+The following code will:    
+1. Clean up the data (there are little things in all data sets that need to be fixed)    
+2. Generate an array of count data for each survey location, period and replicate     
+3. Generate an array of observation covariates - Date, Time, Observer     
+4. Generate an array of location covariates - Elevation, Slope, Aspect 
+
+#### Cleaning the data 
+
+Some of the alpha codes have new lines (which show up in the data like "BTBW\n") - if they are not fixed before the analysis "BTBW\n" and "BTBW" will be considered different species. We need to fix this before going any further.
+```{r echo=FALSE}
+levels(VWdata$Species)
+```
+
+```{r}
+# Some of the species codes have new lines for example "BTBW\n" 
+# this next code removes that & turns "BTBW\n" into "BTBW"
+# gsub - looks for a pattern and if found substitutes with a new pattern.
+# it's looking for "\n" and replacing "" - nothing.
+
+VWdata$Species<-as.factor(gsub("[\r\n]", "", VWdata$Species))
+```
+```{r echo=FALSE}
+levels(VWdata$Species)
+```
+
+Let's check for another common error in the data:
+
+Lines with out a species entered
+```{r}
+# Some rows of the data may have been entered by accident and have no new species - they have blank species #
+# remove those rows from the data set #
+VWdata<-VWdata[VWdata$Species != "", ]
+
+# Confirm that they were removed by showing the rows that have blank for species #
+# should be 0 rows and it is #
+VWdata[which(VWdata$Species ==""),]
+```
+
+#### Formatting the data
+
+First we need to subset the data to include only the species and individuals counted within a 50m radius.
+
+```{r}
+# Use only the data collected within 50m of the point so no double counting #
+VWdata<-VWdata[VWdata$Distance==1,]
+```
+
+***
+> #### Excercise:  
+> Why did we only include individuals sampled within 50m of the survey point when we counted all within 100m?  
+> *hint* look back at the survey design detailed above.    
+>
+> Is there another way to subset the data to return the same information?
+
+***
+
+Before we go further it's helpful to create some useful vectors that we will use later on.
+* How many counts were conducted
+* How many periods within the count were done  
+
+we counted every individual heard/seen in 3 periods within the 10min count. Essentially we do 3 -3:20min point counts within the 10m count period.  
+1. 0-3:20 min    
+2. 3:20-6:40 min   
+3. 6:40-10 min  
+
+```{r}
+# Determine the Number of counts
+replicate<-min(VWdata$Replicate,na.rm=TRUE):max(VWdata$Replicate,na.rm=TRUE)
+```
+```{r echo=FALSE}
+replicate
+```
+```{r}
+# Determine the number of periods within a count 
+ 
+period<-min(VWdata$Period,na.rm=TRUE):max(VWdata$Period,na.rm=TRUE)
+```
+```{r echo=FALSE}
+period
+```
+```{r}
+# number of sites surveyed #
+
+Sites<-length(unique(VWdata[,2]))
+
+# We also need a vector of sites so we can loop through them later.
+# The `as.factor` sets the range between 1 and the number of sites surveyed.
+# this is necessary because the plots are not numbered sequentially - as.factor fixes that.
+
+sites<-levels(as.factor(VWdata[,2]))
+```
+```{r echo=FALSE}
+Sites
+```
+```{r}
+# List the species of interest (S.O.I) #
+S.O.I <- c("BLBW", "BTBW", "BTNW","OVEN", "REVI")
+```
+
+#### Structuring the data into capture histories
+
+Next we generate a capture history for each species - I provide an example for 1 species. In the code below we utilize `for` loops. `for` loops are used for repeated tasks. The fastest way to use `for` loops is to create an object first to store the results of the `for` loop. We do this below. 
+
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Create a Plot x Period x Replicate array of abundance for the species of interest
+# this makes an empty 3 dimensional array - Plot x Period x Replicate   
+# that is filled with NAs 
+
+# create an empty array (filled with NA) -     
+# the number of rows = sites  
+# the number of columns = periods  
+# the number of dimensions = replicates  
+
+# we will call the array a species matrix or spec.mat for short. We will want to keep track of the species so we
+# include the alpha code as well. 
+
+spec.mat_OVEN<- array(NA, c(length(sites), length(period),length(replicate)))
+rownames(spec.mat_OVEN)<-sites
+
+# This next line makes the spec.mat for each species. 
+
+spec.mat_BLBW<-spec.mat_BTBW<-spec.mat_BTNW<-spec.mat_REVI<-spec.mat_OVEN
+
+# Here is how to fill the array with the data that we want # 
+# Here is an example for the Ovenbird #
+# OVEN 
+
+temp.sp <- subset(VWdata, Species == S.O.I[4]) # SET S.O.I number to SPECIES OF INTEREST - 4 is OVEN
+
+# for each replicate #
+  for(i in replicate){
+    # this subsets for each replicate 
+      temp.rp <- subset(temp.sp, Replicate == i)
+# for each period # 
+   # within each replicate - subset by period 
+      for (p in period){
+           temp.p<- subset(temp.rp,Period==p)
+# for each plot #
+       for(k in sites){
+         
+    		   temp.st <- subset(temp.p, Plot == k)
+    		   temp.abund <- as.numeric(length(temp.st$Species))
+       	   spec.mat_OVEN[k,p,i+1]<- temp.abund     # HERE YOU NEED TO CHANGE THE spec.mat NAME #
+           
+		}  # For plot
+	}  # For period
+}# For Replicate
+```
+   
+Let's take a look at what the resulting array looks like. The `str` function stands for structure and can be used to see what the structure of an object looks like. 
+   
+```{r}
+# Here you can see that we have 373 rows - 1 for each survey site,
+# 3 columns - 1 for each period
+# and the 3rd dimenson represents the replicate.
+
+str(spec.mat_OVEN)
+
+#let's take a look at the first few rows for replicate 1
+
+head(spec.mat_OVEN[,,1])
+```
+
+There were no Ovenbirds detected on the first few survey points during the first replicate. 
+
+#### Covariates 
+**Site level Covariates**
+
+The next bit of code extracts some potential covariates that we might be interested in from the data set.
+
+First, we will get some of the physical covariates for each site
+   
+```{r cache=TRUE,message=FALSE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+##########################################################################################
+#
+# Generate the physical covariates for each site 
+#
+##########################################################################################
+
+# Save the projection of the data so we can use it easily later #
+
+UTM19N<-"+proj=utm +zone=19 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+
+# Read in HBEF boundary #
+
+HBEF<-shapefile("spatial_layers/HBEFboundary_WGS84.shp")
+
+# Project the shapefile into UTMs 
+
+HBEF<-spTransform(HBEF,CRS(UTM19N))
+
+# Read in site locations 
+
+SiteLocs<-shapefile("spatial_layers/SchwarzPlots_WGS84.shp")
+
+# keep only the Plots were we actually count #
+
+SiteLocs<-SiteLocs[which(SiteLocs$SCHWARZ_ID %in% sites),]
+
+# Transform the data into UTMs
+SiteLocs<-spTransform(SiteLocs,CRS(UTM19N))
+
+# Read in digital elevation model to extract elevation # 
+
+DEM<-raster("spatial_layers/hb10mdem.txt")
+
+# Project the data into UTMs
+DEM<-projectRaster(DEM,crs=UTM19N)
+
+# Create Slope and Aspect because it might be important #
+
+Aspect<-terrain(DEM,'aspect')
+
+Slope<-terrain(DEM,'slope')
+
+```
+```{r echo=FALSE,warning=FALSE,message=FALSE,cache=TRUE,fig.height=6,fig.width=10,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+HS<-raster::hillShade(Aspect,Slope)
+HS<-mask(HS,HBEF)
+DEM<-mask(DEM,HBEF)
+par(mar=c(0,0,0,0),bty="n")
+plot(HS,col = grey(0:100/100), legend = FALSE,axes=FALSE)
+plot(DEM,add=TRUE,col=terrain.colors(60),alpha=0.7,legend=FALSE)
+plot(SiteLocs,add=TRUE,pch=19,cex=0.5)
+plot(HBEF,add=TRUE,border="black",lwd=2)
+```
+
+
+#### Extract physical characteristics to each survey site 
+
+Often times when modeling either abundance or occupancy - it helps to standardize the covariates in the model. This helps the model converge faster. Below we will make two `data.frames`. One will store the covariate data, the other will store the standardized covariates. 
+
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Make an empty data.frame to store the covariates #
+# here we make two data.frames - one to store the Covariates and one to store standardized covariates (siteCovs) #
+
+Covariates<-siteCovs<-data.frame(Elevation=rep(NA,length(sites)),
+                                 Aspect=rep(NA,length(sites)),
+                                 Slope=rep(NA,length(sites)))
+
+# Assign the site names as row names #
+rownames(siteCovs)<-sites
+rownames(Covariates)<-sites
+
+# Elevation 
+
+Covariates[,1]<-extract(DEM,SiteLocs)
+siteCovs[,1]<-(Covariates[,1]-mean(Covariates[,1]))/sd(Covariates[,1])
+
+# Aspect
+
+Covariates[,2]<-extract(Aspect,SiteLocs)
+siteCovs[,2]<-(Covariates[,2]-mean(Covariates[,2]))/sd(Covariates[,2])
+
+# Slope
+
+Covariates[,3]<-extract(Slope,SiteLocs)
+siteCovs[,3]<-(Covariates[,3]-mean(Covariates[,3]))/sd(Covariates[,3])
+```
+```{r echo=FALSE}
+head(Covariates);head(siteCovs)
+```
+Now that we have the physical site covariates we need to create survey or observation covariates.
+
+#### Survey / Observation Covariates
+
+Here we set up covariates that could influence detection. For example - the time a point count started may influence detection - we may want to include that in our model. Below is code showing how to set up these covariates from the count data. 
+
+#### Date 
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/") }
+
+# Format the dates
+
+VWdata$Date2 <- as.Date(VWdata$Date, format="%m/%d/%Y")
+
+# create Day of year (doy) variable - Julian date
+
+Jan1.15 <- as.Date("1/1/2015", format="%m/%d/%Y")
+
+Jan1.15 <- sapply(Jan1.15, as.integer)
+
+VWdata$doy <- sapply(VWdata$Date2, as.integer)
+
+VWdata$doy <- VWdata$doy - Jan1.15
+
+# Create a site x occasion matrix of dates    
+
+doy.15 <- matrix(NA, length(sites), length(replicate))
+rownames(doy.15) <- sites
+colnames(doy.15) <- replicate
+
+for(k in Sites){ 
+  for(i in replicate) {
+    temp <- subset(VWdata, Replicate==i & Plot==k)
+    temp.DOY <- as.numeric(levels(factor(temp$doy)))
+    if (length(temp.DOY)>0){
+        doy.15[k,i+1] <- temp.DOY
+        } 
+    } # For replicate
+} # For Sites
+
+# Change the matrix from characters to numeric #
+
+doy.15<-structure(as.numeric(doy.15), dim=dim(doy.15), dimnames=dimnames(doy.15))
+
+# All covariates need to be standardized. You can use the function scale() to do that #
+
+doy.15scaled<-scale(doy.15)
+
+# Any missing values can be given the mean very easily after we standardize. The mean is now 0. 
+# Fill any missing values with the mean.
+
+doy.15scaled[is.na(doy.15scaled)]<-0
+```
+  
+#### Observer  
+
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# looks at the different observers #
+levels(factor(VWdata$Observer))
+
+# Create a site x occasion matrix of obs 
+obs.15 <- matrix(NA, length(sites), 4)
+rownames(obs.15) <- sites
+for(k in Sites){
+for(i in replicate) {
+    temp <- subset(VWdata, Replicate==i & Plot==k)
+    temp.obs <- temp$Observer
+    if(length(temp.obs) > 0) {
+        obs.15[k,i+1] <- unique(temp.obs)
+        } #If
+    } # For Sites
+} # For replicate
+obs.15[is.na(obs.15)]<-0
+```
+
+#### Time of count 
+
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Format the times
+
+VWdata$Time2 <-gsub(" AM", "", VWdata[,5])
+head(VWdata$Time2)
+# Create a site x occasion matrix of times 
+
+time.15 <- matrix(NA, length(sites), length(replicate))
+rownames(time.15 ) <- sites
+colnames(time.15)<-replicate
+
+for(k in Sites){
+for(i in replicate){
+    temp <- subset(VWdata, Replicate==i & Plot==k)
+    temp.time <- temp$Time2
+    if(length(temp.time) > 0) {
+        time.15[k,i+1] <- unique(temp.time)
+        } # If 
+    } # For Sites
+} # For replicate
+
+# Change the matrix from characters to numeric #
+times.15<-structure(times(time.15), dim=dim(time.15), dimnames=dimnames(time.15))
+
+# Scale the time covariate #
+time<-scale(times.15)
+
+# Fill missing data with the mean - which is 0 after being scaled #
+time[is.na(time)]<-0
+```
+
+### Running the analysis using unmarked
+
+Now that we have all data structured - we can start the analysis.  
+  
+A brief overview of the subsequent code:   
+* Input the data into an `unmarked` dataframe - necessary for analysis in `unmarked`  
+* run the analysis using `unmarked`   
+* use the models to predict the number of individuals within 50x50m pixels in HBEF  
+* plot the results  
+
+We will occupancy first, but our data are structured for abundance. First we need to covert our count data into presence/absence data. That's fairly easy to do. 
+
+```{r}
+# Here we transfer the abundance data to a new array called Oven_occu
+
+Oven_occu<-spec.mat_OVEN
+
+# Here we set all values >1 = 1 - presence/absence data. 
+
+Oven_occu[Oven_occu>1]<-1
+```
+
+#### Make an `unmarked` frame 
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/") }
+# Make an empty list to store the unmarked frames in.   
+# We first specify the occupancydata, y=Oven_occu[,,replicate]
+# we then set the siteCovs as our siteCovs matrix
+
+OVEN<-vector('list',4)
+for(i in 1:4){
+OVEN[[i]]<-unmarkedFrameOccu(y=Oven_occu[,,i],
+                               siteCovs=siteCovs)
+}
+```
+  
+**Run the analysis**  
+
+*note* - formula format - ~covariates of detection ~ covariates for occupancy in that order
+
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# formula describing covariates of detection and abundance, in that order
+Rep0<-occu(~1 ~Elevation + Aspect + Slope, OVEN[[1]],method="BFGS", se=TRUE, engine="C") 
+               
+Rep1<-occu(~1 ~Elevation + Aspect + Slope, OVEN[[2]],method="BFGS", se=TRUE, engine="C")
+
+Rep2<-occu(~1 ~Elevation + Aspect + Slope, OVEN[[3]],method="BFGS", se=TRUE, engine="C")
+             
+Rep3<-occu(~1 ~Elevation + Aspect + Slope, OVEN[[4]],method="BFGS", se=TRUE, engine="C")
+             
+```
+```{r}
+Rep0
+```
+
+*** 
+> #### Exercise:
+> Try to fit a model with a detection covariate. Does it improve the fit? How could you tell?
+
+***
+**Predictions**
+  
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# structuring data so we can make predictions based on physical attributes 
+
+# Read in 50m x 50m grid to make predictions on #
+
+HBEFfishnet<-shapefile("spatial_layers/HBEFfishnet.shp")
+HBEFcentroids<-shapefile("spatial_layers/HBEFfishnet_label.shp")
+
+# Calculate standardized Elevation, Aspect and Slope for predictions #
+
+STDelev<-calc(DEM,fun=function(x){(x-mean(Covariates[,1]))/sd(Covariates[,1])})
+STDaspect<-calc(Aspect,fun=function(x){(x-mean(Covariates[,2]))/sd(Covariates[,2])})
+STDslope<-calc(Slope,fun=function(x){(x-mean(Covariates[,3]))/sd(Covariates[,3])})
+```
+```{r eval=FALSE}
+# Make a data set called NewData with the coordinates, Elevation, Aspect and Slope #
+# Note - the variable names need to be EXACTLY the same as the unmarked frame covariate names
+
+NewData<-data.frame(x=HBEFcentroids@coords[,1],
+                    y=HBEFcentroids@coords[,2],
+                    Elevation=extract(STDelev,HBEFfishnet,fun=mean),
+                    Aspect=extract(STDaspect,HBEFfishnet,fun=mean),
+                    Slope=extract(STDslope,HBEFfishnet,fun=mean))
+```
+```{r echo=FALSE}
+NewData<-read.csv("data/HBEFgridcovs.csv")
+```  
+
+Now that we have set up a new data set to make predictions we can go ahead and use the output from the analysis to determine occupancy within each 50x50m area of HBEF. 
+
+```{r cache=TRUE, message=FALSE,warning=FALSE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# compute the expected occupancy at each grid cell
+
+## extract the coefficients for the best model - we only ran one model 
+betaRep0<-coef(Rep0)
+```
+#### Map the results  
+
+There are two ways to map the results-  
+1. create rasters of standardize covariates and use raster calculations    
+2. make a raster from the predicted occupancy  
+
+Raster calculations:
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+
+# Make the rasters for the standardize covariates
+
+elevation<-rasterFromXYZ(cbind(NewData[,c(1:2,3)]))
+aspect<-rasterFromXYZ(cbind(NewData[,c(1:2,4)]))
+slope<-rasterFromXYZ(cbind(NewData[,c(1:2,5)]))
+
+# Raster calculations - the overlay function takes more than two raster layers
+# note - psi - occupancy is modeled using the logit scale - to backtransform we can 
+# use the built in R function - plogis.
+
+# Make a raster of Ovenbird Occupancy #
+OVEN0<-overlay(elevation,aspect,slope,fun=function(x,y,z){
+               plogis(betaRep0[1]+ # intercept
+                      betaRep0[2]*x +  # x is the elevation layer
+                      betaRep0[3]*y +  # y is the aspect layer
+                      betaRep0[4]*z)})   # z in the slope layer 
+                    
+```
+```{r echo=FALSE}
+OVEN0<-raster::mask(OVEN0,HBEF)
+```
+Predctions using the predict function in the `unmarked` package
+```{r message=FALSE,results='hide',cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/") }
+OccuOven<-predict(Rep0,type="state",newdata=NewData,appendData=TRUE)
+```
+```{r}
+head(OccuOven)
+```
+Make the map from the predictions
+```{r}
+OVEN.occu<-raster::rasterFromXYZ(cbind(OccuOven[,5:6],OccuOven[,1]))
+```
+```{r echo=FALSE,cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+OVEN.occu<-raster::mask(OVEN.occu,HBEF)
+```
+```{r echo=FALSE,fig.height=5,fig.width=12,fig.align='center'}
+par(mfrow=c(1,2),mar=c(0,0,4,0),bty="n")
+plot(OVEN0,col=bpy.colors(20),axes=FALSE,main="Raster Calc")
+plot(OVEN.occu,col=bpy.colors(20),axes=FALSE,main="Predict")
+```
+
+## Abundance
+
+Let's use the same point count data to determine how many Ovenbirds are breeding within Hubbard Brook. We first need to create another unmarked frame for the abundance model. We will use the `pcount` function to estimate abundance. 
+
+We need to use the data we collated earlier - not the binary data we used for occupancy.
+```{r}
+str(spec.mat_OVEN)
+```
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Make an empty list to store the unmarked frames in.   
+# We first specify the abundance data, y=spec.mat_OVEN[,,replicate]
+# we then set the siteCovs as our siteCovs matrix
+
+OVEN<-vector('list',4)
+for(i in 1:4){
+OVEN[[i]]<-unmarkedFramePCount(y=spec.mat_OVEN[,,i],
+                               siteCovs=siteCovs)
+}
+```
+  
+**Run the analysis**  
+
+*note* - formula format - ~covariates of detection ~ covariates for abundance in that order
+
+```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# formula describing covariates of detection and abundance, in that order
+Abun0<-pcount(~1 ~Elevation + Aspect + Slope, OVEN[[1]], K=200, mixture=c("P"),
+              method="BFGS", se=TRUE, engine="C")
+```
+```{r cache=TRUE, message=FALSE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# compute the expected abundance at each grid cell
+# sum(lamnew) is the expected value of total population size
+
+## extract the coefficients for the best model
+betaAbun0<-coef(Abun0)
+```
+
+***
+> #### Exercise:
+> Prior to N-mixture models, people used the maximum number of individuals within a count to determine abundance.   
+>
+> Compare the population size of Ovenbirds that was sampled:  
+>
+> 1. without accounting for imperfect detection  
+>
+> 2. after accounting for imperfect detection  
+>
+> What do you expect to find? Why?  
+
+***
+```{r}
+# This function first finds the maximum number of Ovenbirds per count (rows), then sums them to get a raw abundance value.
+
+sum(apply(spec.mat_OVEN[,,1],1,max))
+
+# This the predict function run applies the model results to a set of data - here our site covariates. We then sum the first column of the output which is the abundance estimate. 
+
+sum(predict(Abun0,type="state",newdata=siteCovs,appendData=FALSE)[,1])
+```
+
+Now, let's make predictions for the entire Hubbard Brook valley. 
+```{r}
+# Raster calculation 
+
+Abundance0<-overlay(elevation,aspect,slope,fun=function(x,y,z){
+                  exp(betaAbun0[1]+ # intercept
+                      betaAbun0[2]*x +  # x is the elevation layer
+                      betaAbun0[3]*y +  # y is the aspect layer
+                      betaAbun0[4]*z)})   # z in the slope layer
+```
+
+Here is another way to make predictions without using the raster package.
+```{r results='hide',cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+AbunPred<-predict(Abun0,type="state",newdata=NewData,appendData=TRUE)
+
+```
+```{r}
+# Make a raster of Ovenbird abundance #
+Abun0<-rasterFromXYZ(cbind(AbunPred[,5:6],AbunPred[,1]))
+
+# Cut to just HBEF #
+Abun0<-mask(Abun0,HBEF)
+
+plot(Abun0,axes=FALSE)
+
+# How many Ovenbirds are there within HBEF #
+cellStats(Abun0,sum)
+```
+
+## Advanced example ###
+
+### Analysis in a Bayesian framework
+*note* additional software is required program JAGS or OpenBUGS. 
+
+The subsequent code is for doing the same analysis but in a Bayesian framework. This approach is a bit more flexible. It allows us to use the abundance during the previous count to inform the subsequent count.
+
+Specifying the model
+```{r}
+#########################################################################################
+#########################################################################################
+#
+#         MODEL
+#
+#########################################################################################
+#########################################################################################
+
+Settlment.dm.bayes.model<-function()
+{
+##########################################################################################
+#
+#  Priors
+
+##########################################################################################
+   gam0 ~ dnorm(0, 0.01)  # intercept for t+1
+   gam1 ~ dnorm(0, 0.01)  # recruitment parameter
+   pInt ~ dnorm(0, 0.01)  # intercept for detection
+   alpha ~ dnorm(0,0.01)  # intercept for first count
+
+
+# beta estimates
+   for (c in 1:ncovs){ 
+       beta[c]~dnorm(mu.theta,tau.theta)
+       betaG[c]~dnorm(mu.theta,tau.theta)
+      } #ncovs
+
+# detection
+for (m in 1:pcovs){
+      betaP[m]~dnorm(mu.thetaP,tau.thetaP)  
+  } #pcovs
+for(k in 1:nreplicate){
+Error[k]~dnorm(0,0.01)
+}    #nyears
+
+### Hyperpriors #######
+mu.theta ~ dnorm(0,0.01)
+tau.theta ~ dgamma(0.001,0.001)
+mu.thetaP ~ dnorm(0,0.01)
+tau.thetaP ~ dgamma(0.001,0.001)
+
+##########################################################################################
+#
+#  Likelihood
+#
+##########################################################################################
+for(i in 1:nschwarz) {                       # Schwarz Plot
+     N[i,1] ~ dpois(lambda[i,1])
+     lambda[i,1]<-exp( alpha+               #intercept
+                       beta[1]*Elev[i]+        #Elevation
+                       beta[2]*Slope[i]+       #Slope
+                       beta[3]*Aspect[i]+      #Aspect
+                       Error[1])             #Random Error term                                                         
+
+   for(j in 1:nperiod) {                        # Periods within Count
+     y[i,j,1] ~ dbin(p[i,j,1], N[i,1]) 
+     p[i,j,1]<-1/(1+exp(-logit.p[i,j,1]))
+     logit.p[i,j,1]<-pInt+                     # Detection intercept
+                     betaP[1]*time[i,1]+     # time of count
+                     betaP[2]*date[i,1]+     # date of count
+                     betaP[3]*obsvr[i,1]     # observer who counted
+     } #Period
+
+for(k in 2:nreplicate) {                      # Replicates
+     N[i,k] ~ dpois(gamma[i,k-1])
+     gamma[i,k-1] <- exp(gam0+                # intercept
+                         gam1*N[i,k-1]+       # Recruitment                                             
+    		 betaG[1]*Elev[i]+
+                         betaG[2]*Slope[i]+
+                         betaG[3]*Aspect[i]+
+                         Error[k])
+
+     for(j in 1:nperiod){                      # Periods within Count
+     y[i,j,k] ~ dbin(p[i,j,k], N[i,k]) 
+     p[i,j,k]<-1/(1+exp(-logit.p[i,j,k]))
+     logit.p[i,j,k]<-pInt+
+                     betaP[1]*time[i,k]+
+                     betaP[2]*date[i,k]+
+                     betaP[3]*obsvr[i,k]
+     }    # Period
+   }      # Replicate
+} # Schwarz
+################################################################
+#
+# Derived parameters 
+#
+################################################################
+#
+# Calculate the population size sampled at HBEF in each replicate, k.
+#
+for(k in 1:nreplicate) {
+  Ntot[k] <- sum(N[,k])
+  }
+ P <- mean(p[,,])
+
+} # END MODEL
+```
+
+We need to give JAGS (the Gibbs Sampler) the starting values for the analysis - these are called the initial values.   
+  
+    
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Set initial values for N 
+#
+
+# create array with same dimensions as abundance estimates
+
+# Set up data to run in parallel #
+
+nreplicate<-4
+ncovs<-3
+nschwarz<-373
+nperiod<-3
+pcovs<-3
+
+y<-spec.mat_OVEN
+
+Elev<-siteCovs[,1]
+Aspect<-siteCovs[,2]
+Slope<-siteCovs[,3]
+
+date<-doy.15scaled
+obsvr<-obs.15
+time<-time
+
+win.data<-list("y", "nschwarz", "nreplicate", "nperiod",
+              "ncovs","pcovs","Elev", "time", "date", "obsvr", 
+              "Slope","Aspect")
+
+# Function to put into initial values for Nst #
+N<-function(x){
+Nst<-array(NA,dim=c(nschwarz,nreplicate))
+Nst<-apply(x,c(1,3),max,na.rm=TRUE)+3
+# If Nst==NA change value to 3 #
+Nst[Nst==-Inf]<-NA
+Nst[is.na(Nst)]<-3
+return(Nst)
+}
+
+# setting the seed makes it so the results are the same every time  
+# it makes it so the random number generator generates the same  
+# numbers every time
+set.seed(04823)
+inits<-function() list(gam0=rnorm(1,0.01),  # sample 1 random number from a normal dist.
+                       gam1=rnorm(1,0.01),  # sample 1 random number from a normal dist.
+                       mu.theta=0,          
+                       tau.theta=10,
+                       mu.thetaP=0,
+                       tau.thetaP=10,
+                       N=N(y))
+
+# Set the number of chains to run 
+nchains<-3
+
+inits.parallel<-list()
+for(i in 1:nchains){
+inits.parallel[[i]]<-inits()
+}
+
+# Specify wihch parameters you want to monitor 
+params<-c("N","Ntot","alpha","beta","betaG","betaP","Error","P","gam0","gam1")
+
+set.seed(04823)
+
+# read in code that allows for parallel computation 
+source("source/sourceJAGS.parallel2.r")
+
+Sys.time()
+dm.fit.settlement<-jags.parallel2(model=Settlment.dm.bayes.model, 
+                                  data=win.data,
+                                  inits=inits.parallel,
+                                  parameters=params,
+                                  jags.seed=04823,
+                                  n.iter=10000,
+             	                    n.burnin=5000,
+                                  n.thin=25,
+                                  n.chains=3,
+                                  working.directory=getwd())
+Sys.time()
+```
+
+The Bayesian anaylsis took nearly an hour on my laptop - it will likely run faster on a newer machine.  
+
+ 
+Get mean estimates of the following variables so we can make predictions
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+beta<-dm.fit.settlement$BUGSoutput$mean$beta
+betaG<-dm.fit.settlement$BUGSoutput$mean$betaG
+Alpha<-dm.fit.settlement$BUGSoutput$mean$alpha
+Error<-dm.fit.settlement$BUGSoutput$mean$Error
+gam0<-dm.fit.settlement$BUGSoutput$mean$gam0
+gam1<-dm.fit.settlement$BUGSoutput$mean$gam1
+
+# Map predictions from JAGS model 
+
+# Make the prediction surfaces
+
+Elev_pred<-rasterFromXYZ(NewData[,1:3])
+Slope_pred<-rasterFromXYZ(NewData[,c(1:2,5)])
+Aspect_pred<-rasterFromXYZ(NewData[,c(1:2,4)])
+```
+
+**Making predictions**
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+# Use the equation in the model to make predictions of round 0 #
+Round0<-overlay(Elev_pred,Aspect_pred,Slope_pred,fun=function(x,y,z){
+               exp(Alpha+beta[1]*x+beta[2]*z+beta[3]*y+Error[1])})
+
+# Include previous rounds Abundance estimate into model - NOTE (Round0) #
+Round1<-overlay(Elev_pred,Aspect_pred,Slope_pred,Round0,fun=function(x,y,z,a){
+               exp(gam0+gam1*a+betaG[1]*x+betaG[2]*z+betaG[3]*y+Error[2])})
+
+# Include previous rounds Abundance estimate into model - NOTE (Round1) #
+Round2<-overlay(Elev_pred,Aspect_pred,Slope_pred,Round1,fun=function(x,y,z,a){
+               exp(gam0+gam1*a+betaG[1]*x+betaG[2]*z+betaG[3]*y+Error[3])})
+
+# Include previous rounds Abundance estimate into model - NOTE (Round2) #
+Round3<-overlay(Elev_pred,Aspect_pred,Slope_pred,Round2,fun=function(x,y,z,a){
+               exp(gam0+gam1*a+betaG[1]*x+betaG[2]*z+betaG[3]*y+Error[4])})
+
+# Cut the estimates to only HBEF #
+Round0<-mask(Round0,HBEF)
+Round1<-mask(Round1,HBEF)
+Round2<-mask(Round2,HBEF)
+Round3<-mask(Round3,HBEF)
+```
+  
+**Calculate the change in abundance between the rounds**
+
+```{r cache=TRUE,cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
+diff0_1<-overlay(Round0,Round1,fun=function(x,y){y-x})
+diff1_2<-overlay(Round1,Round2,fun=function(x,y){y-x})
+diff2_3<-overlay(Round2,Round3,fun=function(x,y){y-x})
+diff0_3<-overlay(Round0,Round3,fun=function(x,y){y-x})
+
+
+# Calculate the number of OVENBIRDS # 
+cellStats(Round0,sum)
+cellStats(Round1,sum)
+cellStats(Round2,sum)
+cellStats(Round3,sum)
+```
+```{r echo=FALSE,fig.width=12,fig.height=5}
+par(mar=c(0,0,0,0),bty="n",mfrow=c(1,4))
+plot(Round0,axes=FALSE,horiz=TRUE)
+plot(Round1,axes=FALSE,horiz=TRUE)
+plot(Round2,axes=FALSE,horiz=TRUE)
+plot(Round3,axes=FALSE,horiz=TRUE)
+```
+  
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
