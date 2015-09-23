@@ -103,23 +103,26 @@ encounters &lt;- read.csv(text = fileURL)</code></pre>
 <li>How many birds did Neighborhood Nestwatch band?</li>
 <li>In how many banding stations were birds banded (‘fm_site’)?</li>
 <li>How many species were banded by Neighborhood Nestwatch?</li>
-<li>Use the <code>dplyr</code> functions (including piping!) to subset the data frame to observations of Northern Cardinal (<em>Cardinalis cardinalis</em>), subset to a data frame of individuals in which sex was identifiable (M or F), adult birds (AHY), then remove the following columns. Assign the name ‘eNoca’ to the new data frame.
-<ul>
-<li>band_num<br /></li>
-<li>band_age</li>
-<li>Color.Band</li>
-<li>d_banded</li>
-</ul></li>
 </ol>
 </blockquote>
-<table>
-<col width="5%"></col>
-<tbody>
-<tr class="odd">
-<td align="left"></td>
-</tr>
-</tbody>
-</table>
+<hr />
+<p>We’re going to learn a neat trick for subsetting data. There are many sites for which we did not actually resight or recapture birds. The number of years in which a given bird was encountered is represented by the “obs” column. Let’s use <code>dplyr</code> to determine the maximum number of years a bird was observed for any given site:</p>
+<pre class="r"><code>siteYears &lt;- tbl_df(encounters) %&gt;%
+  group_by(fm_site) %&gt;%
+  summarize(maxYears = max(obs))</code></pre>
+<p>We want to subset the data to sites with a minimum of three bird observations. To do so, we create a vector of sites in which the maximum number of years is greater than two:</p>
+<pre class="r"><code>site3obs &lt;- filter(siteYears, maxYears &gt; 2) %&gt;%
+  select(fm_site)</code></pre>
+<p>Now we can use <code>%in%</code> to subset our encounters frame to encounters at sites in which there were at least three observations:</p>
+<pre class="r"><code>encountersSub &lt;- tbl_df(encounters) %&gt;% 
+  filter(fm_site %in% site3obs$fm_site)</code></pre>
+<hr />
+<blockquote>
+<p><strong>Exercise 2</strong>:<br />1. How many observations are there in encountersSub?<br />2. How many sites are there in encountersSub?<br />3. Use the <code>dplyr</code> functions (including piping!) to subset the encountersSub data frame to observations of Northern Cardinal (<em>Cardinalis cardinalis</em>), subset to a data frame of individuals in which sex was identifiable (M or F), adult birds (AHY), then remove the following columns. Assign the name ‘eNoca’ to the new data frame. * band_num<br /> * band_age * Color.Band * d_banded<br /> * species</p>
+</blockquote>
+<hr />
+<p>Our next goal is to create a capture history file. eNoca &lt;- tbl_df(encountersSub) %&gt;% dplyr::filter(sex != ‘U’ &amp; band_age == ‘AHY’ &amp; species == ‘NOCA’) %&gt;% select(-band_num, -band_age, -Color.Band, -d_banded)</p>
+<hr />
 <p>The field “ch” stands for encounter (capture) history. Notice that each encounter history record contains a string of 0’s (no encounter) and 1’s (capture or recapture). Preceding 1’s are not analyzed (nor is the initial 1, directly).</p>
 <p>—- Run the simplest of MARK models —-</p>
 <p>We’ll now start right away by running a very simple MARK model, but before we do that we need to take a precautionary step. When you run a MARK analysis, it generates a lot of files. Find your current working directory in R (getwd function) and in your file system create a new folder called “mark_scratch”. Reset your working directory as follows:</p>

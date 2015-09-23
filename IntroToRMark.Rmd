@@ -69,25 +69,46 @@ encounters <- read.csv(text = fileURL)
 > 2. How many birds did Neighborhood Nestwatch band?
 > 3. In how many banding stations were birds banded ('fm_site')?
 > 4. How many species were banded by Neighborhood Nestwatch?
-> 5. Use the `dplyr` functions (including piping!) to subset the data frame to observations of Northern Cardinal (_Cardinalis cardinalis_), subset to  a data frame of individuals in which sex was identifiable (M or F), adult birds (AHY), then remove the following columns. Assign the name 'eNoca' to the new data frame.
+
+----
+
+We're going to learn a neat trick for subsetting data. There are many sites for which we did not actually resight or recapture birds. The number of years in which a given bird was encountered is represented by the "obs" column. Let's use `dplyr` to determine the maximum number of years a bird was observed for any given site:
+
+```{r, eval=FALSE}
+siteYears <- tbl_df(encounters) %>%
+  group_by(fm_site) %>%
+  summarize(maxYears = max(obs))
+```
+
+We want to subset the data to sites with a minimum of three bird observations. To do so, we create a vector of sites in which the maximum number of years is greater than two:
+
+```{r, eval=FALSE}
+site3obs <- filter(siteYears, maxYears > 2) %>%
+  select(fm_site)
+```
+
+Now we can use `%in%` to subset our encounters frame to encounters at sites in which there were at least three observations:
+
+```{r, eval=FALSE}
+encountersSub <- tbl_df(encounters) %>% 
+  filter(fm_site %in% site3obs$fm_site)
+```
+
+---
+
+>**Exercise 2**:    
+> 1. How many observations are there in encountersSub?     
+> 2. How many sites are there in encountersSub?    
+> 3. Use the `dplyr` functions (including piping!) to subset the encountersSub data frame to observations of Northern Cardinal (_Cardinalis cardinalis_), subset to  a data frame of individuals in which sex was identifiable (M or F), adult birds (AHY), then remove the following columns. Assign the name 'eNoca' to the new data frame.
     * band_num    
     * band_age
     * Color.Band
-    * d_banded
+    * d_banded    
+    * species
 
 ----
-<P>
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-&nbsp    
-<P>
-eNoca <- tbl_df(encounters) %>%
+
+Our next goal is to create a capture history file. eNoca <- tbl_df(encountersSub) %>%
   dplyr::filter(sex != 'U' & band_age == 'AHY' & species == 'NOCA') %>% 
   select(-band_num, -band_age, -Color.Band, -d_banded)
 

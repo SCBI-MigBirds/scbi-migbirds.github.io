@@ -14,7 +14,7 @@ fileURLoven <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/
 
 # Get source functions:
 
-sourceLigURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRead_LightBug.R')
+sourceLigURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRead_lig.R')
 sourceLightBugURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRead_LightBug.R')
 
 eval(parse(text = sourceLigURL))
