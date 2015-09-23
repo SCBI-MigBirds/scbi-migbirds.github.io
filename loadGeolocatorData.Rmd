@@ -1,0 +1,27 @@
+---
+output: html_document
+---
+
+```{r eval = F}
+# Load the library
+
+require(RCurl)
+
+# Provide the web address of the data files:
+
+fileURLoven <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/2391_68559_000.lig')
+#fileURLwoth <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/0309_RAW.txt')
+
+# Get source functions:
+
+sourceLigURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRead_LightBug.R')
+sourceLightBugURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceRead_LightBug.R')
+
+eval(parse(text = sourceLigURL))
+
+eval(parse(text = sourceLightBugURL))
+
+# Download oven file
+
+OvenRaw<-read.csv(text = fileURLoven,sep=",",skip=1,header=FALSE,col.names=c("Valid","Date","Julian","Light"))
+```
