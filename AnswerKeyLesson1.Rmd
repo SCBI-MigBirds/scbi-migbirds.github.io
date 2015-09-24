@@ -1,0 +1,222 @@
+---
+output: html_document
+---
+
+<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+    
+  <img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+  
+# Answer Key, Lesson 1:Introduction to Program R
+_Brian S. Evans 
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_
+
+```
+#======================================================================*
+# ---- Lesson 1: Exercises  ----
+#======================================================================*
+# Below is the answer key for Lesson 1: Introduction to Program R: 
+# Object structure, indexing, and logic. The lesson can be accessed 
+# at the following web address:
+
+# http://scbi-migbirds.github.io/structureIndexingAndLogic.html
+
+#----------------------------------------------------------------------*
+# ---- Set-up ---- 
+#----------------------------------------------------------------------*
+
+# Load the library:
+
+library(RCurl)
+
+# Provide the URL (location on the internet):
+
+url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceStructureIndexLogic.R'
+
+# Load the URL data:
+
+sourceURL <- getURL(url)
+
+# Load the source script. This contains functions "hidden beneath the 
+# hood". You can see the functions used by going to the url above:
+
+eval(parse(text = sourceURL))
+
+#----------------------------------------------------------------------*
+# ---- Exercise One ----
+#----------------------------------------------------------------------*
+
+# 1. Create an object that contains the values 5,8, and 13.
+
+c(5, 8, 13)
+
+# 2. Assign the name "gen1" to the object and use the "sum" function to
+#    add these values together.
+
+gen1 <- c(5, 8, 13)
+
+sum(gen1)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Two ----
+#----------------------------------------------------------------------*
+
+  
+# 1. Your global environment contains the R objects birdCounts, 
+# exampleData, and exampleData2. Use the class function to determine 
+# the type of object that each represent.
+
+class(birdCounts)
+
+class(exampleData)
+
+class(exampleData2)
+
+# 2. Use the dim function to determine the number of rows and columns 
+#    in birdCounts.
+
+dim(birdCounts)
+
+# Use the str function to determine class structure of birdCounts.
+
+str(birdCounts)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Three ----
+#----------------------------------------------------------------------*
+
+rabbits <- c(3,6,9,15,24,39,63)
+
+# 1. Extract the fifth value (24) of the rabbits vector.
+
+rabbits[5]
+
+# 2. Use the ":" symbol to extract the third through fifth values in 
+# the rabbits vector.
+
+rabbits[3:5]
+ 
+# 3. Use the combine function to extract the third and fifth values in 
+# the rabbits vector.
+
+rabbits[c(3,5)]
+
+#----------------------------------------------------------------------*
+# ---- Exercise Four ----
+#----------------------------------------------------------------------*
+
+# 1. Extract the value at the cell address associated with row two, 
+#   column two in birdCounts.
+
+birdCounts[2,2]
+
+# 2. Extract the vector of values associated with row one of 
+#    exampleData.
+
+birdCounts[1,]
+
+# 3. Extract the vector of values associated with column two of 
+#    exampleData.
+
+birdCounts[,2]
+
+# 4. Use the nrow and ncol functions to extract the value contained
+#    in the last row and column of birdCounts.
+
+birdCounts[nrow(birdCounts),ncol(birdCounts)]
+
+# 5. Use the ":" symbol to extract the first and second rows of
+#    exampleData2.
+
+birdCounts[1:2,]
+
+# 6. Use the combine function to extract the second and third rows
+#    of birdCounts.
+
+birdCounts[c(2,3),]
+
+#----------------------------------------------------------------------*
+# ---- Exercise Five ----
+#----------------------------------------------------------------------*
+
+# Use the birdCounts dataset to do the following:
+#   
+# 1. Determine the class of the species field within birdCounts.
+
+class(birdCounts$species)
+
+# 2. Extract the count field of birdCounts as a vector.
+
+birdCounts$count
+
+# 3. Create a data frame of birdCounts consisting of the first 20 
+#    records and assign the name "birdCounts2".
+
+birdCounts2 <- birdCounts[1:20,]
+
+# 4. Change the name of the count field in birdCounts2 to "abundance".
+
+names(birdCounts2)
+
+names(birdCounts2)[3] <- 'abundance'
+
+# 5. Subset birdCount2 to the fields "site",species","abundance", 
+#    and "diet".
+
+birdCounts2[, c('site','species','abundance')]
+
+# -- or --
+
+birdCounts2[,c(1:2, 5)]
+
+#----------------------------------------------------------------------*
+# ---- Exercise Six ----
+#----------------------------------------------------------------------*
+
+# 1. What is the mean count for the birdCounts2 object that you created
+#    in Exercise 5?
+
+mean(birdCounts2$abundance)
+
+# 2. How many unique species does birdCounts2 contain?
+
+length(unique(birdCounts$species))
+
+#----------------------------------------------------------------------*
+# ---- Exercise Seven ----
+#----------------------------------------------------------------------*
+
+# For the birdCounts dataset, address the following using the methods above:
+  
+# 1. Subset the birdCounts data frame to just insectivore species. Call
+#    the data frame "insectivoreCounts".
+
+insectivoreCounts <- birdCounts[birdCounts$diet == 'insectivore',]
+
+# 2. How many species are insectivores?
+
+length(unique(insectivoreCounts$species))
+
+# 3. How many sites are contained in the birdCounts dataset?
+
+length(unique(birdCounts$site))
+
+# 4. In how many sites were insectivores observed?
+
+length(unique(insectivoreCounts$site))
+
+# 5. In what proportion of the sites were insectivores observed?
+
+length(unique(insectivoreCounts$site))/length(unique(birdCounts$site))
+
+# EXTRA: Calculate the proportion of sites in which insectivores were 
+# observed using a single nested function.
+
+length(unique(birdCounts[birdCounts$diet == 'insectivore',]$site))/
+         length(unique(birdCounts$site))
+
+```
+
+----
+
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
