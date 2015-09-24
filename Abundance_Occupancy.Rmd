@@ -24,13 +24,19 @@ Regardless of the question - accounting for imperfect detection is important. Fa
 The subsequent code illustrates how to use point count data to answer ecological questions while accounting for imperfect detection. In this tutorial we will use simulated data using 373 survey locations within Hubbard Brook Experimental Forest, NH that were visited three times during the 2015 breeding season. Three, 10 minute point count surveys were conducted along 15 transects spaced 500m apart. Each survey location wasseperated by either 100m, or 200m. All species seen or heard within 50m and 100m of the point during the 10 min count were recorded.
 
 ### The data
+```{r}
+require(RCurl)
 
-Read in the data and look at the first 5 rows and the names of the columns  
+# Provide the web address of the data files:
+
+fileURLVWdata <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/HBEF_2015_simulated.csv')
+
+```
 
 ```{r set-options, cache=FALSE}
 options(width = 100)
 # read in Point-count data #
-VWdata<-read.csv("data/HBEF_2015_simulated.csv",sep=",")
+VWdata<-read.csv(text = fileURLVWdata,sep=",")
 
 # view the column names #
 names(VWdata)
@@ -59,12 +65,11 @@ Let's load the packages we will need before we go much further.
 
 ```{r,warning=FALSE,message=FALSE}
 # load packages #
+# install.packages(c("unmarked","raster","rgeos","chron"),dependencies=TRUE)
 library(unmarked)
 library(raster)
 library(rgeos)
 library(chron)
-library(abind)
-library(R2jags)
 ```
 
 #### Brief overview of the subsequent code
@@ -125,8 +130,8 @@ VWdata<-VWdata[VWdata$Distance==1,]
 ***
 
 Before we go further it's helpful to create some useful vectors that we will use later on.
-* How many counts were conducted
-* How many periods within the count were done  
+* How many counts were conducted     
+* How many periods within the count were done       
 
 we counted every individual heard/seen in 3 periods within the 10min count. Essentially we do 3 -3:20min point counts within the 10m count period.  
 1. 0-3:20 min    
@@ -252,6 +257,7 @@ First, we will get some of the physical covariates for each site
 UTM19N<-"+proj=utm +zone=19 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 
 # Read in HBEF boundary #
+
 
 HBEF<-shapefile("spatial_layers/HBEFboundary_WGS84.shp")
 
@@ -491,11 +497,7 @@ Rep3<-occu(~1 ~Elevation + Aspect + Slope, OVEN[[4]],method="BFGS", se=TRUE, eng
 Rep0
 ```
 
-*** 
-> #### Exercise:
-> Try to fit a model with a detection covariate. Does it improve the fit? How could you tell?
 
-***
 **Predictions**
   
 ```{r cache=TRUE, cache.path=paste0(getwd(),"/Hallworth_cache/Occu/")}
@@ -682,6 +684,9 @@ The subsequent code is for doing the same analysis but in a Bayesian framework. 
 
 Specifying the model
 ```{r}
+#library(abind)
+#library(R2jags)
+
 #########################################################################################
 #########################################################################################
 #
