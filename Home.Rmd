@@ -48,6 +48,10 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Lesson 9: Introduction to mark-recapture analysis**](http://scbi-migbirds.github.io/IntroToRMark.html): In this lesson, we will review the early steps in conducting a Cormack Jolly Seber analysis in R Mark.
 
+* [**Lesson 10: Modeling abundance and occupancy**](http://scbi-migbirds.github.io/Abundance_Occupancy.html): In this lesson, we will learn how to estimate occupancy and abundance from point count data.  
+
+ 
+
 
 ### Preliminary lessons
 
