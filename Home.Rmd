@@ -49,15 +49,17 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 * [**Lesson 9: Introduction to mark-recapture analysis**](http://scbi-migbirds.github.io/IntroToRMark.html): In this lesson, we will review the early steps in conducting a Cormack Jolly Seber analysis in R Mark.
 
 * [**Lesson 10: Modeling abundance and occupancy**](http://scbi-migbirds.github.io/Abundance_Occupancy.html): In this lesson, we will learn how to estimate occupancy and abundance from point count data.  
-
- 
-
-
+    
 ### Preliminary lessons
 
 * [**SWIRL courses**](http://scbi-migbirds.github.io/swirlCourses.html): Instructions for completing the self-guided SWIRL courses to prepare you for this course. To get the most from this course, we strongly suggest completing these exercises prior to arrival. 
 * [**Introduction to R**](http://scbi-migbirds.github.io/IntroductionToR.html): An introductory lesson in R for completion prior to attending this course. Special attention is given to the format and structure of data in R.
 * [**Skill Assessment**](http://scbi-migbirds.github.io/skillAssessmentMigBirds.html): A worksheet for completion prior to attending the course intended to assess your current skill level with R.
+
+### Lesson answer keys
+
+* [**Answer Key: Lesson 1**](http://scbi-migbirds.github.io/AnswerKeyLesson1.html): Introductory lesson: Structure, Indexing, and Logic
+
 
 ## Useful help file links
 
