@@ -1,0 +1,234 @@
+---
+output: html_document
+---
+
+```{r, eval=F}
+#======================================================================*
+# ---- Lesson 2 For Loops and Functions: Exercises  ----
+#======================================================================*
+# This lesson can be accessed at the following web address:
+
+# http://scbi-migbirds.github.io/ForLoopsAndFunctions.html
+
+#----------------------------------------------------------------------*
+# ---- Set-up ---- 
+#----------------------------------------------------------------------*
+
+# Load the library
+
+require(RCurl)
+
+# Provide the web address of the file:
+
+fileURL <- getURL('https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/data/exampleBirdData.csv')
+
+# Read in the data:
+
+birdCounts <- read.csv(text = fileURL)
+
+#----------------------------------------------------------------------*
+# ---- Exercise One ----
+#----------------------------------------------------------------------*
+
+# Use a for loop to multiply each value in the "count" field of 
+# birdCounts by two.
+
+countTimesTwo <- numeric(length = length(birdCounts$count))
+
+for(i in 1:length(birdCounts$count)){
+  countTimesTwo[i] <- birdCounts$count[i]*2
+}
+
+#----------------------------------------------------------------------*
+# ---- Exercise Two ----
+#----------------------------------------------------------------------*
+
+
+# 1. Use the combine function to create a seed vector of two values, 
+#    zero and one.
+
+fSeries <- c(0,1)
+
+# 2. Use the formula above and your seed vector to generate the first
+#    20 numbers of the Fibonacci number sequence. Hint: The for loop
+#    initialization will begin at third position - it will NOT include
+#    all of 1:20!
+
+for(i in 3:20){
+  fSeries[i] <- fSeries[i-1] + fSeries[i-2]
+}
+
+#----------------------------------------------------------------------*
+# ---- Exercise Three ----
+#----------------------------------------------------------------------*
+
+# Set-up 1. Create a vector of foraging guilds:
+
+foragingGuilds <- unique(birdCounts$foraging)
+
+# Set-up 2. Create an empty vector to store the results:
+
+foragingCounts <- numeric(length = length(foragingGuilds))
+
+# Set-up 3. Write a for loop to calculate the sum of counts for each
+# guild:
+
+for(i in 1:length(foragingGuilds)){
+  foragingSub <- birdCounts[birdCounts$foraging == foragingGuilds[i],]
+  foragingCounts[i] <- sum(foragingSub$count)
+}
+
+# Set-up 4. Make a data frame for the summed counts for each guild:
+
+foragingFrame <- data.frame(foragingGuild = foragingGuilds, 
+                            count = foragingCounts)
+
+# Use the foragingFrame you created above and a for loop to calculate
+# the proportion of the observed individuals within each dietary guild.
+
+propForaging <- numeric(length = length(foragingGuilds)) # Empty vector
+
+for(i in 1:length(foragingGuilds)){
+  propForaging[i] <- foragingFrame[i, 2]/sum(foragingFrame[,2])
+}
+
+data.frame(foragingGuild = foragingGuilds, propForaging)
+
+
+#----------------------------------------------------------------------*
+# ---- Exercise Four ----
+#----------------------------------------------------------------------*
+
+# The mathematical formula for standard error is provided below (see
+# instructions). Convert this to an R function (Note: the function for 
+# standard deviation is "sd" and the function for square root is "sqrt"):
+
+se <- sd(x)/sqrt(length(x))
+
+#----------------------------------------------------------------------*
+# ---- Exercise Five ----
+#----------------------------------------------------------------------*
+
+# 1. Create a function that calculates the mean count for a given diet 
+#    guild across sites. Hint: Mean count is the sum of counts divided 
+#    by the total number of sites in the birdCounts data frame. Do not
+#    use the built-in "mean"" function. 
+
+meanDietGuildFun <- function(dietGuild){
+  # Number of sites
+    nSites <- length(unique(birdCounts$site)) 
+  # Subset birdCounts data frame to the guild of interest:
+    guildSubset <- birdCounts[birdCounts$diet == dietGuild,]
+  # Calculate the the number of individuals counted for the guild:
+    guildCount <- sum(guildSubset$count)
+  # Calculate the average count across sites and return output:
+    meanGuild <- guildCount/nSites
+    return(meanGuild)
+}
+
+# Question: Why can't we use the mean function?
+
+# Answer: Because it does not take zeroes into account, thus inflating
+# the average counts per site.
+
+# 2. Create a function that calculates the mean count for a selected 
+#    trait (e.g. diet or foraging) and guild across sites.
+
+meanTraitGuildFun <- function(trait, guild){
+  # Number of sites
+    nSites <- length(unique(birdCounts$site)) 
+  # Subset birdCounts data frame to the trait and guild of interest:
+    guildSubset <- birdCounts[birdCounts[,trait] == guild,]
+  # Calculate the the number of individuals counted for the guild:
+    guildCount <- sum(guildSubset$count)
+  # Calculate the average count across sites and return output:
+    meanGuild <- guildCount/nSites
+    return(meanGuild)
+}
+
+#----------------------------------------------------------------------*
+# ---- Optional challenges! ----
+#----------------------------------------------------------------------*
+
+# 1. The species-area relationship of Arrhenius (1921) states that the
+#    number of species (S) is dependent on the rate of increase in 
+#    species with increasing area (z) multiplied by a constant (c) that
+#    represents the number of species that would be present in one
+#    spatial unit. This model is summarized as (see instuctions):
+
+#    a. Convert the species-area relationship formula to an R function,
+#       with c, A, and z set as unknowns.
+
+sarFun <- function(c, A, z){
+  S <- c * A^z
+  return(S)
+}
+
+#    b. Create a vector named areaVector of areas values ranging from
+#       1 to 10.
+
+areaVector <- 1:10
+
+#    c. Using 15 for the value of c and a z of 0.75, use a for loop to
+#       calculate the expected species richness for your areaVector. 
+#       Note: You don't really need to use a for loop for this, but 
+#       it's good practice!
+
+sarV <- numeric(length = length(v))
+
+for(i in 1:length(areaVector)){
+  sarV[i] <- sarFun(c = 15, A = areaVector[i], z = 0.75)
+}
+
+# 2. The exponential population growth model describes the growth of a
+#    population without resource limitations. This model describes the 
+#    size of a population (Nt) at a given time unit as a function of 
+#    the per capita growth rate of the population (r) and the size of 
+#    the population at time t. This model is summarized as (see 
+#    instuctions):
+
+#    a. Convert the exponential population growth model to an R 
+#       function with r, N0, and t as unknowns.
+
+expPopGroFun <- function(r, N0, t){
+  Nt <- N0*exp(r*t)
+  return(Nt)
+}
+
+#    b. With an initial population size of 25 and a per capita growth 
+#       rate (r) of 0.45, use the exponential population growth rate 
+#       function and a for loop to calculate the size of the population
+#       over 10 generations.
+
+Ngeneration <- numeric(length = 10)
+
+for(i in 1:10){
+  Ngeneration[i] <- expPopGroFun(r = 0.45, N0 = 25, t = i)
+}
+
+# 3. The logistic population growth model (Verhulst) states that the 
+#    growth of the population will be constrained by the population 
+#    carrying capacity (K) as a function of resource limitations. This
+#    model is summarized as (Note: the remaining variables are as 
+#    above -- see instructions).
+
+#    a. Convert the logistic population growth model to an R function
+#       with r, N0, t, and K as unknowns.
+
+logisticPopGroFun <- function(r, N0, t, K){
+  Nt <- K/(1+((K-N0)/N0)*exp(-r*t))
+  return(Nt)
+}
+
+#    b. With an initial population size of 25, a per capita growth rate
+#       (r) of 0.45, and a carrying capacity of 500 individuals, use 
+#       the logistic population growth rate function and a for loop to
+#       calculate the size of the population over 10 generations.
+
+Ngeneration <- numeric(length = 10)
+
+for(i in 1:10){
+  Ngeneration[i] <- logisticPopGroFun(r = 0.45, N0 = 25, 
+                                      t = i, K = 500)
+}
+```

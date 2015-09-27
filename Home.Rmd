@@ -60,6 +60,8 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 
 * [**Answer Key: Lesson 1**](http://scbi-migbirds.github.io/AnswerKeyLesson1.html): Introductory lesson: Structure, Indexing, and Logic
 
+* [**Answer Key: Lesson 2**](http://scbi-migbirds.github.io/AnswerKeyLesson2.html): For Loops and Functions    
+
 
 ## Useful help file links
 

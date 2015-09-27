@@ -376,7 +376,7 @@ $$S = c \cdot\ A^z$$
 2. The exponential population growth model describes the growth of a population without resource limitations. This model describes the size of a population ($N_t$) at a given time unit as a function of the per capita growth rate of the population (_r_) and the size of the population at time _t_. This model is summarized as: 
 $$N_t = N_0 \cdot e^{r \cdot t}$$
 
-    a. Convert the exponential population growth model to an R function with _r_ and _N_ as unknowns.
+    a. Convert the exponential population growth model to an R function with _r_, $N_0$, and _t_ as unknowns.
     b. With an initial population size of 25 and a per capita growth rate (_r_) of 0.45, use the exponential population growth rate function and a _for loop_ to calculate the size of the population over 10 generations.    
 
 ----
@@ -384,7 +384,7 @@ $$N_t = N_0 \cdot e^{r \cdot t}$$
 3. The logistic population growth model (Verhulst) states that the growth of the population will be constrained by the population carrying capacity (_K_) as a function of resource limitations. This model is summarized as (_Note: the remaining variables are as above_):
 $$N_t = \dfrac{K}{\mathstrut{1 + \bigg[ \dfrac{K-N_0}{N_0} \bigg] \cdot e^{-r \cdot t}}}$$
 
-    a. Convert the logistic population growth model to an R function with _r_, _N_, and _K_ as unknowns. 
+    a. Convert the logistic population growth model to an R function with _r_, $N_0$, t, and _K_ as unknowns. 
     b. With an initial population size of 25, a per capita growth rate (_r_) of 0.45, and a carrying capacity of 500 individuals, use the logistic population growth rate function and a _for loop_ to calculate the size of the population over 10 generations.
 
 ----
