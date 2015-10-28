@@ -1,0 +1,254 @@
+---
+  output: html_document
+---
+  
+<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/1280px-GMU_logo.svg.png" height="150px" width = "150px"/>
+    
+<img align = "right" src="https://upload.wikimedia.org/wikipedia/en/6/6a/Smithsonian_Conservation_Biology_Institute_logo.png" height="150px" width = "150px"/>
+      
+      
+# Answer Key, Lesson 3: Data manipulation with tidyr and dplyr
+_Brian S. Evans 
+Smithsonian Conservation Biology Institute  
+Migratory Bird Center_
+
+```
+      
+#======================================================================*
+# ---- Lesson 3: Exercises  ----
+#======================================================================*
+# Below is the answer key for Lesson 3: Data manipulation with tidyr 
+# and dplyr: the grammar of data wrangling. The lesson can be accessed 
+# at the following web address: 
+#
+# http://scbi-migbirds.github.io/dataManipulation.html
+
+#----------------------------------------------------------------------*
+# ---- Set-up ---- 
+#----------------------------------------------------------------------*
+
+# Load the library:
+
+library(RCurl)
+
+# Provide the URL (location on the internet):
+
+url <-'https://raw.githubusercontent.com/SCBI-MigBirds/MigBirds/master/source/sourceDataManip.R'
+
+# Load the URL data:
+
+sourceURL <- getURL(url)
+
+# Load the source script:
+
+eval(parse(text = sourceURL))
+
+#----------------------------------------------------------------------*
+# ---- Exercise One ----
+#----------------------------------------------------------------------*
+
+# The dataset "birdCounts" is located in your global environment. 
+# Using these data:
+  
+# 1. Convert birdCounts to a wide format dataset, setting NA values 
+#    to 0. Assign the name "wideBirds" to this data frame.
+
+wideBirds <- spread(birdCounts, species, count, fill = 0)
+
+# 2. Convert wideBirds to a tidy long format dataset. Assign the name
+#    "longBirds" to this data frame. How do the birdCounts and longBirds
+#    data frames differ?
+
+longBirds <- gather(wideBirds, species, count, amcr:ysfl)
+
+# Note: They differ in that now there includes a zero for species
+# not observed at a site!
+
+# 3. Complete steps one and two using nested functions.
+
+longBirds <- gather(spread(birdCounts, species, count, fill = 0), 
+                    species, count, amcr:ysfl)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Two ----
+#----------------------------------------------------------------------*
+
+# Subset the birdCounts data frame to observations of Carolina 
+# Chickadee (Poecile carolinensis) in which two or more individuals 
+# were observed using:
+
+# 1. Indexing:
+
+birdCounts[birdCounts$species == 'cach',]
+
+# 2. dplyr's filter command:
+
+filter(birdCounts, species == 'cach')
+
+#----------------------------------------------------------------------*
+# ---- Exercise Three ----
+#----------------------------------------------------------------------*
+
+# 1. Use the select function to subset the birdCounts data frame to
+#    species, count, and diet guild columns. Assign the name 
+#    "birdCount1" to this data frame.
+
+birdCount1 <- select(birdCounts, species, count, diet)
+
+# 2. Use the filter function to subset your reduced data frame to 
+#    observations of omnivores and granivores. Assign the name 
+#    "birdCount2" to this data frame.
+
+birdCount2 <- filter(birdCount1, 
+                     diet == 'omnivore'|diet == 'granivore')
+
+# 3. Use the filter function to subset birdCount2 to counts that are
+#    greater than or equal to three individuals.
+
+filter(birdCount2, count >= 3 )
+
+#----------------------------------------------------------------------*
+# ---- Exercise Four ----
+#----------------------------------------------------------------------*
+
+# 1. Subset birdCounts data frame to only species and diet fields. 
+#    Assign the name "birdCountSpDiet" to this data frame.
+
+birdCountsSpDiet <- select(birdCounts, species, diet)
+
+# 2. Subset the dataset to only insectivorous species. Assign the
+#    name "birdCountInsect" to this data frame.
+
+birdCountInsect <- filter(birdCountsSpDiet, diet == 'insectivore')
+
+# 3. Use distinct to remove duplicate observations. Assign the name 
+#    "birdCountInsectDistinct" to this data frame.
+
+birdCountInsectDistinct <- distinct(birdCountInsect)
+
+# 4. Use arrange to sort the species column alphabetically.
+
+arrange(birdCountInsectDistinct, species)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Five ----
+#----------------------------------------------------------------------*
+
+# 1. The paste function in base R is used to concatenate character 
+#    values (Note: the syntax is paste(column1, column2)). Use the 
+#    mutate and paste functions to create a new column named "forDiet"
+#    by pasting the foraging and diet columns together. Assign the name
+#    "birdCountsForDiet"" to this data frame.
+
+birdCountsForDiet <- mutate(birdCounts, 
+                            forDiet = paste(foraging, diet))
+
+# 2. Use the select function to subset "birdCountsForDiet" to just the
+# "forDiet" field. Assign the name "forDietFrame" to this data frame.
+
+forDietFrame <- select(birdCountsForDiet, forDiet)
+
+# 3. Use the distinct function to view all unique combinations of
+#    foraging and diet guilds.
+
+distinct(forDietFrame)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Six ----
+#----------------------------------------------------------------------*
+
+# 1. Group birdCounts by species. Assign the name "birdCountSp" to 
+#    this data frame.
+
+birdCountSp <- group_by(birdCounts, species)
+
+# 2. Calculate the sum total of counts for each species. Assign the 
+#   name "birdCountSpSum" to your summary data frame and N to your 
+#   count vector.
+
+birdCountSpSum <- summarize(birdCountSp, N = sum(count))
+
+# 3. Sort birdCountSpSum from highest to lowest count.
+
+arrange(birdCountSpSum, -N)
+
+#----------------------------------------------------------------------*
+# ---- Exercise Seven ----
+#----------------------------------------------------------------------*
+# Give another try to Exercises 1-6 above, this time using piping to 
+# complete each exercise in one step.
+
+# Ex.1:
+# The dataset "birdCounts" is located in your global environment. 
+# Using these data:
+# 1. Convert birdCounts to a wide format dataset, setting NA values 
+#    to 0. 
+# 2. Convert wideBirds to a tidy long format dataset.
+
+longBirds <- birdCounts %>%
+  spread(species, count, fill = 0) %>%
+  gather(species, count, amcr:ysfl)
+
+# Ex.2: Not really applicable (only one step).
+
+# Ex.3:
+# 1. Use the select function to subset the birdCounts data frame to
+#    species, count, and diet guild columns. 
+# 2. Use the filter function to subset your reduced data frame to 
+#    observations of omnivores and granivores. 
+# 3. Use the filter function to subset birdCount2 to counts that are
+#    greater than or equal to three individuals.
+
+birdCounts %>%
+  select(species, count, diet) %>%
+  filter(diet == 'omnivore' | diet == 'granivore') %>%
+  filter(count >= 3)
+
+# Ex.4:
+# 1. Subset birdCounts data frame to only species and diet fields. 
+# 2. Subset the dataset to only insectivorous species. 
+# 3. Use distinct to remove duplicate observations. 
+# 4. Use arrange to sort the species column alphabetically.
+
+birdCounts %>%
+  select(species, diet) %>%
+  filter(diet == 'insectivore') %>%
+  distinct() %>%
+  arrange(species)
+
+
+# Ex.5:
+# 1. The paste function in base R is used to concatenate character 
+#    values (Note: the syntax is paste(column1, column2)). Use the 
+#    mutate and paste functions to create a new column named "forDiet"
+#    by pasting the foraging and diet columns together. 
+# 2. Use the select function to subset the data frame to just the
+# "forDiet" field. 
+# 3. Use the distinct function to view all unique combinations of
+#    foraging and diet guilds.
+
+birdCounts %>%
+  mutate(forDiet = paste(foraging, diet)) %>%
+  select(forDiet) %>%
+  distinct()
+
+# Ex.6:
+# 1. Group birdCounts by species. 
+# 2. Calculate the sum total of counts for each species. Assign the 
+#   name N to your count vector.
+# 3. Sort the data frame from highest to lowest count.
+
+birdCounts %>%
+  group_by(species) %>%
+  summarize(N = sum(count)) %>%
+  arrange(-N)
+  
+```
+
+----
+  
+  <img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/512px-Git-logo.svg.png" height="150px" width = "150px"/>
+  
+
+
+
