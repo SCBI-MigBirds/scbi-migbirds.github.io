@@ -63,6 +63,8 @@ In order to ensure that we are all moving at a similar pace, we will place cours
 * [**Answer Key: Lesson 2**](http://scbi-migbirds.github.io/AnswerKeyLesson2.html): For Loops and Functions    
 
 
+* [**Answer Key: Lesson 3**](http://scbi-migbirds.github.io/AnswerKeyLesson3.html): dplyr and tidyr
+
 ## Useful help file links
 
 * [**Functions List**](http://scbi-migbirds.github.io/Functions.html): List of functions used for each lesson, sorted by lesson. Includes hyperlinks to R help files.
