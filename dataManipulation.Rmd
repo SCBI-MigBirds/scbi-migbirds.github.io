@@ -56,6 +56,8 @@ Tidy? Nope. In this case, each subject has its own row, not each observation. We
 library(tidyr)
 ```
 
+### Making long data frames
+
 With the `tidyr` function `gather`, we collapse multiple columns into "key-value pairs". In the above example, we are interested in the treatment "values" for each of our "key" values. To do so, we provide:
 
 1. The data frame ("untidyFrame") we will be reshaping
@@ -89,8 +91,11 @@ tidyCounts <- gather(data = wideFrame,
 tidyCounts
 ```
 
-The above is what is often called a "**long**" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. If, however, you are studying bird community composition at a number of sites
-it may be appropriate to consider sites as the unit of observation and species as variables -- thus data are arranged in "**wide**" format. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
+The above is what is often called a "**long**" data frame. Are all tidy data frames long? Not necessarily! That depends on the observational unit of your study. If your observational unit is individual birds or birds at a given distance class, it may be more appropriate for your data to be arranged in long format. 
+
+### Making wide data frames
+
+If you are studying bird community composition at a number of sites it may be appropriate to consider sites as the unit of observation and species as variables -- thus data are arranged in "**wide**" format. To account for this, you could always arrange your point count data sheets with each column representing each species that you might possibly encounter at every site of your study ... but then, of course, you'd be crazy. In this instance, the sane among you would collect your data in long format and use wide format for your tidy frame. Let's consider the following count data:
 
 ```{r, eval = T, echo=F, warning=FALSE}
 longFrame
@@ -131,7 +136,23 @@ longFrame2 <- gather(spread(longFrame, species, count, fill = 0),
 
 Be sure that you can successfully read the non-nested and nested versions of these functions!
 
-For the sake of brevity, we'll leave tidying data to just these two functions. There are a few other functions in `tidyr` (I strongly suggest reading Wickham's [Tidy Data](http://www.jstatsoft.org/v59/i10/paper) (2014) paper), but you'll have to explore those on your own to give us some time to explore the wonderful world of `dplyr`!
+
+### Separating variables:
+
+Oftentimes, multiple variables are stored in one column of a data frame. This is easily dealt with using the `separate` function in tidyr. The dataset birdCounts is located in your global environment. These data are a subset of point counts taken throughout greater Washington D.C. Let's take a moment to see how the data are organized:
+
+```{r eval=F}
+birdCounts
+levels(birdCounts$site)
+```
+
+The site column represents up to three numbered subsamples located within sites labelled from "a" to "o". We'll use `separate` to split this into two columns, "site" and "subsite".
+
+```{r eval=F}
+separate(birdCounts, site, into = c('site','subsite'), sep = '_')
+```
+
+That's pretty much all there is to "separate", pretty easy. For the sake of brevity, we'll leave tidying data behind for now. I strongly suggest reading Wickham's [Tidy Data](http://www.jstatsoft.org/v59/i10/paper) (2014) paper for further information on this powerful package.
 
 ----
 
