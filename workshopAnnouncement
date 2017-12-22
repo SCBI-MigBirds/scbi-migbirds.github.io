@@ -1,0 +1,99 @@
+---
+output: html_document
+---
+
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+h1 {
+  color: #003300; 
+  text-align:center;
+  font-family: "Avenir"}
+p {
+  font-size: 18px;
+  font-family: "Avenir"
+}
+
+h2 {
+  font-size: 24px;
+  font-family: "Avenir"
+}
+
+ol {
+  font-size: 18px;
+  font-family: "Avenir"
+}
+
+ul {
+  font-size: 18px;
+  font-family: "Avenir"
+}
+
+
+</style>
+</head>
+
+<h1><b>Introduction to data science in R</b>:</br> <i>Data management and the art of wrangling</i></h1>
+<hr>
+<p><i class="fa fa-bar-chart"></i>
+ <b>Overview</b>: In this weekly workshop we will explore the management of data using Program R. We will focus on the stucture and linguistics of data in R. This workshop <b>is not</b> intended to teach specific R tasks. Rather than addressing how to solve data problems, our goal is to explore how to think about data in new ways. Through this process, participants are expected to develop a flexible skillset for managing and exploring data.<img src="https://pbs.twimg.com/media/C-70D_tXUAA8wqz.png"
+ title="tidyverse icon"
+ alt = "Logo of the tidyverse" 
+ align="right"
+ width = "200px"
+ style= "margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right:0px;
+  margin-left: 20px;"/> Each lesson will last one hour and consist  of a lecture followed by guided activities. This workshop will provide useful knowledge gains for participants at all skill levels. No previous experience with R is necessary.</p>
+
+<p><b>Instructor</b>: Brian S. Evans, Ph.D.</br>
+Migratory Bird Center</br>
+Smithsonian Conservation Biology Institute</br>
+evansbr@si.edu</p>
+ 
+<hr>
+
+<h2>Topics and schedule</h2>
+
+<ol>
+<li><b>Base R I</b>: An introduction to the linguistics of Base R and the R Studio environment</li>
+<li><b>Base R II</b>: Querying objects in Base R</li>
+<li><b>Writing functions</b>: Writing custom functions for repeated tasks</li>
+<li><b>The dreaded <i>for loop</i></b>: Writing <i>for loops</i> and confronting myths on their implementation</li>
+<li><b>Introduction to the tidyverse: A primer on tidy data</b>: Learning the principles of tidy data and using tidyverse functions to reshape and join data</li>
+<li><b>Manipulating and summarizing data in the tidyverse</b>: Learning how to use tidyverse functions for data manipulation and summarizing</li>
+<li><b>This <i>is</i> a pipe</b>: Using pipes to streamline and communicate your code</li>
+<li><b>Data queries in the tidyverse</b>: Using dplyr to subset data</li>
+<li><b>Visualizing data</b>: Using ggplot to plot data</li>
+<li><b>Putting it all together</b>: Developing a data science workflow</li>
+</ol>
+<hr>
+<h2>Course details</h2>
+<ul>
+  <li><b>Target audience</b>: Anyone who currently works with data or hopes to in the future</li>
+  <li><b>Where</b>: The Science Building conference room. A teleconference link will be provided to off-site participants.</li>
+  <li><b>When</b>: Every Wednesday at 3 pm from January 17 - March 21, 2018. Each lesson will last roughly one hour.</li>
+  <li><b>Preparation</b>: Please bring your own laptop to each class. Please visit this link prior to attending your first lesson.</li>
+</ul>
+<p>
+If you are interested in attending this workshop, please apply at 
+  <a 
+    href="https://www.youtube.com/watch?v=Y9fNRXUoveg"
+    target="_blank">
+    <b>this link</b>
+  </a> 
+by January 10, 2018.
+</p>
+<hr>
+<p>
+<i><b>About the Instructor</b>: Brian is an avian ecologist and data scientist at the Smithsonian Migratory Bird Center. He received his Ph.D. in quantitative ecology from the University of North Carolina in 2015. He has been using R for roughly 10 years and has been teaching classes and workshops in R and data management since 2012.</i>
+</p>
+<hr>
+<p style="text-align:center;">
+<img src="smbcLogoSideways.jpg"
+ title="Migratory Bird Center logo"
+ alt = "Migratory Bird Center logo" 
+ width = "400px"
+ />
+</p>
+
